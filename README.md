@@ -2,30 +2,32 @@
 [![Travis-CI Build Status](https://travis-ci.org/rte-antares-rpackage/antaresViz.svg?branch=master)](https://travis-ci.org/rte-antares-rpackage/antaresViz)
 [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/rte-antares-rpackage/antaresViz?branch=master&svg=true)](https://ci.appveyor.com/project/rte-antares-rpackage/antaresViz)[![codecov](https://codecov.io/gh/rte-antares-rpackage/antaresViz/branch/develop/graph/badge.svg)](https://codecov.io/gh/rte-antares-rpackage/antaresViz)
 
-# The package antaresViz: visualize the results of an Antares simulation
+# The package antaresVizMedTSO : visualize the results of an Antares simulation for Med-TSO
 
-`antaresViz` is the package to visualize the results of your Antares simulations that you have imported in the R session with package `antaresRead`. It provides some functions that generate interactive visualisations. Moreover, by default, these functions launch a shiny widget that provides some controls to dynamically choose what data is displayed in the graphics.
+`antaresVizMedTSO` is the package to visualize the results of your Antares simulations that you have imported in the R session with package `antaresRead`. It provides some functions that generate interactive visualisations. Moreover, by default, these functions launch a shiny widget that provides some controls to dynamically choose what data is displayed in the graphics.
 
 ## Installation
 
-This package has been published on CRAN, so you can install it easily:
+Needed for moment specific ``spMaps`` package version : 
+
 ```r
-install.packages("antaresViz")
+install_github("rte-antares-rpackage/spMaps", ref = "med-tso")
 ```
 
-To install the last development version:
+To install the master version:
+
 ```r
-devtools::install_github("rte-antares-rpackage/antaresViz", ref ="develop")
+devtools::install_github("rte-antares-rpackage/antaresVizMedTSO", ref ="master")
 ```
 
 To display the help of the package and see all the functions it provides, type:
 ```r 
-help(package="antaresViz")
+help(package="antaresVizMedTSO")
 ```
 
 ## Basic plots
 
-`antaresViz` provides a plot method for tables generated with `antaresRead`. This method is for visualizing a single variable in different formats (times series, barplot, monotone, distribution and cumulative distribution). For instance, the following code displays the distribution of marginal price in different areas.
+`antaresVizMedTSO` provides a plot method for tables generated with `antaresRead`. This method is for visualizing a single variable in different formats (times series, barplot, monotone, distribution and cumulative distribution). For instance, the following code displays the distribution of marginal price in different areas.
 
 ```
 mydata <- readAntares(areas = "all")
