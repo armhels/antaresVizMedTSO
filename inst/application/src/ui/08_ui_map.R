@@ -5,7 +5,7 @@ tabPanel(textOutput("label_tab_map_menu"),
                                 column(12,
                                        conditionalPanel(condition = "output.have_data",
                                                         conditionalPanel(condition = "output.have_data_links || output.have_data_areas",
-                                                                         antaresViz:::changeCoordsUI("ml")
+                                                                         antaresVizMedTSO:::changeCoordsUI("ml")
                                                         ),
                                                         conditionalPanel(condition = "output.have_data_links === false && output.have_data_areas === false",
                                                                          h3(textOutput("no_data_4"))

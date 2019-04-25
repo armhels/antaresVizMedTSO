@@ -1,4 +1,4 @@
 library(testthat)
-library(antaresViz)
+library(antaresVizMedTSO)
 
-test_check("antaresViz")
+test_check("antaresVizMedTSO")

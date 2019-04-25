@@ -20,9 +20,9 @@ observeEvent(
 output$directory_message <- renderText({
   if(length(input$directory) > 0){
     if(input$directory == 0){
-      antaresViz:::.getLabelLanguage("Please first choose a folder with antares output", current_language$language)
+      antaresVizMedTSO:::.getLabelLanguage("Please first choose a folder with antares output", current_language$language)
     } else {
-      antaresViz:::.getLabelLanguage("No antares output found in directory", current_language$language)
+      antaresVizMedTSO:::.getLabelLanguage("No antares output found in directory", current_language$language)
     }
   }
 })
@@ -147,45 +147,45 @@ observe({
     isolate({
       # areas
       areas <- c("all", opts$areaList)
-      updateSelectInput(session, "read_areas", paste0(antaresViz:::.getLabelLanguage("Areas", current_language), " : "), 
+      updateSelectInput(session, "read_areas", paste0(antaresVizMedTSO:::.getLabelLanguage("Areas", current_language), " : "), 
                         choices = areas, selected = areas[1])
       
       # links
       links <- c("all", opts$linkList)
-      updateSelectInput(session, "read_links", paste0(antaresViz:::.getLabelLanguage("Links", current_language), " : "), 
+      updateSelectInput(session, "read_links", paste0(antaresVizMedTSO:::.getLabelLanguage("Links", current_language), " : "), 
                         choices = links, selected = links[1])
       
       # clusters
       clusters <- c("all", opts$areasWithClusters)
-      updateSelectInput(session, "read_clusters", paste0(antaresViz:::.getLabelLanguage("Clusters", current_language), " : "), 
+      updateSelectInput(session, "read_clusters", paste0(antaresVizMedTSO:::.getLabelLanguage("Clusters", current_language), " : "), 
                         choices = clusters, selected = clusters[1])
       
       # districts
       districts <- c("all", opts$districtList)
-      updateSelectInput(session, "read_districts", paste0(antaresViz:::.getLabelLanguage("Districts", current_language), " : "), 
+      updateSelectInput(session, "read_districts", paste0(antaresVizMedTSO:::.getLabelLanguage("Districts", current_language), " : "), 
                         choices = districts, selected = districts[1])
       
       # mcYears
       mcy <- c(opts$mcYears)
-      updateSelectInput(session, "read_mcYears", paste0(antaresViz:::.getLabelLanguage("mcYears", current_language), " : "), 
+      updateSelectInput(session, "read_mcYears", paste0(antaresVizMedTSO:::.getLabelLanguage("mcYears", current_language), " : "), 
                         choices = mcy, selected = mcy[1])
       
       # select
       slt <- unique(do.call("c", opts$variables))
-      updateSelectInput(session, "read_select", paste0(antaresViz:::.getLabelLanguage("Select", current_language), " : "), 
+      updateSelectInput(session, "read_select", paste0(antaresVizMedTSO:::.getLabelLanguage("Select", current_language), " : "), 
                         choices = slt, selected = NULL)
       
       # removeVirtualAreas
-      updateSelectInput(session, "rmva_storageFlexibility", paste0(antaresViz:::.getLabelLanguage("storageFlexibility", current_language), " : "), 
+      updateSelectInput(session, "rmva_storageFlexibility", paste0(antaresVizMedTSO:::.getLabelLanguage("storageFlexibility", current_language), " : "), 
                         choices = opts$areaList, selected = NULL)
-      updateSelectInput(session, "rmva_production", paste0(antaresViz:::.getLabelLanguage("production", current_language), " : "),
+      updateSelectInput(session, "rmva_production", paste0(antaresVizMedTSO:::.getLabelLanguage("production", current_language), " : "),
                         choices = opts$areaList, selected = NULL)
       
       
       # removeVirtualAreas
-      updateSelectInput(session, "rmva_storageFlexibility_h5", paste0(antaresViz:::.getLabelLanguage("storageFlexibility", current_language), " : "), 
+      updateSelectInput(session, "rmva_storageFlexibility_h5", paste0(antaresVizMedTSO:::.getLabelLanguage("storageFlexibility", current_language), " : "), 
                         choices = opts$areaList, selected = NULL)
-      updateSelectInput(session, "rmva_production_h5", paste0(antaresViz:::.getLabelLanguage("production", current_language), " : "), 
+      updateSelectInput(session, "rmva_production_h5", paste0(antaresVizMedTSO:::.getLabelLanguage("production", current_language), " : "), 
                         choices = opts$areaList, selected = NULL)
       
       
@@ -199,10 +199,10 @@ observe({
   isolate({
     if(!is.null(RL)) {
       if(length(RL) == 0) {
-        updateCheckboxInput(session, "read_linkCapacity", antaresViz:::.getLabelLanguage("linkCapacity", current_language), FALSE)
+        updateCheckboxInput(session, "read_linkCapacity", antaresVizMedTSO:::.getLabelLanguage("linkCapacity", current_language), FALSE)
       }
     } else {
-      updateCheckboxInput(session, "read_linkCapacity", antaresViz:::.getLabelLanguage("linkCapacity", current_language), FALSE)
+      updateCheckboxInput(session, "read_linkCapacity", antaresVizMedTSO:::.getLabelLanguage("linkCapacity", current_language), FALSE)
     }
   })
   
@@ -216,15 +216,15 @@ observe({
     if(!is.null(RC)) {
       if(length(RC) == 0) {
         updateCheckboxInput(session, "read_thermalAvailabilities", 
-                            antaresViz:::.getLabelLanguage("thermalAvailabilities", current_language), FALSE)
+                            antaresVizMedTSO:::.getLabelLanguage("thermalAvailabilities", current_language), FALSE)
         updateCheckboxInput(session, "read_thermalModulation", 
-                            antaresViz:::.getLabelLanguage("thermalModulation", current_language), FALSE)
+                            antaresVizMedTSO:::.getLabelLanguage("thermalModulation", current_language), FALSE)
       }
     } else {
       updateCheckboxInput(session, "read_thermalAvailabilities", 
-                          antaresViz:::.getLabelLanguage("thermalAvailabilities", current_language), FALSE)
+                          antaresVizMedTSO:::.getLabelLanguage("thermalAvailabilities", current_language), FALSE)
       updateCheckboxInput(session, "read_thermalModulation", 
-                          antaresViz:::.getLabelLanguage("thermalModulation", current_language), FALSE)
+                          antaresVizMedTSO:::.getLabelLanguage("thermalModulation", current_language), FALSE)
     }
   })
   
@@ -239,18 +239,18 @@ observe({
           sel <- isolate({input$read_type_mcYears})
           choices <- c("synthetic")
           names(choices) <- sapply(choices, function(x){
-            antaresViz:::.getLabelLanguage(x, current_language)
+            antaresVizMedTSO:::.getLabelLanguage(x, current_language)
           })
-          updateRadioButtons(session, "read_type_mcYears", paste0(antaresViz:::.getLabelLanguage("mcYears selection", current_language), " : "),
+          updateRadioButtons(session, "read_type_mcYears", paste0(antaresVizMedTSO:::.getLabelLanguage("mcYears selection", current_language), " : "),
                              choices, selected = sel, inline = TRUE)
-          updateCheckboxInput(session, "read_hydroStorage", antaresViz:::.getLabelLanguage("hydroStorage", current_language), FALSE)
+          updateCheckboxInput(session, "read_hydroStorage", antaresVizMedTSO:::.getLabelLanguage("hydroStorage", current_language), FALSE)
         } else {
           sel <- isolate({input$read_type_mcYears})
           choices <- c("synthetic", "all", "custom")
           names(choices) <- sapply(choices, function(x){
-            antaresViz:::.getLabelLanguage(x, current_language)
+            antaresVizMedTSO:::.getLabelLanguage(x, current_language)
           })
-          updateRadioButtons(session, "read_type_mcYears", paste0(antaresViz:::.getLabelLanguage("mcYears selection", current_language), " : "),
+          updateRadioButtons(session, "read_type_mcYears", paste0(antaresVizMedTSO:::.getLabelLanguage("mcYears selection", current_language), " : "),
                              choices, selected = sel, inline = TRUE)
         }
     })

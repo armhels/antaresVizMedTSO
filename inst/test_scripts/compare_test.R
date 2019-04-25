@@ -1,5 +1,5 @@
 require(antaresRead)
-require(antaresViz)
+require(antaresVizMedTSO)
 
 # classic study
 setSimulationPath("C:\\Users\\Datastorm\\Desktop\\test_case_init", 1)

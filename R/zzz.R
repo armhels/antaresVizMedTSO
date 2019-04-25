@@ -48,7 +48,7 @@ pkgEnv <- antaresRead:::pkgEnv
 #
 # The definition of the variables used in aliases is stored in file 
 # "GraphicalCharter.csv"
-graphicalCharter <- fread(input = system.file("GraphicalCharter.csv", package = "antaresViz"))
+graphicalCharter <- fread(input = system.file("GraphicalCharter.csv", package = "antaresVizMedTSO"))
 
 formulas <- lapply(graphicalCharter$formula, function(s) parse(text = s))
 names(formulas) <- graphicalCharter$name
@@ -127,7 +127,7 @@ antaresVizSizeGraphError_fr = "Trop de donn\u00e9es,veuillez r\u00e9duire votre 
 Il est \u00e9galement possible d'utiliser la fonction 'limitSizeGraph' en R ou l'onglet 'Memory Controls' dans shiny (si pr\u00e9sent) pour changer la limite."
 
 # language for labels
-language_labels <- fread(input = system.file("language_labels.csv", package = "antaresViz"), encoding = "UTF-8")
+language_labels <- fread(input = system.file("language_labels.csv", package = "antaresVizMedTSO"), encoding = "UTF-8")
 
 availableLanguages_labels <- colnames(language_labels)
 
@@ -147,7 +147,7 @@ availableLanguages_labels <- colnames(language_labels)
 }
 
 # language for columns
-language_columns <- fread(input = system.file("language_columns.csv", package = "antaresViz"), encoding = "UTF-8")
+language_columns <- fread(input = system.file("language_columns.csv", package = "antaresVizMedTSO"), encoding = "UTF-8")
 
 language_columns$en <- as.character(language_columns$en)
 
@@ -179,7 +179,7 @@ language_columns[, tmp_row := NULL]
 }
 
 # map color
-colorsVars <- fread(input = system.file("color.csv", package = "antaresViz"))
+colorsVars <- fread(input = system.file("color.csv", package = "antaresVizMedTSO"))
 colorsVars <- unique(colorsVars, by = "Column")
 colorsVars$colors <- rgb(colorsVars$red, colorsVars$green, colorsVars$blue, maxColorValue = 255)
 

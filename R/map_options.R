@@ -48,7 +48,7 @@
 #' 
 #' # Example : Change color for area variables 
 #' 
-#' library(antaresViz)
+#' library(antaresVizMedTSO)
 #' 
 #' studyPath <- "path/to/study"
 #' setSimulationPath(path = studyPath, simulation = -1)

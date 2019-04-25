@@ -25,7 +25,7 @@ leafletDragPoints <- function(geopoints, map = NULL, width = NULL, height = NULL
   list_dep[[2]] <- htmltools::htmlDependency(
     name = "Leaflet.AwesomeMarkers",
     version = "2.0.1",
-    src = c(file=system.file("htmlwidgets/lib/Leaflet.awesome-markers", package="antaresViz")),
+    src = c(file=system.file("htmlwidgets/lib/Leaflet.awesome-markers", package="antaresVizMedTSO")),
     script  = "leaflet.awesome-markers.min.js",
     stylesheet = "leaflet.awesome-markers.css"
   )
@@ -36,7 +36,7 @@ leafletDragPoints <- function(geopoints, map = NULL, width = NULL, height = NULL
     x,
     width = width,
     height = height,
-    package = 'antaresViz',
+    package = 'antaresVizMedTSO',
     sizingPolicy = htmlwidgets::sizingPolicy(
       browser.fill = TRUE
     ), 
@@ -62,7 +62,7 @@ leafletDragPoints <- function(geopoints, map = NULL, width = NULL, height = NULL
 #'
 #' @export
 leafletDragPointsOutput <- function(outputId, width = '100%', height = '400px'){
-  htmlwidgets::shinyWidgetOutput(outputId, 'leafletDragPoints', width, height, package = 'antaresViz')
+  htmlwidgets::shinyWidgetOutput(outputId, 'leafletDragPoints', width, height, package = 'antaresVizMedTSO')
 }
 
 #' @rdname placeGeoPoints-shiny

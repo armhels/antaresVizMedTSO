@@ -1,6 +1,6 @@
 library(shiny)
 library(manipulateWidget)
-library(antaresViz)
+library(antaresVizMedTSO)
 library(pryr)
 
 ui <- fluidPage(

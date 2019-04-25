@@ -27,7 +27,7 @@ map_language <- reactive({
   current_language$language
 })
 
-ml_builder <- callModule(antaresViz:::changeCoordsServer, "ml", layout, 
+ml_builder <- callModule(antaresVizMedTSO:::changeCoordsServer, "ml", layout, 
                          what = reactive("areas"), language = map_language, stopApp = FALSE)
 
 observe({

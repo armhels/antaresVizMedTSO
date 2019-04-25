@@ -6,7 +6,7 @@ describe("plotMap, no interactive", {
   testClass <- function(obj){
     class(obj)[1] == 'combineWidgets'
   }
-  load(system.file("mapLayout/ml.rda", package = "antaresViz"))
+  load(system.file("mapLayout/ml.rda", package = "antaresVizMedTSO"))
   
   listArgs <- list(noarg = list(x = dta, interactive = FALSE, mapLayout = ml),
                    colorLinks = list(x = dta, interactive = FALSE, mapLayout = ml, colLinkVar = "FLOW LIN."),
@@ -26,7 +26,7 @@ describe("plotMap, no interactive", {
 describe("plotMap, no interactive return error", {
   
   dta <- readAntares(areas = "all", links = "all", showProgress = FALSE)
-  load(system.file("mapLayout/ml.rda", package = "antaresViz"))
+  load(system.file("mapLayout/ml.rda", package = "antaresVizMedTSO"))
   
   expect_error(plotMap(x = dta, mapLayout = ml , interactive = FALSE, compare = "areas"))
   
@@ -35,7 +35,7 @@ describe("plotMap, no interactive return error", {
 
 describe("plotMap, interactive", {
   dta <- readAntares(areas = "all", links = "all", showProgress = FALSE)
-  load(system.file("mapLayout/ml.rda", package = "antaresViz"))
+  load(system.file("mapLayout/ml.rda", package = "antaresVizMedTSO"))
   VV <- plotMap(x = dta, mapLayout = ml, .runApp = FALSE, interactive = TRUE)
   VV$init()
   expect_true("MWController" %in% class(VV))
@@ -43,7 +43,7 @@ describe("plotMap, interactive", {
 
 describe("plotMap, no interactive, x and refStudy are antaresDataList", {
   dta <- readAntares(areas = "all", links = "all", showProgress = FALSE)
-  load(system.file("mapLayout/ml.rda", package = "antaresViz"))
+  load(system.file("mapLayout/ml.rda", package = "antaresVizMedTSO"))
   resPlotMap <- plotMap(x = dta, 
                         mapLayout = ml, 
                         interactive = FALSE,
@@ -88,7 +88,7 @@ describe("plotMap, no interactive, x and refStudy are antaresDataList", {
 describe("plotMap, no interactive, x is a list of antaresDataList and refStudy an antaresDataList", {
   data1 <- readAntares(areas = "all", links = "all", showProgress = FALSE)
   dataList <- list(data1, data1, data1)
-  load(system.file("mapLayout/ml.rda", package = "antaresViz"))
+  load(system.file("mapLayout/ml.rda", package = "antaresVizMedTSO"))
   resPlotMap <- plotMap(x = dataList, 
                         mapLayout = ml, 
                         interactive = FALSE,
@@ -138,7 +138,7 @@ describe("plotMap, no interactive, x is a list of antaresDataList and refStudy a
 
 describe("plotMap, interactive, x and refStudy are antaresDataList", {
   dta <- readAntares(areas = "all", links = "all", showProgress = FALSE)
-  load(system.file("mapLayout/ml.rda", package = "antaresViz"))
+  load(system.file("mapLayout/ml.rda", package = "antaresVizMedTSO"))
   #interactive
   resPlotMap <- plotMap(x = dta, 
                         mapLayout = ml, 
@@ -190,7 +190,7 @@ describe("plotMap, interactive, x and refStudy are antaresDataList", {
 describe("plotMap, interactive, x is a list of antaresDataList and refStudy an antaresDataList", {
   data1 <- readAntares(areas = "all", links = "all", showProgress = FALSE)
   dataList <- list(data1, data1, data1)
-  load(system.file("mapLayout/ml.rda", package = "antaresViz"))
+  load(system.file("mapLayout/ml.rda", package = "antaresVizMedTSO"))
   #interactive
   resPlotMap <- plotMap(x = dataList, 
                         mapLayout = ml, 
@@ -249,7 +249,7 @@ describe("plotMap, interactive, x and refStudy are optsH5", {
     suppressMessages(writeAntaresH5(pathtemp, opts = opts, overwrite = TRUE))
     optsH5 <- setSimulationPath(pathtemp)
     listOptsH5 <- list(optsH5, optsH5, optsH5)
-    load(system.file("mapLayout/ml.rda", package = "antaresViz"))
+    load(system.file("mapLayout/ml.rda", package = "antaresVizMedTSO"))
     #interactive
     resPlotMap <- plotMap(x = listOptsH5, 
                           mapLayout = ml, 

@@ -1,6 +1,6 @@
 require(shiny)
 require(antaresRead)
-require(antaresViz)
+require(antaresVizMedTSO)
 require(manipulateWidget)
 require(data.table)
 

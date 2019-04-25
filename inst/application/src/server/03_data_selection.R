@@ -15,25 +15,25 @@ output$info_list <- renderUI({
       check_list <- lapply(1:length(list_data), function(i) {
         check_name <- paste0("list_study_check", i)
         div(
-          checkboxInput(check_name, antaresViz:::.getLabelLanguage("Include study in analysis", current_language$language), value = TRUE), align = "center")
+          checkboxInput(check_name, antaresVizMedTSO:::.getLabelLanguage("Include study in analysis", current_language$language), value = TRUE), align = "center")
       })
       # reference selection
       ref_list <- lapply(1:length(list_data), function(i) {
         ref_name <- paste0("list_study_ref", i)
         div(
-          checkboxInput(ref_name, antaresViz:::.getLabelLanguage("Choose this study as a reference", current_language$language), value = FALSE), align = "center")
+          checkboxInput(ref_name, antaresVizMedTSO:::.getLabelLanguage("Choose this study as a reference", current_language$language), value = FALSE), align = "center")
       })
       # bouton pour afficher les parametres
       params_list <- lapply(1:length(list_data), function(i) {
         btn_name <- paste0("list_study_params", i)
         div(
-          actionButton(btn_name, antaresViz:::.getLabelLanguage("View parameters", current_language$language)), align = "center")
+          actionButton(btn_name, antaresVizMedTSO:::.getLabelLanguage("View parameters", current_language$language)), align = "center")
       })
       # bouton pour supprimer les donnees
       rm_list <- lapply(1:length(list_data), function(i) {
         btn_name <- paste0("list_study_rm", i)
         div(
-          actionButton(btn_name, antaresViz:::.getLabelLanguage("Remove study", current_language$language)), align = "center")
+          actionButton(btn_name, antaresVizMedTSO:::.getLabelLanguage("Remove study", current_language$language)), align = "center")
       })
       # format et retour
       fluidRow(
@@ -117,13 +117,13 @@ for(j in 1:16){
             if(k != l_j){
               #on ne peut avoir qu une etude de reference a la fois 
               updateCheckboxInput(session, paste0("list_study_ref", k), 
-                                  label = antaresViz:::.getLabelLanguage("Choose this study as a reference", 
+                                  label = antaresVizMedTSO:::.getLabelLanguage("Choose this study as a reference", 
                                                                          current_language$language),
                                   value = FALSE)
             }else{
               #si on prend une etude en reference, on la prend dans l analyse
               updateCheckboxInput(session, paste0("list_study_check", k), 
-                                  label = antaresViz:::.getLabelLanguage("Include study in analysis", 
+                                  label = antaresVizMedTSO:::.getLabelLanguage("Include study in analysis", 
                                                                          current_language$language),
                                   value = TRUE)
               
@@ -141,7 +141,7 @@ for(j in 1:16){
               }
               if (countCheck < 2){
                 
-                messageToPrint <- paste0(antaresViz:::.getLabelLanguage("To use a reference, select at least two studies, number of studies selected :", 
+                messageToPrint <- paste0(antaresVizMedTSO:::.getLabelLanguage("To use a reference, select at least two studies, number of studies selected :", 
                                                                         current_language$language),
                                          countCheck)
                 showModal(modalDialog(
@@ -151,7 +151,7 @@ for(j in 1:16){
                 ))
                 #we must have more that 2 studies to be able to choose a reference study
                 updateCheckboxInput(session, paste0("list_study_ref", k), 
-                                    label = antaresViz:::.getLabelLanguage("Choose this study as a reference", current_language$language),
+                                    label = antaresVizMedTSO:::.getLabelLanguage("Choose this study as a reference", current_language$language),
                                     value = FALSE)
               }
             }
@@ -165,7 +165,7 @@ for(j in 1:16){
       if (!is.null(input[[paste0("list_study_check", l_j)]])){
         if (input[[paste0("list_study_check", l_j)]] == FALSE  ){
           updateCheckboxInput(session, paste0("list_study_ref", l_j), 
-                              label = antaresViz:::.getLabelLanguage("Choose this study as a reference", current_language$language),
+                              label = antaresVizMedTSO:::.getLabelLanguage("Choose this study as a reference", current_language$language),
                               value = FALSE)
         }
       }
