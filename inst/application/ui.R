@@ -58,6 +58,8 @@ navbarPage(title = HTML('<p style="margin-top: 0.05cm;">&nbsp;&nbsp;&nbsp;&nbsp;
                     )
            ),
            
+           useShinydashboard(),
+           
            source("src/ui/05_ui_prodstack.R", local = T)$value,
            
            source("src/ui/06_ui_exchange.R", local = T)$value,

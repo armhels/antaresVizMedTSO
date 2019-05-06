@@ -10,6 +10,8 @@ function(input, output, session) {
   #----------------
   source("src/server/01_set_read_data.R", local = T)
   
+  source("src/server/01b_infoBox.R", local = T)
+  
   #----------------
   # shared parameters
   #----------------

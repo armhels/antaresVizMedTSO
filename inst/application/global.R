@@ -3,7 +3,8 @@ require(antaresRead)
 require(antaresVizMedTSO)
 require(manipulateWidget)
 require(data.table)
-
+require(shinydashboard)
+require(shinyWidgets)
 
 # choose a directory
 source("src/scripts/directoryInput.R")
