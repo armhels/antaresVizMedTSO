@@ -99,7 +99,8 @@ pkgEnv$prodStackAliases <- list(
     description = "thermal first",
     var = c("pumpedStorage", "import/export", "nuclear", "lignite", "coal", "gas",
             "oil", "mixFuel", "misc. DTG", "bioenergy", "wind", "solar", 
-            "hydraulicRor", "hydraulicStor")
+            "hydraulicRor", "hydraulicStor"),
+    lines = c("load", "totalProduction")
   ),
   
   netLoad = .getProdStackAlias(
