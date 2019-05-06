@@ -2,7 +2,7 @@ tabPanel(textOutput("label_tab_import_data"),
          h3(textOutput("title_import_data")),
          fluidRow(
            column(5, 
-                  directoryInput('directory', label = '', value = 'C:\\Users\\Datastorm\\Documents\\git\\bpNumerique2018\\inst\\application_bp\\data')
+                  directoryInput('directory', label = '', value = 'C:\\Users\\Datastorm\\Desktop\\Med-TSO\\Full MedTSO')
            ), 
            conditionalPanel(condition = "output.ctrl_is_antares_study | output.ctrl_is_antares_h5", 
                             column(1, 
@@ -26,6 +26,8 @@ tabPanel(textOutput("label_tab_import_data"),
          ), 
          
          conditionalPanel(condition = "output.have_study",
+                          source("./src/ui/01b_ui_infoBox.R")$value, 
+                          
                           fluidRow(
                             column(12,
                                    hr(), 
@@ -46,6 +48,7 @@ tabPanel(textOutput("label_tab_import_data"),
                                             selectInput("read_districts", "Districts :", choices = NULL, selected = NULL, multiple = TRUE)
                                      )
                                    ), 
+                                   uiOutput("ui_sel_file"),
                                    conditionalPanel(condition = "output.current_opts_h5 === false",
                                                     fluidRow(
                                                       column(3, 

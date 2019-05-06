@@ -193,6 +193,21 @@ observe({
   }
 })
 
+output$ui_sel_file <- renderUI({
+  current_language <- current_language$language
+  fluidRow(
+    column(6, 
+           div(fileInput("file_sel", antaresVizMedTSO:::.getLabelLanguage("Import a selection file (.xlsx)", current_language),
+                         accept = c("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")), align = "center")
+    ), 
+    column(6, 
+           div( br(),
+                tags$a(href = "readAntares_selection.xlsx", antaresVizMedTSO:::.getLabelLanguage("Download selection file template", current_language), class="btn btn-default"),
+                align = "center"
+           )
+    )
+  )
+})
 observe({
   RL <- input$read_links
   current_language <- current_language$language
@@ -255,4 +270,51 @@ observe({
         }
     })
   }
+})
+
+# sélection à partir d'un fichier
+observe({
+  file_sel <- input$file_sel
+  
+  isolate({
+    current_language <- current_language$language
+    if (!is.null(file_sel)){
+      withCallingHandlers({
+        list_sel <- tryCatch({ 
+          antaresVizMedTSO::readStudyShinySelection(file_sel$datapath)},
+          error = function(e){
+            showModal(modalDialog(
+              title = antaresVizMedTSO:::.getLabelLanguage("Error reading selection file", current_language),
+              easyClose = TRUE,
+              footer = NULL,
+              e
+            ))
+            NULL
+          })}, 
+        warning = function(w){
+          showModal(modalDialog(
+            title = antaresVizMedTSO:::.getLabelLanguage("Warning reading selection file", current_language),
+            easyClose = TRUE,
+            footer = NULL,
+            w
+          ))
+        })
+      
+      if(!is.null(list_sel)){
+        # areas
+        updateSelectInput(session, "read_areas", selected = list_sel$areas)
+        
+        # links
+        updateSelectInput(session, "read_links", selected = list_sel$links)
+        
+        # clusters
+        updateSelectInput(session, "read_clusters", selected = list_sel$clusters)
+        
+        # districts
+        updateSelectInput(session, "read_districts", selected = list_sel$districts)
+        
+      }
+    }
+  })
+ 
 })

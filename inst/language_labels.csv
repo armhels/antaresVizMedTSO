@@ -152,3 +152,7 @@ Drag the markers on the map to adjust coordinates then click the 'Done' button;A
 You can click on a marker to display information;Vous pouvez cliquer sur un marqueur pour afficher des informations
 Invalid Map Layout : wrongs nodes/links informations;Informations sur les positions invalides : tous les noeuds sont manquants
 To use a reference, select at least two studies, number of studies selected :;Pour utiliser une référence, sélectionnez au moins deux études, nombre d'études sélectionnées :
+Import a selection file (.xlsx);Importer un fichier de sélection (.xlsx)
+Download selection file template;Télécharger le modèle du fichier de sélection
+Error reading selection file;Erreur lors de la lecture du fichier de sélection
+Warning reading selection file;Warning lors de la lecture du fichier de sélection
