@@ -202,7 +202,9 @@ output$ui_sel_file <- renderUI({
     ), 
     column(6, 
            div( br(),
-                tags$a(href = "readAntares_selection.xlsx", antaresVizMedTSO:::.getLabelLanguage("Download selection file template", current_language), class="btn btn-default"),
+                tags$a(href = "readAntares_selection.xlsx", 
+                       antaresVizMedTSO:::.getLabelLanguage("Download selection file template", current_language), 
+                       class="btn btn-default", download = "readAntares_selection.xlsx"),
                 align = "center"
            )
     )
@@ -272,7 +274,8 @@ observe({
   }
 })
 
-# sélection à partir d'un fichier
+
+# sélection à partir d'un fichier -----
 observe({
   file_sel <- input$file_sel
   
@@ -313,6 +316,35 @@ observe({
         # districts
         updateSelectInput(session, "read_districts", selected = list_sel$districts)
         
+        updateCheckboxInput(session, "read_misc", value = list_sel$misc)
+        updateCheckboxInput(session, "read_reserve", value = list_sel$reserve)
+        updateCheckboxInput(session, "read_thermalAvailabilities", value = list_sel$thermalAvailability)
+        updateCheckboxInput(session, "read_linkCapacity", value = list_sel$linkCapacity)
+        updateCheckboxInput(session, "read_hydroStorage", value = list_sel$hydroStorage)
+        updateCheckboxInput(session, "read_mustRun", value = list_sel$mustRun)
+        updateCheckboxInput(session, "read_hydroStorageMaxPower", value = list_sel$hydroStorageMaxPower)
+        updateCheckboxInput(session, "read_thermalModulation", value = list_sel$thermalModulation)
+        
+        updateSelectInput(session, "read_timeStep", selected = list_sel$timeStep)
+      
+        updateSelectInput(session, "read_select", selected = list_sel$select)
+        
+        mcy <- list_sel$mcYears
+        if(!is.null(mcy)){
+          updateRadioButtons(session, "read_type_mcYears", selected = "custom")
+          updateSelectInput(session, "read_mcYears", selected = as.character(mcy))
+        } else {
+          updateRadioButtons(session, "read_type_mcYears", selected = "synthetic")
+          updateSelectInput(session, "read_mcYears", selected = NULL)
+        }
+        
+        updateCheckboxInput(session, "rmva_ctrl", value = list_sel$removeVirtualAreas)
+        updateCheckboxInput(session, "rmva_reassignCosts", value = list_sel$reassignCost)
+        updateCheckboxInput(session, "rmva_newCols", value = list_sel$newCols)
+        
+        updateSelectInput(session, "rmva_storageFlexibility", selected = list_sel$storageFlexibility)
+        updateSelectInput(session, "rmva_production", selected = list_sel$production)
+      
       }
     }
   })
