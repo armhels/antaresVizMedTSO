@@ -52,8 +52,8 @@ navbarPage(title = HTML('<p style="margin-top: 0.05cm;">&nbsp;&nbsp;&nbsp;&nbsp;
                       column(12,
                              tabsetPanel(id = "tab_data",
                                          source("src/ui/01_ui_import_data.R", local = T)$value,
-                                         source("src/ui/04_ui_analysis.R", local = T)$value
-                                         # source("src/ui/03_ui_export_data.R", local = T)$value
+                                         source("src/ui/04_ui_analysis.R", local = T)$value,
+                                         source("src/ui/03_ui_export_data.R", local = T)$value
                              )
                       )
                     )

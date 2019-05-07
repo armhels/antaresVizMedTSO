@@ -12,7 +12,7 @@ function(input, output, session) {
   
   source("src/server/01b_infoBox.R", local = T)
   
-  # source("src/server/09_export_data.R", local = T)
+  source("src/server/09_export_data.R", local = T)
   
   #----------------
   # shared parameters

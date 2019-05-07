@@ -5,9 +5,11 @@ require(manipulateWidget)
 require(data.table)
 require(shinydashboard)
 require(shinyWidgets)
+require(DT)
 
 # choose a directory
 source("src/scripts/directoryInput.R")
+source("src/scripts/subsetDataTable.R")
 
 # shared inputs
 .global_shared_prodStack <- data.frame(

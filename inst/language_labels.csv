@@ -156,3 +156,11 @@ Import a selection file (.xlsx);Importer un fichier de sélection (.xlsx)
 Download selection file template;Télécharger le modèle du fichier de sélection
 Error reading selection file;Erreur lors de la lecture du fichier de sélection
 Warning reading selection file;Warning lors de la lecture du fichier de sélection
+Select this study;Sélectionner cette étude
+Export all tables (without filters);Exporter toutes les tables (sans filtres)
+Export all tables (with filters);Exporter toutes les tables (avec filtres)
+Export this table;Exporter cette table
+Size;Taille
+N. Rows;Nb. Lignes
+N. Cols;Nb. Colonnes
+First 10 rows;10 premières lignes

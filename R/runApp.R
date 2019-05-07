@@ -5,7 +5,7 @@
 #' @return 
 #' an App Shiny. 
 #' 
-#' @import shiny shinydashboard shinyWidgets
+#' @import shiny shinydashboard shinyWidgets DT
 #' @export
 runAppAntaresViz <- function() {
   ctrl <- shiny::runApp(system.file("application", package = "antaresVizMedTSO") , launch.browser = TRUE)

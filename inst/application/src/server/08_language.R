@@ -62,6 +62,10 @@ output$title_import_data <- renderText({
   paste0(antaresVizMedTSO:::.getLabelLanguage("Antares study selection", current_language$language), " : ")
 })
 
+output$title_import_data_2 <- renderText({
+  paste0(antaresVizMedTSO:::.getLabelLanguage("Antares study selection", current_language$language), " : ")
+})
+
 observe({
   # button
   updateActionButton(session, "init_sim", label = antaresVizMedTSO:::.getLabelLanguage("Set simulation", current_language$language))
@@ -136,7 +140,10 @@ output$title_analysis <- renderText({
 
 output$title_studies <- renderText({
   paste0(antaresVizMedTSO:::.getLabelLanguage("Studies", current_language$language), " : ")
-  
+})
+
+output$title_studies_2 <- renderText({
+  paste0(antaresVizMedTSO:::.getLabelLanguage("Studies", current_language$language), " : ")
 })
 
 output$title_compare <- renderText({
@@ -201,6 +208,10 @@ output$no_data_6 <- renderText({
 })
 
 output$no_data_7 <- renderText({
+  antaresVizMedTSO:::.getLabelLanguage("No data imported", current_language$language)
+})
+
+output$no_data_8 <- renderText({
   antaresVizMedTSO:::.getLabelLanguage("No data imported", current_language$language)
 })
 
