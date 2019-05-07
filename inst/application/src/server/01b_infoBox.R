@@ -64,7 +64,7 @@ output$areas_nb <- renderInfoBox({
     if(!is.null(opts)) {
       value <- length(opts$areaList)
       couleur <- ifelse(value > 0, "green", "orange")
-      infoBox(title = "Number of areas", value = value, icon = icon("map-marker"), color = couleur, fill = F)
+      infoBox(title = "Number of areas", value = value, icon = icon("map-pin"), color = couleur, fill = F)
     } else {
       infoBox(" ", color = "green")
     }

@@ -10,7 +10,7 @@ navbarPage(title = HTML('<p style="margin-top: 0.05cm;">&nbsp;&nbsp;&nbsp;&nbsp;
              singleton(tags$script(src = 'events.js')), 
              singleton(tags$script(src = 'is.min.js')),
              # footer
-             div(class = "rte_footer", div(actionLink("quit", "Quit application", icon = icon("sign-out"), style = "color:white"), align = "center")),
+             div(class = "rte_footer", div(actionLink("quit", "Quit application", icon = icon("close"), style = "color:white"), align = "center")),
              # flag : https://www.countries-ofthe-world.com/flags-of-the-world.html
              img(src = "img/flag-of-France.png", 
                  title = "Attention : en cas de changement de langue, les modules de visualisation seront ré-initialisés", 
@@ -53,6 +53,7 @@ navbarPage(title = HTML('<p style="margin-top: 0.05cm;">&nbsp;&nbsp;&nbsp;&nbsp;
                              tabsetPanel(id = "tab_data",
                                          source("src/ui/01_ui_import_data.R", local = T)$value,
                                          source("src/ui/04_ui_analysis.R", local = T)$value
+                                         # source("src/ui/03_ui_export_data.R", local = T)$value
                              )
                       )
                     )

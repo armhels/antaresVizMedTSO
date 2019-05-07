@@ -3,14 +3,16 @@ function(input, output, session) {
   #----------------
   # Write h5
   #----------------
-  source("src/server/07_write_h5.R", local = T)
+  # source("src/server/07_write_h5.R", local = T)
   
   #----------------
-  # set / read data
+  # set / read / export data
   #----------------
   source("src/server/01_set_read_data.R", local = T)
   
   source("src/server/01b_infoBox.R", local = T)
+  
+  # source("src/server/09_export_data.R", local = T)
   
   #----------------
   # shared parameters
