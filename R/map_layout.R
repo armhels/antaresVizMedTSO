@@ -611,14 +611,18 @@ plot.mapLayout <- function(x, colAreas =  x$coords$color, dataAreas = 1,
     
     areaChartType <- match.arg(areaChartType)
     
+    coords <- x$coords
+    if("draw" %in% colnames(x$coords)){
+      coords <- coords[coords$draw, ]
+    }
     # fix bug if set map wihout any intersection with areas...!
-    map <- tryCatch(addMinicharts(map, lng = x$coords$x, lat = x$coords$y, 
+    map <- tryCatch(addMinicharts(map, lng = coords$x, lat = coords$y, 
                                   chartdata = dataAreas, fillColor = colAreas,
                                   showLabels = !is.null(labelArea),
                                   labelText = labelArea,
                                   width = areaMaxSize,
                                   height = areaMaxHeight,
-                                  layerId = x$coords$area, 
+                                  layerId = coords$area, 
                                   opacity = opacityArea,
                                   labelMinSize = labelMinSize,
                                   labelMaxSize = labelMaxSize), error = function(e) map)

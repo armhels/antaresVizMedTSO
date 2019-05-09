@@ -310,19 +310,40 @@ plotMap <- function(x,
       }
     }
     
-    # Keep only links and areas present in the data
+    # # Keep only links and areas present in the data
+    # if (areas) {
+    #   areaList <- unique(x$areas$area)
+    #   mapLayout$coords <- mapLayout$coords[area %in% areaList]
+    #   if(!is.null(mapLayout$map)){
+    #     mapLayout$map <- mapLayout$map[match(mapLayout$coords$geoAreaId, mapLayout$map$geoAreaId), ]
+    #   }
+    # }
+    
+    # Keep all poygones areas
     if (areas) {
       areaList <- unique(x$areas$area)
-      mapLayout$coords <- mapLayout$coords[area %in% areaList]
-      if(!is.null(mapLayout$map)){
-        mapLayout$map <- mapLayout$map[match(mapLayout$coords$geoAreaId, mapLayout$map$geoAreaId), ]
-      }
+      mapLayout$coords$draw = FALSE
+      mapLayout$coords$draw[mapLayout$coords$area %in% areaList] <- TRUE
     }
+    
+    # keep only links linked to one area at least
+    if (links & areas) {
+      linkList <- unique(x$links$link)
+      areaList <- unique(x$areas$area)
+      
+      reg_ex_begin <- paste(paste0("^(", areaList, ")"), collapse = "|")
+      reg_ex_end <- paste(paste0("(", areaList, ")$"), collapse = "|")
+      keep_link <- grepl(reg_ex_begin, linkList) | grepl(reg_ex_end, linkList)
+      linkList <- linkList[keep_link]
+      
+      x$links <- x$links[link %in% linkList]
+    }
+    
     if (links) {
       linkList <- unique(x$links$link)
       mapLayout$links <- mapLayout$links[link %in% linkList]
     }
-    
+
     # Precompute synthetic results and set keys for fast filtering
     syntx <- synthesize(x) 
     
