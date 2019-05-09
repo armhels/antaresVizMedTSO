@@ -10,10 +10,8 @@
 #' @importFrom DT renderDT DTOutput
 #' @export
 runAppAntaresViz <- function() {
-  ctrl <- suppressWarnings({
-    suppressMessage({
+  ctrl <- suppressPackageStartupMessages({
       shiny::runApp(system.file("application", package = "antaresVizMedTSO") , launch.browser = TRUE)
-    })
   })
   suppressWarnings(try(rm(list = c("directoryInput", "readDirectoryInput", 
                                    "updateDirectoryInput"), envir = .GlobalEnv), silent = TRUE))
