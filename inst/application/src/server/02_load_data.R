@@ -92,6 +92,16 @@ observe({
               parallel = input$read_parallel
             )
             
+            if("antaresDataList" %in% class(data)){
+              ind_rm <- names(data)[which(sapply(data, function(x) nrow(x) == 0))]
+              if(length(ind_rm) > 0){
+                for(i in ind_rm){
+                  data[[i]] <- NULL
+                }
+              }
+            }
+            
+ 
             n_list <- length(list_data_all$antaresDataList) + 1
             list_data_all$antaresDataList[[n_list]] <- data
             

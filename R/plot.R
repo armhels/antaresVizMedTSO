@@ -280,6 +280,9 @@ tsPlot <- function(x,
     x <- as.antaresDataList(x)
     
     lapply(x, function(x) {
+      
+      x <- copy(x)
+      
       idCols <- .idCols(x)
       
       if(language != "en"){
@@ -612,10 +615,12 @@ tsPlot <- function(x,
     value = {
       if(.initial) table
       else NULL
-    }, .display = length(as.character(.compareOperation(
-      lapply(params$x, function(vv){
-        unique(names(vv))
-      }), xyCompare))) > 1 & !"table" %in% hidden, 
+    }, 
+    # .display = length(as.character(.compareOperation(
+    #   lapply(params$x, function(vv){
+    #     unique(names(vv))
+    #   }), xyCompare))) > 1 & !"table" %in% hidden,
+    .display = TRUE,
     label = .getLabelLanguage("table", language)
   ),
   
