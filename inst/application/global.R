@@ -1,11 +1,18 @@
-require(shiny)
-require(antaresRead)
-require(antaresVizMedTSO)
-require(manipulateWidget)
-require(data.table)
-require(shinydashboard)
-require(shinyWidgets)
-require(DT)
+suppressWarnings({
+  suppressMessages({
+    suppressPackageStartupMessages({
+      require(shiny)
+      require(antaresRead)
+      require(antaresVizMedTSO)
+      require(manipulateWidget)
+      require(data.table)
+      require(shinydashboard)
+      require(shinyWidgets)
+      require(DT)
+    })
+  })
+})
+
 
 # choose a directory
 source("src/scripts/directoryInput.R")
@@ -57,16 +64,16 @@ source("src/scripts/subsetDataTable.R")
 #-----------
 
 .global_compare_prodstack <- c("mcYear", "main", "unit", "areas", "legend", 
-                       "stack", "stepPlot", "drawPoints")
+                               "stack", "stepPlot", "drawPoints")
 
 .global_compare_exchangesStack <- c("mcYear", "main", "unit", "area",
-                            "legend", "stepPlot", "drawPoints")
+                                    "legend", "stepPlot", "drawPoints")
 
 .global_compare_tsPlot <- c("mcYear", "main", "variable", "type", "confInt", "elements", 
-                    "aggregate", "legend", "highlight", "stepPlot", "drawPoints", "secondAxis")
+                            "aggregate", "legend", "highlight", "stepPlot", "drawPoints", "secondAxis")
 
 .global_compare_plotMap <- c("mcYear", "type", "colAreaVar", "sizeAreaVars", "areaChartType", "showLabels",
-  "popupAreaVars", "labelAreaVar","colLinkVar", "sizeLinkVar", "popupLinkVars")
+                             "popupAreaVars", "labelAreaVar","colLinkVar", "sizeLinkVar", "popupLinkVars")
 
 
 #----- generate help for antaresRead function
