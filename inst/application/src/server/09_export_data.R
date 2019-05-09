@@ -27,7 +27,7 @@ output$info_list_data_export <- renderUI({
 
       # format et retour
       fluidRow(
-        column(3, do.call(tagList, study)),
+        column(4, do.call(tagList, study)),
         column(2, do.call(tagList, params_list)),
         column(2, do.call(tagList, check_list), offset = 0)
       )
@@ -109,6 +109,7 @@ for(j in 1:16){
               } else {
                 list_data <- list_data_all$antaresDataList
                 data <- list_data[[k]]
+                # dddttt <<- data
                 if("list" %in% class(data)){
                   if(length(data) > 0) {
                     ctrl <- sapply(1:length(data), FUN = function(i){
@@ -179,7 +180,7 @@ output$panels_tab <- renderUI({
                      ),
                      tags$hr(),
                      div(h3(antaresVizMedTSO:::.getLabelLanguage("First 10 rows", current_language$language)), align = "center"),
-                     dataTableOutput("dt1")
+                     DTOutput("dt1")
             )
           )
         } else {
@@ -201,7 +202,7 @@ output$panels_tab <- renderUI({
                      ),
                      tags$hr(),
                      div(h3(antaresVizMedTSO:::.getLabelLanguage("First 10 rows", current_language$language)), align = "center"),
-                     dataTableOutput("dt1")
+                     DTOutput("dt1")
             )
           )
         }
@@ -230,7 +231,7 @@ output$panels_tab <- renderUI({
                                          ),
                                          tags$hr(),
                                          div(h3(antaresVizMedTSO:::.getLabelLanguage("First 10 rows", current_language$language)), align = "center"),
-                                         dataTableOutput(paste0("dt", nb))
+                                         DTOutput(paste0("dt", nb))
             )
           } else {
             liste_tab[[nb]] <<- tabPanel(title = panel_name,
@@ -250,7 +251,7 @@ output$panels_tab <- renderUI({
                                          ),
                                          tags$hr(),
                                          div(h3(antaresVizMedTSO:::.getLabelLanguage("First 10 rows", current_language$language)), align = "center"),
-                                         dataTableOutput(paste0("dt", nb))
+                                         DTOutput(paste0("dt", nb))
             )
           }
         })
@@ -365,7 +366,7 @@ choix_lig1_2 <- reactive({
   imported_data <- imported_data()
   lig1 <- input$lig1
   isolate({
-    if(!is.null(lig1)) {
+    if(!is.null(lig1) && length(imported_data) > 1) {
       nb_panels <- ifelse("list" %in% class(imported_data), length(imported_data), 1)
       if(nb_panels > 1) {
         panel_name = names(imported_data)[1]
@@ -414,7 +415,7 @@ choix_lig2_2 <- reactive({
   imported_data <- imported_data()
   lig2 <- input$lig2
   isolate({
-    if(!is.null(lig2) & length(imported_data) > 1) {
+    if(!is.null(lig2) && length(imported_data) > 1) {
       nb_panels <- ifelse("list" %in% class(imported_data), length(imported_data), 1)
       if(nb_panels > 1) {
         panel_name = names(imported_data)[2]
@@ -575,7 +576,7 @@ data_dt1 <- reactive({
   }
 })
 
-output$dt1 <- renderDataTable({
+output$dt1 <- renderDT({
   datatable(head(data_dt1(), 10), rownames = FALSE,
             options = list(dom = 't', scrollX = TRUE))
 })
@@ -610,7 +611,7 @@ data_dt2 <- reactive({
   }
 })
 
-output$dt2 <- renderDataTable({
+output$dt2 <- renderDT({
   datatable(head(data_dt2(), 10), rownames = FALSE,
             options = list(dom = 't', scrollX = TRUE))
 })
@@ -645,7 +646,7 @@ data_dt3 <- reactive({
   }
 })
 
-output$dt3 <- renderDataTable({
+output$dt3 <- renderDT({
   datatable(head(data_dt3(), 10), rownames = FALSE,
             options = list(dom = 't', scrollX = TRUE))
 })
@@ -680,7 +681,7 @@ data_dt4 <- reactive({
   }
 })
 
-output$dt4 <- renderDataTable({
+output$dt4 <- renderDT({
   datatable(head(data_dt4(), 10), rownames = FALSE,
             options = list(dom = 't', scrollX = TRUE))
 })
