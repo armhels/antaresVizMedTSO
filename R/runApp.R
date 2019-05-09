@@ -5,10 +5,16 @@
 #' @return 
 #' an App Shiny. 
 #' 
-#' @import shiny shinydashboard shinyWidgets DT
+#' @import shiny shinydashboard
+#' @importFrom shinyWidgets useShinydashboard
+#' @importFrom DT renderDT DTOutput
 #' @export
 runAppAntaresViz <- function() {
-  ctrl <- shiny::runApp(system.file("application", package = "antaresVizMedTSO") , launch.browser = TRUE)
+  ctrl <- suppressWarnings({
+    suppressMessage({
+      shiny::runApp(system.file("application", package = "antaresVizMedTSO") , launch.browser = TRUE)
+    })
+  })
   suppressWarnings(try(rm(list = c("directoryInput", "readDirectoryInput", 
                                    "updateDirectoryInput"), envir = .GlobalEnv), silent = TRUE))
   gc(reset = TRUE)
