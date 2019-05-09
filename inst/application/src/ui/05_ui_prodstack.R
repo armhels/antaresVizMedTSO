@@ -3,6 +3,7 @@ tabPanel("Production",
            column(12,
                   conditionalPanel(condition = "output.have_data",
                                    conditionalPanel(condition = "output.have_data_areas",
+                                                    br(), br(),
                                                     uiOutput("prodStack_ui")
                                    ),
                                    conditionalPanel(condition = "output.have_data_areas === false",

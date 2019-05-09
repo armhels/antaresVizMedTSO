@@ -3,6 +3,7 @@ tabPanel(textOutput("label_tab_exchanges"),
            column(12,
                   conditionalPanel(condition = "output.have_data",
                                    conditionalPanel(condition = "output.have_data_links",
+                                                    br(), br(),
                                                     uiOutput("exchangesStack_ui")
                                    ),
                                    conditionalPanel(condition = "output.have_data_links === false",
