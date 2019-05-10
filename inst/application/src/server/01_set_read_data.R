@@ -28,7 +28,7 @@ output$directory_message <- renderText({
 })
 
 # list files in directory
-dir_files <- reactive({a
+dir_files <- reactive({
   path <- readDirectoryInput(session, 'directory')
   if(!is.null(path)){
     files = list.files(path, full.names = T)
@@ -195,16 +195,25 @@ observe({
 
 output$ui_sel_file <- renderUI({
   current_language <- current_language$language
+  input$init_sim # clear if change simulation
   fluidRow(
-    column(6, 
+    column(4, 
            div(fileInput("file_sel", antaresVizMedTSO:::.getLabelLanguage("Import a selection file (.xlsx)", current_language),
                          accept = c("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")), align = "center")
     ), 
-    column(6, 
+    column(4, 
            div( br(),
                 tags$a(href = "readAntares_selection.xlsx", 
                        antaresVizMedTSO:::.getLabelLanguage("Download selection file template", current_language), 
                        class="btn btn-default", download = "readAntares_selection.xlsx"),
+                align = "center"
+           )
+    ), 
+    column(4, 
+           div( br(),
+                downloadButton("get_sel_file",
+                               antaresVizMedTSO:::.getLabelLanguage("Generate current selection file", current_language), 
+                               class = NULL),
                 align = "center"
            )
     )
@@ -252,24 +261,24 @@ observe({
   opts <- opts()
   if(!is.null(current_language) & !is.null(opts)) {
     isolate({
-        if(!opts$parameters$general$`year-by-year`){
-          sel <- isolate({input$read_type_mcYears})
-          choices <- c("synthetic")
-          names(choices) <- sapply(choices, function(x){
-            antaresVizMedTSO:::.getLabelLanguage(x, current_language)
-          })
-          updateRadioButtons(session, "read_type_mcYears", paste0(antaresVizMedTSO:::.getLabelLanguage("mcYears selection", current_language), " : "),
-                             choices, selected = sel, inline = TRUE)
-          updateCheckboxInput(session, "read_hydroStorage", antaresVizMedTSO:::.getLabelLanguage("hydroStorage", current_language), FALSE)
-        } else {
-          sel <- isolate({input$read_type_mcYears})
-          choices <- c("synthetic", "all", "custom")
-          names(choices) <- sapply(choices, function(x){
-            antaresVizMedTSO:::.getLabelLanguage(x, current_language)
-          })
-          updateRadioButtons(session, "read_type_mcYears", paste0(antaresVizMedTSO:::.getLabelLanguage("mcYears selection", current_language), " : "),
-                             choices, selected = sel, inline = TRUE)
-        }
+      if(!opts$parameters$general$`year-by-year`){
+        sel <- isolate({input$read_type_mcYears})
+        choices <- c("synthetic")
+        names(choices) <- sapply(choices, function(x){
+          antaresVizMedTSO:::.getLabelLanguage(x, current_language)
+        })
+        updateRadioButtons(session, "read_type_mcYears", paste0(antaresVizMedTSO:::.getLabelLanguage("mcYears selection", current_language), " : "),
+                           choices, selected = sel, inline = TRUE)
+        updateCheckboxInput(session, "read_hydroStorage", antaresVizMedTSO:::.getLabelLanguage("hydroStorage", current_language), FALSE)
+      } else {
+        sel <- isolate({input$read_type_mcYears})
+        choices <- c("synthetic", "all", "custom")
+        names(choices) <- sapply(choices, function(x){
+          antaresVizMedTSO:::.getLabelLanguage(x, current_language)
+        })
+        updateRadioButtons(session, "read_type_mcYears", paste0(antaresVizMedTSO:::.getLabelLanguage("mcYears selection", current_language), " : "),
+                           choices, selected = sel, inline = TRUE)
+      }
     })
   }
 })
@@ -326,7 +335,7 @@ observe({
         updateCheckboxInput(session, "read_thermalModulation", value = list_sel$thermalModulation)
         
         updateSelectInput(session, "read_timeStep", selected = list_sel$timeStep)
-      
+        
         updateSelectInput(session, "read_select", selected = list_sel$select)
         
         mcy <- list_sel$mcYears
@@ -344,9 +353,35 @@ observe({
         
         updateSelectInput(session, "rmva_storageFlexibility", selected = list_sel$storageFlexibility)
         updateSelectInput(session, "rmva_production", selected = list_sel$production)
-      
+        
       }
     }
   })
- 
+  
+  output$get_sel_file <- downloadHandler(
+    filename = function() {
+      paste('readAntares_selection_', format(Sys.time(), format = "%Y%d%m_%H%M%S"), '.xlsx', sep='')
+    },
+    content = function(con) {
+      
+      mcYears = input$read_mcYears
+      if(input$read_type_mcYears %in% "all"){
+        mcYears = opts()$mcYears
+      }
+      params <- list(areas = input$read_areas, links = input$read_links, 
+                     clusters = input$read_clusters, districts = input$read_districts, 
+                     misc = input$read_misc, thermalAvailability = input$read_thermalAvailabilities, 
+                     hydroStorage = input$read_hydroStorage, hydroStorageMaxPower = input$read_hydroStorageMaxPower, 
+                     reserve = input$read_reserve, linkCapacity = input$read_linkCapacity, mustRun = input$read_mustRun, 
+                     thermalModulation = input$read_thermalModulation, 
+                     timeStep = input$read_timeStep, select = input$read_select, mcYears = mcYears, 
+                     removeVirtualAreas = input$rmva_ctrl,
+                     storageFlexibility = input$rmva_storageFlexibility, production = input$rmva_production, 
+                     reassignCost = input$rmva_reassignCosts, newCols = input$rmva_newCols)
+      
+      writeStudyShinySelection(params, con)
+
+    }
+  )
+  
 })

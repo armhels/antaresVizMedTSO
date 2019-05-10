@@ -65,9 +65,9 @@ readStudyShinySelection <- function(input_path){
   
   # readAntares parameters
   sel_params <-  suppressWarnings(tryCatch(openxlsx::read.xlsx(input_path, sheet = "readAntares", check.names = FALSE, colNames = TRUE),
-                                              error = function(e) {
-                                                stop("Error reading sheet 'readAntares' : ", e)
-                                              }))
+                                           error = function(e) {
+                                             stop("Error reading sheet 'readAntares' : ", e)
+                                           }))
   
   if(!is.null(sel_params) && nrow(sel_params) > 0){
     
@@ -88,10 +88,12 @@ readStudyShinySelection <- function(input_path){
       stopifnot(ts %in% c("hourly", "daily", "weekly", "monthly", "annual"))
       sel$timeStep <- ts
     }
-   
-    if("mcYears" %in% sel_params[[1]]){
-      mcy <- as.numeric(as.character(sel_params[sel_params[[1]] %in% "mcYears", 2]))
-      if(!is.na(mcy)) sel$mcYears <- mcy
+    
+    if("mcYears" %in% sel_params[[1]] && !is.na(sel_params[sel_params[[1]] %in% "mcYears", 2])){
+      tmp <- as.character(sel_params[sel_params[[1]] %in% "mcYears", 2])
+      tmp <- gsub("^([[:space:]]*) | ([[:space:]]*)$", "", unlist(strsplit(tmp, ";")))
+      mcy <- as.numeric(tmp)
+      if(!isTRUE(all.equal(NA, mcy))) sel$mcYears <- mcy
     }
     
     for(var in c("select", "storageFlexibility", "production")){
@@ -121,9 +123,9 @@ readStudyShinySelection <- function(input_path){
 }
 
 na.locf0 <- function (object, fromLast = FALSE, maxgap = Inf) {
-
+  
   if (fromLast) object <- rev(object)
-
+  
   ok <- which(!is.na(object))
   if (is.na(object[1L])) ok <- c(1L, ok)
   
@@ -134,6 +136,118 @@ na.locf0 <- function (object, fromLast = FALSE, maxgap = Inf) {
     rep(object[ok], gaps)
   }
   if (fromLast) object <- rev(object)
-
+  
   object
+}
+
+#' @export
+writeStudyShinySelection <- function(val, output_path){
+  
+  ## Create a new workbook
+  wb <- openxlsx::createWorkbook("antaresVizMedTSO")
+  
+  ## init worksheets
+  addWorksheet(wb, "Areas")
+  addWorksheet(wb, "Links")
+  addWorksheet(wb, "Clusters")
+  addWorksheet(wb, "Districts")
+  addWorksheet(wb, "readAntares")
+  
+  ## Need data on worksheet to see all headers and footers
+  if(!is.null(val$areas)){
+    writeData(wb, sheet = "Areas", data.frame(val$areas), 
+              colNames = FALSE, rowNames = FALSE)
+  }
+  
+  if(!is.null(val$links)){
+    writeData(wb, sheet = "Links", data.frame(val$links), 
+              colNames = FALSE, rowNames = FALSE)
+  }
+  
+  if(!is.null(val$districts)){
+    writeData(wb, sheet = "Districts", data.frame(val$districts), 
+              colNames = FALSE, rowNames = FALSE)
+  }
+  
+  if(!is.null(val$clusters)){
+    writeData(wb, sheet = "Clusters", data.frame(val$clusters), 
+              colNames = FALSE, rowNames = FALSE)
+  }
+  
+  antares_read_params <- do.call("rbind.data.frame", 
+                                 lapply(c("misc", "thermalAvailability", "hydroStorage", 
+                                          "hydroStorageMaxPower", "reserve", "linkCapacity", 
+                                          "mustRun", "thermalModulation"), function(x){
+                                            tmp <- 0
+                                            if(!is.null(val[[x]])){
+                                              tmp <- as.numeric(val[[x]])
+                                            }
+                                            data.frame(parameters = x,	value = tmp, comment = "0 disabled - 1 enabled")
+                                          }))
+  
+  ts_params <- data.frame(parameters = "timeStep",	value = "hourly", comment = "hourly, daily, weekly, monthly, annual")
+  if(!is.null(val$timeStep)){
+    ts_params$value <- val$timeStep
+  }
+  antares_read_params <- rbind.data.frame(antares_read_params, ts_params)
+  
+  mcy_params <- data.frame(parameters = "mcYears",	value = NA, comment = "one or more numbers (separated by ;) or synthetic, or empty / NULL / NA. Multiple years : 1;2")
+  if(!is.null(val$mcYears)){
+    mcy_params$value <- paste(val$mcYears, collapse = ";")
+  } else {
+    mcy_params$value <- NA
+  }
+  antares_read_params <- rbind.data.frame(antares_read_params, mcy_params)
+  
+  if(!is.null(val$select)){
+    sel_params <- data.frame(parameters = "select",	value = val$select, comment = "name of the columns to import")
+    sel_params$parameters[-1] <- NA
+    sel_params$comment[-1] <- NA
+  } else {
+    sel_params <- data.frame(parameters = "select",	value = NA, comment = "name of the columns to import")
+  }
+  antares_read_params <- rbind.data.frame(antares_read_params, sel_params)
+  
+  rmv_params <- data.frame(parameters = "removeVirtualAreas",	value = 0, comment = "0 disabled - 1 enabled")
+  if(!is.null(val$removeVirtualAreas)){
+    rmv_params$value <- as.numeric(val$removeVirtualAreas)
+  }
+  antares_read_params <- rbind.data.frame(antares_read_params, rmv_params)
+  
+  if(!is.null(val$storageFlexibility)){
+    sel_params <- data.frame(parameters = "storageFlexibility",	value = val$storageFlexibility, comment = "names of the virtual storage/flexibility areas")
+    sel_params$parameters[-1] <- NA
+    sel_params$comment[-1] <- NA
+  } else {
+    sel_params <- data.frame(parameters = "storageFlexibility",	value = NA, comment = "names of the virtual storage/flexibility areas")
+  }
+  antares_read_params <- rbind.data.frame(antares_read_params, sel_params)
+  
+  if(!is.null(val$production)){
+    sel_params <- data.frame(parameters = "production",	value = val$production, comment = "names of the virtual production areas, or empty / NULL / NA")
+    sel_params$parameters[-1] <- NA
+    sel_params$comment[-1] <- NA
+  } else {
+    sel_params <- data.frame(parameters = "production",	value = NA, comment = "names of the virtual production areas, or empty / NULL / NA")
+  }
+  antares_read_params <- rbind.data.frame(antares_read_params, sel_params)
+  
+  rmv_params <- data.frame(parameters = "reassignCost",	value = 0, comment = "0 disabled - 1 enabled")
+  if(!is.null(val$reassignCost)){
+    rmv_params$value <- as.numeric(val$reassignCost)
+  }
+  antares_read_params <- rbind.data.frame(antares_read_params, rmv_params)
+  
+  rmv_params <- data.frame(parameters = "newCols",	value = 0, comment = "0 disabled - 1 enabled")
+  if(!is.null(val$newCols)){
+    rmv_params$value <- as.numeric(val$newCols)
+  }
+  antares_read_params <- rbind.data.frame(antares_read_params, rmv_params)
+  
+  writeData(wb, sheet = "readAntares", antares_read_params, 
+            colNames = TRUE, rowNames = FALSE, keepNA = FALSE)
+  
+  ## Save workbook
+  saveWorkbook(wb, output_path, overwrite = TRUE)
+  
 }
