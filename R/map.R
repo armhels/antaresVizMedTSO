@@ -963,7 +963,14 @@ plotMap <- function(x,
     optionsT = mwSharedValue({
       if(length(colAreaVar) > 0){
         tmp_colAreaVar <- gsub("(_std$)|(_min$)|(_max$)", "", colAreaVar)
-        if(tmp_colAreaVar %in% colorsVars$Column & runScale){
+        if(tmp_colAreaVar %in% c("prix_marginal", "MRG. PRICE")){
+          plotMapOptions(areaColorScaleOpts = colorScaleOptions(
+            negCol = "#FF0000",
+            breaks = c(0, seq(30, 130, 10), Inf),
+            zeroCol = "#FFFFFF",
+            posCol = "#0000FF")
+          )
+        } else if(tmp_colAreaVar %in% colorsVars$Column & runScale){
           raw <- colorsVars[Column == tmp_colAreaVar]
           plotMapOptions(areaColorScaleOpts = colorScaleOptions(
             negCol = "#FF0000",
