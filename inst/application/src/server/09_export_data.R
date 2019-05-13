@@ -96,51 +96,52 @@ for(j in 1:16){
     l_j <- j
     #on ne peut avoir qu une etude de reference a la fois 
     observe({
-      if(!is.null(input[[paste0("export_list_study_check", l_j)]])){
-        if(input[[paste0("export_list_study_check", l_j)]] > 0){
-          isolate({
-            for(k in 1:16){
-              if(k != l_j){
-                #on ne peut avoir qu une etude de reference a la fois 
-                updateCheckboxInput(session, paste0("export_list_study_check", k), 
-                                    label = antaresVizMedTSO:::.getLabelLanguage("Select this study", 
-                                                                                 current_language$language),
-                                    value = FALSE)
-              } else {
-                list_data <- list_data_all$antaresDataList
-                data <- list_data[[k]]
-                # dddttt <<- data
-                if("list" %in% class(data)){
-                  if(length(data) > 0) {
-                    ctrl <- sapply(1:length(data), FUN = function(i){
-                      data_i <- data[[i]]
-                      if("timeId" %in% colnames(data[[i]])) {
-                        data[[i]][, timeId := NULL]
-                      }
-                      changeCols <- colnames(data[[i]])[which(sapply(data[[i]], function(x) {
-                        "factor" %in% class(x)
-                      }))]
-                      if(length(changeCols) > 0){
-                        data[[i]][,(changeCols) := lapply(.SD, as.character), .SDcols = changeCols]
-                      }
-                      invisible(NULL)
-                    })
-                  }
-                } else if("data.frame" %in% class(data)) {
-                  if("timeId" %in% colnames(data)) {
-                    data[, timeId := NULL]
-                  }
-                  changeCols <- colnames(data)[which(sapply(data, function(x) {
-                    "factor" %in% class(x)
-                  }))]
-                  if(length(changeCols) > 0){
-                    data[,(changeCols):= lapply(.SD, as.character), .SDcols = changeCols]
-                  }
+      list_data <- list_data_all$antaresDataList
+      if(length(list_data) > 0){
+        if(!is.null(input[[paste0("export_list_study_check", l_j)]])){
+          if(input[[paste0("export_list_study_check", l_j)]] > 0){
+            isolate({
+              for(k in 1:16){
+                if(k != l_j){
+                  #on ne peut avoir qu une etude de reference a la fois 
+                  updateCheckboxInput(session, paste0("export_list_study_check", k), 
+                                      label = antaresVizMedTSO:::.getLabelLanguage("Select this study", 
+                                                                                   current_language$language),
+                                      value = FALSE)
+                } else {
+                  data <- list_data[[k]]
+                  # if("list" %in% class(data)){
+                  #   if(length(data) > 0) {
+                  #     ctrl <- sapply(1:length(data), FUN = function(i){
+                  #       data_i <- data[[i]]
+                  #       if("timeId" %in% colnames(data[[i]])) {
+                  #         data[[i]][, timeId := NULL]
+                  #       }
+                  #       changeCols <- colnames(data[[i]])[which(sapply(data[[i]], function(x) {
+                  #         "factor" %in% class(x)
+                  #       }))]
+                  #       if(length(changeCols) > 0){
+                  #         data[[i]][,(changeCols) := lapply(.SD, as.character), .SDcols = changeCols]
+                  #       }
+                  #       invisible(NULL)
+                  #     })
+                  #   }
+                  # } else if("data.frame" %in% class(data)) {
+                  #   if("timeId" %in% colnames(data)) {
+                  #     data[, timeId := NULL]
+                  #   }
+                  #   changeCols <- colnames(data)[which(sapply(data, function(x) {
+                  #     "factor" %in% class(x)
+                  #   }))]
+                  #   if(length(changeCols) > 0){
+                  #     data[,(changeCols):= lapply(.SD, as.character), .SDcols = changeCols]
+                  #   }
+                  # }
+                  imported_data(data)
                 }
-                imported_data(data)
               }
-            }
-          })
+            })
+          }
         }
       }
     })
