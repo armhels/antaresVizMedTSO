@@ -340,6 +340,14 @@ plotMap <- function(x,
     }
     
     if (links) {
+      if(all(c("transCapacityDirect", "transCapacityIndirect") %in% colnames(x$links))){
+        rm_links <- x$links[,list(capacity = transCapacityDirect + transCapacityIndirect), by = link]
+        rm_links <- rm_links[capacity == 0]
+        if(nrow(rm_links) > 0){
+          rm_links_id <- unique(rm_links$link)
+          x$links <- x$links[!link %in% rm_links_id]
+        }
+      }
       linkList <- unique(x$links$link)
       mapLayout$links <- mapLayout$links[link %in% linkList]
     }
@@ -966,9 +974,9 @@ plotMap <- function(x,
         if(tmp_colAreaVar %in% c("prix_marginal", "MRG. PRICE")){
           plotMapOptions(areaColorScaleOpts = colorScaleOptions(
             negCol = "#FF0000",
-            breaks = c(0, seq(30, 130, 10), Inf),
-            zeroCol = "#FFFFFF",
-            posCol = "#0000FF")
+            breaks = c(0, 30, seq(40, 100, 5), 110, 120, 130, Inf),
+            zeroCol = "#f7f96f",
+            posCol = "#e50505")
           )
         } else if(tmp_colAreaVar %in% colorsVars$Column & runScale){
           raw <- colorsVars[Column == tmp_colAreaVar]
