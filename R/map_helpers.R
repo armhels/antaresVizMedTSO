@@ -349,7 +349,7 @@
                                color = optsLink$color,
                                flow = abs(optsLink$size),
                                maxFlow = unname(optsLink$maxSize),
-                               minThickness = ifelse(any(abs(optsLink$size) == 0), 0, 1),
+                               # minThickness = ifelse(any(abs(optsLink$size) == 0), 0, 1),
                                maxThickness = options$linkMaxSize,
                                time = optsLink$coords$time,
                                timeFormat = .getTimeFormat(timeStep),
