@@ -35,7 +35,7 @@ formater_tab <- function(data, output_type, new_names){
   t_data
 }
 
-
+#import
 importAntaresDatas <- function(
   path = "C:\\Users\\lyesb\\Documents\\MED-Tso\\Full%20MedTSO\\Full MedTSO",
   areas_districts_selections, links_selections, mcYears = 1){
@@ -49,11 +49,6 @@ importAntaresDatas <- function(
   
   # Imports :
   opts <- setSimulationPath(path)
-  
-  # opts$areaList
-  # opts$districtList
-  # opts$districtsDef
-  # opts$areasWithClusters
   
   if(!is.null(areas_districts_selections)){
     
@@ -125,6 +120,9 @@ importAntaresDatas <- function(
        dataForSurplus = dataForSurplus,
        data_areas_districts = data_areas_districts)
 }
+
+
+#formatage
 
 format_annualOutputs <- function(data_areas_dist_clust,
                                  data_areas_dist_clustH,
@@ -381,6 +379,7 @@ format_annualOutputs <- function(data_areas_dist_clust,
 }
 
 
+#export
 export_annual_outputs <- function(infile_name, outfile_name, annual_outputs,
                                   links_selections, areas_districts_selections, data_intro){
   
@@ -424,4 +423,153 @@ export_annual_outputs <- function(infile_name, outfile_name, annual_outputs,
 }
 
 
+
+
+
+
+#============================== Hourly output ========================================
+
+makeTabStats <- function(data){
+  dt <- data.table("Min [MW]" = unlist(data[, -(1:2)][, lapply(.SD, function(x) min(x, na.rm = T))]),
+                   "Max[MW]" = unlist(data[, -(1:2)][, lapply(.SD, function(x) max(x, na.rm = T))]),
+                   "Avg [MW]" = unlist(data[, -(1:2)][, lapply(.SD, function(x) sd(x, na.rm = T))]),
+                   "SUM [GWh]" = unlist(data[, -(1:2)][, lapply(.SD, function(x) sum(as.numeric(x), na.rm = T)/1000)]))
+  dt <- dt[, lapply(.SD, round)]
+  dt[, colnames(dt) := lapply(.SD, function(x) {x[is.nan(x)] <- NA ; x[is.infinite(x)] <- NA; x}), .SDcols = colnames(dt)]
+  dt <- data.table(v1 = colnames(dt), t(dt))
+  colnames(dt) <- rep(" ", ncol(dt))
+  dt  
+}
+
+#import
+importAntaresDatas_hourly <- function(
+  path = "C:\\Users\\lyesb\\Documents\\MED-Tso\\Full%20MedTSO\\Full MedTSO",
+  areas_districts_selections, links_selections, mcYears = 1){
+  
+  #init :
+  data_areasH = NULL
+  data_linksH = NULL
+  
+  # Imports :
+  opts <- setSimulationPath(path)
+  
+  if(!is.null(areas_districts_selections)){
+    
+    areas_districts_selections <- tolower(areas_districts_selections)
+    areasForDist <- as.character(opts$districtsDef[district %in% areas_districts_selections, area])
+    areas_districts_selections_add <- unique(c(areas_districts_selections, areasForDist))
+    
+    data_areasH <- readAntares(areas = areas_districts_selections, 
+                               districts = areas_districts_selections,
+                               clusters = areas_districts_selections_add,
+                               timeStep = "hourly", select = NULL, mcYears = mcYears)
+  }
+  
+  if(!is.null(links_selections)){
+    
+    links_selections <- tolower(links_selections)
+    data_linksH <- readAntares(links = links_selections, linkCapacity = T,
+                               timeStep = "hourly", select = NULL, mcYears = mcYears)
+  }
+  
+  # Enrichissement par la somme des clusters par districts :  
+  try({
+    tmp <- merge(opts$districtsDef[district %in% areas_districts_selections], 
+                 data_areasH$clusters, by = c("area"), allow.cartesian = T)
+    tmp <- na.omit(cube(tmp, j = lapply(.SD, sum), 
+                        by = c("district", "cluster", "time"), .SDcols = c("production", "NP Cost", "NODU")))
+    setnames(tmp, "district", "area")
+    data_areasH$clusters <- 
+      rbindlist(list(data_areasH$clusters[area %in% areas_districts_selections], tmp), use.names = T, fill = TRUE)
+  }, T)
+  
+  list(data_areasH = data_areasH, data_linksH = data_linksH)
+}
+
+# formatage
+format_hourlyOutputs <- function(data_areas, data_links, areas_selections, 
+                                 market_data_code, links_selections, dico = dico){
+  data_out <- NA ; dt_stats <- NA ; areas_districts <- NA
+  try({
+    
+    areas_selections <- tolower(areas_selections)
+    data_areas$clusters <- aggregateClusters(data_areas$clusters, "production", hourly = T)
+    
+    cols_areas <- intersect(colnames(data_areas$areas), market_data_code)
+    data_areas_dist <- rbindlist(list(data_areas$areas, data_areas$districts))
+    try({setnames(data_areas_dist, "district", "area")}, T)
+    data_areas_dist <- 
+      data_areas_dist[area %in% areas_selections, 
+                      c(colnames(data_areas_dist)[c(1,4)], cols_areas), with = F]
+    
+    temp <- dcast(data_areas$clusters, area + time ~ cluster, value.var = "var", fill = NA)
+    
+    data_all <- merge(temp, data_areas_dist, by = c("area", "time"), all = TRUE)
+    data_all <- data_all[, c("area", "time", intersect(market_data_code, colnames(data_all))), with = F]
+    
+    cols_availables <- intersect(market_data_code, colnames(data_all))
+    
+    if("PSP" %in% cols_availables) {
+      data_all[, c("PSP_pos", "PSP_neg") := list(PSP > 0, PSP < 0)]
+      data_all[, PSP := NULL]
+      ind <- which(cols_availables == "PSP")
+      cols_availables <- c(cols_availables[1:(ind-1)], "PSP_pos", "PSP_neg", 
+                           cols_availables[(ind+1):length(cols_availables)]) #FIXME attention, ne marche pas si PSP est premier/dernier !
+    }
+    
+    setcolorder(data_all, neworder = c("area", "time", cols_availables))
+    
+    data_out <- unique(data_all[,.(Hour = .I, Date = time)])
+    for(i in areas_selections){
+      data_out <- cbind(data_out, data_all[area %in% i, -(1:2)])
+    }
+    areas_districts <- data.table(t(rep(toupper(areas_selections), each = ncol(data_all) - 2)))
+    colnames(areas_districts) <- dico[colnames(data_out)[-c(1:2)]]$Category
+    
+    dt_stats <- makeTabStats(data_out)
+  }, T)
+  
+  #============================== Crossborder exchanges ========================================
+  if(!is.null(data_links)){
+    
+    data_out_2 <- dcast(data_links, time ~ link, value.var = "FLOW LIN.")
+    data_out_2[, Hour := .I]
+    setnames(data_out_2, "time", "Date")
+    setcolorder(data_out_2, c("Hour", "Date", tolower(links_selections)))
+    colnames(data_out_2)[-(1:2)] <- toupper(colnames(data_out_2)[-(1:2)])
+    dt_stats_2 <- makeTabStats(data_out_2)
+  } else{
+    data_out_2 <- NA ; dt_stats_2 <- NA
+  } 
+  
+  list(data_out = data_out, dt_stats = dt_stats, areas_districts = areas_districts,
+       data_out_2 = data_out_2, dt_stats_2 = dt_stats_2)
+  
+}
+
+# export
+export_hourlyOutputs <- function(infile_name, outfile_name, hourly_outputs, data_intro, 
+                                 areas_districts_selections, market_data_code, links_selections){
+  
+  wb <- loadWorkbook(infile_name)
+  
+  writeData(wb, "Identification", data_intro[-4,])
+  writeData(wb, "Identification", areas_districts_selections, startRow = 14, startCol = 2)
+  writeData(wb, "Identification", market_data_code, startRow = 14, startCol = 2)
+  writeData(wb, "Identification", links_selections, startRow = 14, startCol = 3)
+  writeData(wb, "Identification", data_intro[4, `2030 - Scenario 1`], startRow = 14, startCol = 4)
+  
+  writeData(wb, "Hourly Market Data", data_intro[1:3,])
+  writeData(wb, "Hourly Market Data", hourly_outputs$dt_stats, startRow = 5, startCol = 2)
+  
+  writeData(wb, "Hourly Market Data", hourly_outputs$areas_districts, startRow = 11,  startCol = 3)
+  
+  writeData(wb, "Hourly Market Data", hourly_outputs$data_out, startRow = 13)
+  
+  writeData(wb, "Crossborder exchanges", data_intro[1:3,])
+  writeData(wb, "Crossborder exchanges", hourly_outputs$dt_stats_2, startRow = 5, startCol = 2)
+  writeData(wb, "Crossborder exchanges", hourly_outputs$data_out_2, startRow = 11)
+  
+  system.time(saveWorkbook(wb, outfile_name, overwrite = T))
+}
 
