@@ -8,21 +8,48 @@
 
 ## Installation
 
+Install from clean session : 
+
+```r
+rm(list = ls())
+lapply(paste('package:',names(sessionInfo()$otherPkgs),sep=""),detach,character.only=TRUE,unload=TRUE)
+.rs.restartR( )
+````
+
 Needed for moment specific ``spMaps`` package version : 
 
 ```r
-install_github("rte-antares-rpackage/spMaps", ref = "med-tso")
+if(!require(devtools)){
+  install.packages("devtools")
+  require(devtools)
+}
+
+Sys.setenv(R_REMOTES_NO_ERRORS_FROM_WARNINGS="true")
+devtools::install_github("rte-antares-rpackage/spMaps", ref = "med-tso")
 ```
 
-To install the master version:
+Then install the master version of ``antaresVizMedTSO`` :
 
 ```r
+if(!require(devtools)){
+  install.packages("devtools")
+  require(devtools)
+}
+
+Sys.setenv(R_REMOTES_NO_ERRORS_FROM_WARNINGS="true")
 devtools::install_github("rte-antares-rpackage/antaresVizMedTSO", ref ="master")
 ```
 
 To display the help of the package and see all the functions it provides, type:
+
 ```r 
 help(package="antaresVizMedTSO")
+```
+
+## All-in-one Application
+
+```r 
+antaresVizMedTSO::runAppAntaresViz()
 ```
 
 ## Basic plots

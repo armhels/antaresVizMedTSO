@@ -587,11 +587,11 @@ output$download_interco <- downloadHandler(
 output$ui_file_sel_medtso_map <- renderUI({
   current_language <- current_language$language
   fluidRow(
-    column(width = 5, offset = 2, 
+    column(width = 6, 
            div(fileInput("file_sel_medtso_map", antaresVizMedTSO:::.getLabelLanguage("Import a selection file (.xlsx)", current_language),
                          accept = c("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")), align = "center")
     ),
-    column(5, 
+    column(6, 
            div( br(),
                 downloadButton("get_sel_file_medtso_map",
                                antaresVizMedTSO:::.getLabelLanguage("Generate current selection file", current_language), 

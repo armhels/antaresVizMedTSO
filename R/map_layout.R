@@ -130,7 +130,7 @@ changeCoordsUI <- function(id, map_builder = TRUE) {
       column(3, 
              if (map_builder){
                selectInput(ns("ml_states"), "States : ", width = "100%",
-                           choices = choices_map, selected = NULL, multiple = TRUE)
+                           choices = choices_map, selected = "Italy", multiple = TRUE)
              }
       ),   
       column(2, 

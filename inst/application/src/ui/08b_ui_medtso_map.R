@@ -83,17 +83,18 @@ tabPanel(textOutput("label_tab_medtso_map_menu"),
                      tabPanel("Inputs",
                               conditionalPanel(condition = "output.have_data_map_tso",
                                                br(),
-                                               
                                                uiOutput("ui_file_sel_medtso_map"),
                                                
-                                               navlistPanel(selected = NULL, well = TRUE,
-                                                            fluid = TRUE, widths = c(2, 10), 
-                                                            "MED-Tso map Inputs",
-                                                            tabPanel("Links", DTOutput("dt_pos_links")),
-                                                            
-                                                            tabPanel("Areas", DTOutput("dt_pos_areas"))
-                                                            
+                                               fluidRow(
+                                                 column(4, includeMarkdown("src/inputs_medtso_maps.md")),
+                                                 column(8, tabsetPanel(
+                                                                        tabPanel("Links", DTOutput("dt_pos_links")),
+                                                                        
+                                                                        tabPanel("Areas", DTOutput("dt_pos_areas"))
+                                                                        
+                                                 ))
                                                )
+                                               
                               ), 
                               conditionalPanel(condition = "output.have_data_map_tso === false",
                                                h3(textOutput("no_data_9"))
