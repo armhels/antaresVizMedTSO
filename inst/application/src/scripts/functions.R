@@ -6,6 +6,7 @@ format_annualOutputs <- function(data_areas_dist_clust,
                                  links_selections,
                                  vars, opts, data_intro){
   
+  
   #============================== YEARLY OUTPUT SHORT ========================================
   #=====================================================annual_generation_block =================================
   tmp <- c("Nuclear generation [GWh]",
