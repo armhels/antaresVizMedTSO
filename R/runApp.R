@@ -5,9 +5,10 @@
 #' @return 
 #' an App Shiny. 
 #' 
-#' @import shiny shinydashboard
+#' @import shiny shinydashboard ggplot2 ggrepel ggforce sp
 #' @importFrom shinyWidgets useShinydashboard
 #' @importFrom DT renderDT DTOutput
+#' @importFrom colourpicker colourInput
 #' @export
 runAppAntaresViz <- function() {
   ctrl <- suppressPackageStartupMessages({

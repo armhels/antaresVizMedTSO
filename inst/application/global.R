@@ -9,6 +9,14 @@ suppressWarnings({
       require(shinydashboard)
       require(shinyWidgets)
       require(DT)
+      
+      require(colourpicker)
+      require(ggplot2)
+      require(ggrepel)
+      require(ggforce)
+      
+      require(sp)
+      
     })
   })
 })
@@ -17,6 +25,7 @@ suppressWarnings({
 # choose a directory
 source("src/scripts/directoryInput.R")
 source("src/scripts/subsetDataTable.R")
+source("src/scripts/utils_medtso_maps.R")
 
 # shared inputs
 .global_shared_prodStack <- data.frame(
@@ -87,3 +96,12 @@ source("src/scripts/subsetDataTable.R")
 # add.html.help("antaresRead", "readAntares", "inst/application/www/readAntares.html")
 # add.html.help("antaresRead", "removeVirtualAreas", "inst/application/www/removeVirtualAreas.html")
 # add.html.help("antaresRead", "writeAntaresH5", "inst/application/www/writeAntaresH5.html")
+
+
+#-------- MED-Tso maps
+
+# referentiels des positions
+ref_medtsomap_data <- readMEDTsoMapInput("data/MedTSO_map_template.xlsx")
+
+sp_object <- readRDS("data/final_sp_map.RDS")
+sp_object@data <- as.data.table(sp_object@data)

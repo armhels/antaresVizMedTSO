@@ -38,6 +38,10 @@ output$label_tab_map_menu <- renderText({
   antaresVizMedTSO:::.getLabelLanguage("plotMap", current_language$language)
 })
 
+output$label_tab_medtso_map_menu <- renderText({
+  antaresVizMedTSO:::.getLabelLanguage("MED-Tso Maps", current_language$language)
+})
+
 output$label_tab_parameters <- renderText({
   antaresVizMedTSO:::.getLabelLanguage("Parameters", current_language$language)
 })
@@ -47,6 +51,10 @@ output$label_tab_help <- renderText({
 })
 
 output$label_tab_import_data <- renderText({
+  antaresVizMedTSO:::.getLabelLanguage("Import Data", current_language$language)
+})
+
+output$label_tab_import_data_2 <- renderText({
   antaresVizMedTSO:::.getLabelLanguage("Import Data", current_language$language)
 })
 
@@ -63,6 +71,10 @@ output$title_import_data <- renderText({
 })
 
 output$title_import_data_2 <- renderText({
+  paste0(antaresVizMedTSO:::.getLabelLanguage("Antares study selection", current_language$language), " : ")
+})
+
+output$title_import_data_3 <- renderText({
   paste0(antaresVizMedTSO:::.getLabelLanguage("Antares study selection", current_language$language), " : ")
 })
 
@@ -130,7 +142,17 @@ output$current_opts <- renderText({
   
 })
 
+output$current_opts_2 <- renderText({
+  paste0(antaresVizMedTSO:::.getLabelLanguage("ANTARES Simulation", current_language$language), " : ", 
+         current_study_path())
+  
+})
+
 output$title_readAntares <- renderText({
+  antaresVizMedTSO:::.getLabelLanguage("readAntares parameters", current_language$language)
+})
+
+output$title_readAntares_2 <- renderText({
   antaresVizMedTSO:::.getLabelLanguage("readAntares parameters", current_language$language)
 })
 
@@ -151,6 +173,10 @@ output$title_compare <- renderText({
 })
 
 output$title_removeVirtualAreas <- renderText({
+  paste0(antaresVizMedTSO:::.getLabelLanguage("Remove virtual Areas", current_language$language), " : ")
+})
+
+output$title_removeVirtualAreas_2 <- renderText({
   paste0(antaresVizMedTSO:::.getLabelLanguage("Remove virtual Areas", current_language$language), " : ")
 })
 
@@ -212,6 +238,22 @@ output$no_data_7 <- renderText({
 })
 
 output$no_data_8 <- renderText({
+  antaresVizMedTSO:::.getLabelLanguage("No data imported", current_language$language)
+})
+
+output$no_data_9 <- renderText({
+  antaresVizMedTSO:::.getLabelLanguage("No data imported", current_language$language)
+})
+
+output$no_data_10 <- renderText({
+  antaresVizMedTSO:::.getLabelLanguage("No data imported", current_language$language)
+})
+
+output$no_data_11 <- renderText({
+  antaresVizMedTSO:::.getLabelLanguage("No data imported", current_language$language)
+})
+
+output$no_data_12 <- renderText({
   antaresVizMedTSO:::.getLabelLanguage("No data imported", current_language$language)
 })
 

@@ -69,6 +69,8 @@ navbarPage(title = HTML('<p style="margin-top: 0.05cm;">&nbsp;&nbsp;&nbsp;&nbsp;
            
            source("src/ui/08_ui_map.R", local = T)$value,
            
+           source("src/ui/08b_ui_medtso_map.R", local = T)$value,
+           
            source("src/ui/09_ui_params.R", local = T)$value,
            
            source("src/ui/10_ui_help.R", local = T)$value,

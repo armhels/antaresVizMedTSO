@@ -113,6 +113,12 @@ function(input, output, session) {
   
   source("src/server/06_module_map.R", local = T)
   
+  #------------
+  # MED Tso_map
+  #------------
+  
+  source("src/server/06b_module_medtso_map.R", local = T)
+  
   #----------------
   # shared inputs
   #----------------
