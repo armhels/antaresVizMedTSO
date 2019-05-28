@@ -46,7 +46,7 @@ importAntaresDatas <- function(
   dataForSurplus = NULL
   data_areas_districts = NULL
   
-  
+  # browser()
   # Imports :
   opts <- setSimulationPath(path)
   
@@ -106,13 +106,12 @@ importAntaresDatas <- function(
   areas_districtsH <- rbindlist(list(data_areas_dist_clustH$areas, data_areas_dist_clustH$districts))
   
   data_areas_districts <- rbindlist(list(data_areas_dist_clust$areas, data_areas_dist_clust$districts))
-  try({
-    setnames(areas_districtsH, "district", "area")
-    data_PSP <- areas_districtsH[, .(PSP_positif = sum(PSP[PSP > 0]),
-                                     PSP_negatif = sum(PSP[PSP < 0])), by = .(area)] 
-    setnames(data_areas_districts, "district", "area")
-    data_areas_districts <- merge(data_areas_districts, data_PSP, by = "area")
-  }, T)
+  try({setnames(areas_districtsH, "district", "area")}, T)
+  try({setnames(data_areas_districts, "district", "area")}, T)
+  
+  data_PSP <- areas_districtsH[, .(PSP_positif = sum(PSP[PSP > 0]),
+                                   PSP_negatif = sum(PSP[PSP < 0])), by = .(area)] 
+  data_areas_districts <- merge(data_areas_districts, data_PSP, by = "area")
   
   list(opts = opts,
        data_areas_dist_clust = data_areas_dist_clust, 
@@ -216,6 +215,10 @@ format_annualOutputs <- function(data_areas_dist_clust,
     t_all <- rbindlist(list(t_annual_generation_block, t_annual_demand_block, t_indicators_block)) 
     colnames(t_all)[-1] <- c("Output type", toupper(colnames(t_all)[-(1:2)]))
     #=====================================================Welfare System =================================
+    # areas_districts_selections
+    # dataForSurplus <- readAntares(areas = c("is00", "fr00"),
+    #                               select = "surplus", mcYears = mcYears)
+    
     surplus <- antaresProcessing::surplus(dataForSurplus)
     
     surplus_districts <- antaresProcessing::surplus(dataForSurplus, groupByDistrict = T)
@@ -276,7 +279,7 @@ format_annualOutputs <- function(data_areas_dist_clust,
     data_areas_dist_clust$clusters <- aggregateClusters(data_areas_dist_clust$clusters, "production")
     setnames(data_areas_dist_clust$clusters, "var", "production")
     
-    annual_generation <- dcast(data_areas_dist_clust$clusters, cluster ~ area, value.var = "production", fill = NA)
+    annual_generation <- dcast(data_areas_dist_clust$clusters, cluster ~ area, value.var = "production", fill = 0)
     annual_generation <- merge(vars, annual_generation, by.x = "variable", by.y = "cluster", all.x = T, sort = FALSE )
     
     tmp_block <- copy(data_areas_districts)
@@ -311,13 +314,13 @@ format_annualOutputs <- function(data_areas_dist_clust,
     cluster_desc <- aggregateClusters(cluster_desc, "nominalcapacity")
     setnames(cluster_desc, "var", "nominalcapacity")
     
-    annual_capacity <- dcast(cluster_desc, cluster ~ area, value.var = "nominalcapacity", fill = NA)
+    annual_capacity <- dcast(cluster_desc, cluster ~ area, value.var = "nominalcapacity", fill = 0)
     annual_capacity <- merge(vars, annual_capacity, by.x = "variable", by.y = "cluster", all.x = T, sort = FALSE )
     setcolorder(annual_capacity, colnames(annual_generation))
     #=====================================total_income=================================
     # Vide pour l'instant..
     total_income <- copy(annual_capacity)
-    total_income[, colnames(total_income)[-(1:2)] := lapply(.SD, function(x) NA), .SDcols =  colnames(total_income)[-(1:2)]]
+    total_income[, colnames(total_income)[-(1:2)] := lapply(.SD, function(x) 0), .SDcols =  colnames(total_income)[-(1:2)]]
     
     #=====================================equivalent_full_load=================================
     
@@ -373,6 +376,20 @@ format_annualOutputs <- function(data_areas_dist_clust,
     
     colnames(data_long_out)[-(1:2)] <- toupper(colnames(data_long_out)[-(1:2)])
   }
+  try({
+    t_all[, colnames(t_all)[-c(1,2)] := lapply(.SD, function(x) {
+      x[is.nan(x)] <- 0 ; 
+      x[is.infinite(x)] <- 0;
+      x[is.na(x)] <- 0; x}), .SDcols = (colnames(t_all)[-c(1,2)])]
+    t_welfare_block[, colnames(t_welfare_block)[-c(1,2)] := lapply(.SD, function(x) {
+      x[is.nan(x)] <- 0 ; 
+      x[is.infinite(x)] <- 0;
+      x[is.na(x)] <- 0; x}), .SDcols = (colnames(t_welfare_block)[-c(1,2)])]
+    data_long_out[, colnames(data_long_out)[-c(1,2)] := lapply(.SD, function(x) {
+      x[is.nan(x)] <- 0 ; 
+      x[is.infinite(x)] <- 0;
+      x[is.na(x)] <- 0; x}), .SDcols = (colnames(data_long_out)[-c(1,2)])]
+  }, T)
   
   list(t_all = t_all, t_welfare_block = t_welfare_block, line_style = line_style, data_links_sums = data_links_sums,
        data_intro = data_intro, data_long_out = data_long_out) 
@@ -435,7 +452,7 @@ makeTabStats <- function(data){
                    "Avg [MW]" = unlist(data[, -(1:2)][, lapply(.SD, function(x) sd(x, na.rm = T))]),
                    "SUM [GWh]" = unlist(data[, -(1:2)][, lapply(.SD, function(x) sum(as.numeric(x), na.rm = T)/1000)]))
   dt <- dt[, lapply(.SD, round)]
-  dt[, colnames(dt) := lapply(.SD, function(x) {x[is.nan(x)] <- NA ; x[is.infinite(x)] <- NA; x}), .SDcols = colnames(dt)]
+  dt[, colnames(dt) := lapply(.SD, function(x) {x[is.nan(x)] <- 0 ; x[is.infinite(x)] <- 0; x}), .SDcols = colnames(dt)]
   dt <- data.table(v1 = colnames(dt), t(dt))
   colnames(dt) <- rep(" ", ncol(dt))
   dt  
@@ -495,22 +512,28 @@ format_hourlyOutputs <- function(data_areas, data_links, areas_selections,
     areas_selections <- tolower(areas_selections)
     data_areas$clusters <- aggregateClusters(data_areas$clusters, "production", hourly = T)
     
-    cols_areas <- intersect(colnames(data_areas$areas), market_data_code)
     data_areas_dist <- rbindlist(list(data_areas$areas, data_areas$districts))
     try({setnames(data_areas_dist, "district", "area")}, T)
+    
+    cols_areas <- intersect(colnames(data_areas$areas), market_data_code)
+    
     data_areas_dist <- 
       data_areas_dist[area %in% areas_selections, 
                       c(colnames(data_areas_dist)[c(1,4)], cols_areas), with = F]
     
-    temp <- dcast(data_areas$clusters, area + time ~ cluster, value.var = "var", fill = NA)
+    temp <- dcast(data_areas$clusters, area + time ~ cluster, value.var = "var", fill = 0)
     
     data_all <- merge(temp, data_areas_dist, by = c("area", "time"), all = TRUE)
     data_all <- data_all[, c("area", "time", intersect(market_data_code, colnames(data_all))), with = F]
     
+    # ajout d'éventuelles variables demandées mais qui n'existent pas 
+    cols_comp <- setdiff(market_data_code, colnames(data_all))
+    try({data_all[, (cols_comp) :=  0]}, T)
+    
     cols_availables <- intersect(market_data_code, colnames(data_all))
     
     if("PSP" %in% cols_availables) {
-      data_all[, c("PSP_pos", "PSP_neg") := list(PSP > 0, PSP < 0)]
+      data_all[, c("PSP_pos", "PSP_neg") := list(ifelse(PSP > 0, PSP, 0), ifelse(PSP < 0, PSP, 0))]
       data_all[, PSP := NULL]
       ind <- which(cols_availables == "PSP")
       cols_availables <- c(cols_availables[1:(ind-1)], "PSP_pos", "PSP_neg", 
@@ -524,8 +547,11 @@ format_hourlyOutputs <- function(data_areas, data_links, areas_selections,
       data_out <- cbind(data_out, data_all[area %in% i, -(1:2)])
     }
     areas_districts <- data.table(t(rep(toupper(areas_selections), each = ncol(data_all) - 2)))
-    colnames(areas_districts) <- dico[colnames(data_out)[-c(1:2)]]$Category
     
+    vars_miss <- setdiff(cols_availables, unique(dico[, ANTARES_naming]))
+    dico <- rbindlist(list(dico, data.table(ANTARES_naming = vars_miss, Category = vars_miss)))
+    setkey(dico, ANTARES_naming)
+    colnames(areas_districts) <- dico[colnames(data_out)[-c(1:2)]]$Category
     dt_stats <- makeTabStats(data_out)
   }, T)
   

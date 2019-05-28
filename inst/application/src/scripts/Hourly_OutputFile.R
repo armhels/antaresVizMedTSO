@@ -1,21 +1,21 @@
-source("functions.R")
+source("inst/application/src/scripts/functions.R")
 
 
 # param d'entree des imports
 
 mcYears = 1
-dico <- fread("dictionnary.csv")
+dico <- fread("inst/application/data/excel_templates/dictionnary.csv")
 setkey(dico, "ANTARES_naming")
 
 # parametres :
-areas_selectionsUpper <- c("IT_ALL", "FR_ALL")
-areas_selectionsUpper <- NULL
-areas_districts_selections <- tolower(areas_selectionsUpper)
-market_data_code <- c("ROW BAL.", "PSP", "NODU", "gas_ccgt old 1", "gas_conventional old 1", 
-                      "gas_conventional old 2", "gas_ocgt new")
-links_selections = c("AL00 - GR00", "AL00 - ME00", "AL00 - MK00", "AL00 - RS00", "AT00 - CZ00")
-links_selections = NULL
 
+# market_data_code <- c("ROW BAL.", "PSP", "NODU", "gas_ccgt old 1", "gas_conventional old 1", 
+#                       "gas_conventional old 2", "gas_ocgt new", "VAR_TEST")
+# links_selections = c("AL00 - GR00", "AL00 - ME00", "AL00 - MK00", "AL00 - RS00", "AT00 - CZ00")
+# links_selections = NULL
+
+areas_districts_selections = unique(c(as.character(data_areas_dist_clust$areas$area), as.character(data_areas_dist_clust$districts$district)))
+links_selections = unique(as.character(data_areas_dist_clust$links$link))
 
 antares_datas <- importAntaresDatas_hourly(areas_districts_selections = areas_districts_selections,
                                            links_selections = links_selections)
@@ -36,7 +36,7 @@ data_intro <- data.table("Scenario" = c("Simulator", "Date", "Status", "MC-Year 
                          "2030 - Scenario 1" = c("ANTARES", as.character(Sys.Date()), "Reference", 1, NA, NA))
 
 
-infile_name <- "hourly_OutputFile_Template__R.xlsx"
+infile_name <- "inst/application/data/excel_templates/hourly_OutputFile_Template__R.xlsx"
 outfile_name <-  "C:/Users/lyesb/Documents/MED-Tso/Hourly_OutputFile_TEST.xlsx"
 
 export_hourlyOutputs(hourly_outputs = hourly_outputs, infile_name = infile_name, outfile_name = outfile_name,
