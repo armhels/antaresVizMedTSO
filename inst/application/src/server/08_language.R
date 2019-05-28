@@ -39,7 +39,7 @@ output$label_tab_map_menu <- renderText({
 })
 
 output$label_tab_medtso_map_menu <- renderText({
-  antaresVizMedTSO:::.getLabelLanguage("MED-Tso Maps", current_language$language)
+  antaresVizMedTSO:::.getLabelLanguage("Med-TSO Maps", current_language$language)
 })
 
 output$label_tab_parameters <- renderText({
