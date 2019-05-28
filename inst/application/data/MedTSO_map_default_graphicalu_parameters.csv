@@ -1,0 +1,32 @@
+map;type;id;label;value;comment
+Countries;textInput;title_countries;Title :;Day ahead marginal price;title
+Countries;selectInput;column_selection;Variable :;MRG. PRICE;antares column
+Countries;colourInput;col_min;Min. col;#F5ED08;HEX color
+Countries;colourInput;col_med;Middle. col;#FF4924;HEX color
+Countries;colourInput;col_max;Max. col;#5E0202;HEX color
+Countries;sliderInput;arrow_width_countries;Arrow width :;0,5;min = 0.1, max = 1,  step = 0.1
+Countries;sliderInput;arrow_size_countries;Arrow size :;0,08;min = 0.01, max = 0.2, step = 0.01
+Countries;sliderInput;arrow_textsize_countries;Arrow label :;4;min = 1, max = 10, step = 1
+Countries;colourInput;col_arrow_1_countries;Arrow : color 1;#217314;HEX color
+Countries;colourInput;col_arrow_2_countries;Arrow : color 2;#9c0636;HEX color
+Exchanges and productions;textInput;title_centers;Title :;Exchanges and productions;title
+Exchanges and productions;selectInput;centers_columns;Variables :;MISC. NDG,H. ROR ,WIND, SOLAR,NUCLEAR, LIGNITE , COAL,GAS,OIL, MIX. FUEL,MISC. DTG,H. STOR;antares columns, separated by comma
+Exchanges and productions;colourInput;col_sp;Cty : color;#f3f1f2;HEX color
+Exchanges and productions;sliderInput;pie_size_centers;Pie size :;2,5;min = 1, max = 6, step = 0.5
+Exchanges and productions;sliderInput;pie_textsize_centers;Pie label :;3;min = 1, max = 10, step = 0.5
+Exchanges and productions;sliderInput;pie_alpha_centers;Pie alpha :;0,5;min = 0, max = 1, step = 0.1
+Exchanges and productions;sliderInput;arrow_width_centers;Arrow width :;0,5;min = 0.1, max = 1, step = 0.1
+Exchanges and productions;sliderInput;arrow_size_centers;Arrow size :;0,08;min = 0.01, max = 0.2, step = 0.01
+Exchanges and productions;sliderInput;arrow_textsize_centers;Arrow label :;4;min = 1, max = 10, step = 1
+Exchanges and productions;colourInput;col_arrow_1;Arrow : color 1;#217314;HEX color
+Exchanges and productions;colourInput;col_arrow_2;Arrow : color 2;#9c0636;HEX color
+Interconnection usage;textInput;title_interco;Title :;Interconnection usage;title
+Interconnection usage;colourInput;col_sp_interco;Cty : color;#f3f1f2;HEX color
+Interconnection usage;sliderInput;pie_size_interco;Pie size :;2;min = 1, max = 6, step = 0.5
+Interconnection usage;sliderInput;pie_textsize_interco;Pie label :;3,5;min = 1, max = 10, step = 0.5
+Interconnection usage;sliderInput;pie_alpha_interco;Pie alpha :;0,8;min = 0, max = 1, step = 0.1
+Interconnection usage;sliderInput;arrow_width_interco;Arrow width :;0,5;min = 0.1, max = 1, step = 0.1
+Interconnection usage;sliderInput;arrow_size_interco;Arrow size :;0,08;min = 0.01, max = 0.2, step = 0.01
+Interconnection usage;sliderInput;arrow_textsize_interco;Arrow label :;4;min = 1, max = 10, step = 1
+Interconnection usage;colourInput;col_arrow_1_interco;Arrow : color 1;#217314;HEX color
+Interconnection usage;colourInput;col_arrow_2_interco;Arrow : color 2;#9c0636;HEX color

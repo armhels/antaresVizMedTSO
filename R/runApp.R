@@ -8,7 +8,7 @@
 #' @import shiny shinydashboard ggplot2 ggrepel ggforce sp
 #' @importFrom shinyWidgets useShinydashboard
 #' @importFrom DT renderDT DTOutput
-#' @importFrom colourpicker colourInput
+#' @importFrom colourpicker colourInput updateColourInput
 #' @export
 runAppAntaresViz <- function() {
   ctrl <- suppressPackageStartupMessages({

@@ -13,13 +13,16 @@ get_data_map <- function(opts, areas = NULL, links = NULL, mcYears = 1,
                          reassignCosts = FALSE, newCols = TRUE, rowBal = TRUE){
   
   if(!is.null(areas)){
-    data_areas <- readAntares(areas = areas, links = NULL, 
+    data_areas <- readAntares(areas = areas, links = links, 
                               timeStep = "annual", select = NULL, mcYears = mcYears)
     
     if(removeVirtualAreas){
       data_areas <- removeVirtualAreas(data_areas, storageFlexibility = storageFlexibility, production = production,
                                        reassignCosts = reassignCosts, newCols = newCols, rowBal = rowBal)
     }
+    
+    data_areas <- data_areas$areas
+    gc()
     
   } else {
     data_areas <- data.table(area = character(0))
@@ -28,7 +31,7 @@ get_data_map <- function(opts, areas = NULL, links = NULL, mcYears = 1,
   
   if(!is.null(links)){
     
-    data_links_h <- readAntares(links = links, timeStep = "hourly", 
+    data_links_h <- readAntares(areas = areas, links = links, timeStep = "hourly", 
                                 select = NULL, mcYears = 1, linkCapacity = TRUE)
     
     if(removeVirtualAreas){
@@ -36,6 +39,9 @@ get_data_map <- function(opts, areas = NULL, links = NULL, mcYears = 1,
                                          reassignCosts = reassignCosts, newCols = newCols, rowBal = rowBal)
       
     }
+    
+    data_links_h <- data_links_h$links
+    gc()
     
     data_links <- data_links_h[, list(
       value_ab_center = round(sum(`FLOW LIN.`[`FLOW LIN.` > 0]) / 1000, 0),
@@ -45,6 +51,9 @@ get_data_map <- function(opts, areas = NULL, links = NULL, mcYears = 1,
       pie_ab = sum(`CONG. PROB +` > 0) / .N,
       pie_ba = sum(`CONG. PROB -` > 0) / .N
     ), by = link]
+    
+    data_links[is.na(arrow_ab), arrow_ab := 0]
+    data_links[is.na(arrow_ba), arrow_ba := 0]
     
     rm(data_links_h)
     gc()
@@ -143,10 +152,15 @@ init_map_sp <- function(
       theme_classic() +
       theme(legend.position = "none")
   } else {
+    breaks <- waiver()
+    if(var_countries %in% c("prix_marginal", "MRG. PRICE")){
+      breaks <- c(0, 30, seq(40, 100, 5), 110, 120, 130, Inf)
+    }
     res <- ggplot() + coord_quickmap(xlim = map_lon_limit, ylim = map_lat_limit) + 
       geom_polygon(aes(long, lat, group = group, fill = get(var_countries)), data = kt_geom) + 
       geom_path(aes(long, lat, group = group), data = kt_geom, color="black") +
-      scale_fill_gradientn(colours = palette_colors) + theme(legend.position = "right") +
+      scale_fill_gradientn(colours = palette_colors, breaks = breaks, minor_breaks = breaks, limits = c(NA, NA)) + 
+      theme(legend.position = "right") + guides(fill = guide_legend(keyheight=3, reverse = TRUE, label.position = "right", label.vjust = 0)) +
       theme_classic() +
       labs(fill = paste(var_countries))
   }
@@ -336,7 +350,7 @@ add_pie <- function(base_ggmap, ref_map, data_pos, data_pie,
           geom_text(aes(x = xlab , 
                         y = ylab, 
                         label = label), size = text_size) + coord_fixed() + labs(x = NULL, y = NULL) + 
-          theme(legend.position = "right")
+          theme(legend.position = "right") + guides(fill = guide_legend(title = "Pie"))
         
         if(!is.null(colors) && length(colors) == length(pie_col)){
           legend <- legend + 
@@ -393,10 +407,10 @@ add_pie <- function(base_ggmap, ref_map, data_pos, data_pie,
 }
 
 
-# input_path <- "C:\\Users\\Datastorm\\Desktop\\MED-Tso_app\\final_shiny\\MedTSO_map_template.xlsx"
+input_path <- "C:\\Users\\Datastorm\\Desktop\\MED-Tso_app\\final_shiny\\MedTSO_map_template.xlsx"
 readMEDTsoMapInput <- function(input_path){
   
-  sel <- list(areas = NULL, links = NULL)
+  sel <- list(areas = NULL, links = NULL, inputs = NULL)
   
   if(!file.exists(input_path)){
     stop("Le fichier '", input_path, "' est introuvable")
@@ -426,6 +440,18 @@ readMEDTsoMapInput <- function(input_path){
     sel$links <- sel_links
   }
   
+  # inputs
+  sel_inputs <-  suppressWarnings(tryCatch(openxlsx::read.xlsx(input_path, sheet = "Graphical Parameters", check.names = FALSE, colNames = TRUE),
+                                          error = function(e) {
+                                            stop("Error reading sheet 'Graphical Parameters' : ", e)
+                                          }))
+  
+  if(!is.null(sel_inputs) && nrow(sel_inputs) > 0){
+    stopifnot(all(c("type",	"id",	"label",	"value") %in% colnames(sel_inputs)))
+    sel_links$link <- tolower(as.character(sel_links$link))
+    sel$inputs <- sel_inputs
+  }
+  
   sel
   
 }
@@ -433,7 +459,7 @@ readMEDTsoMapInput <- function(input_path){
 
 
 #' @export
-writeMEDTsoMapInput <- function(areas, links, output_path){
+writeMEDTsoMapInput <- function(areas, links, inputs, output_path){
   
   ## Create a new workbook
   wb <- openxlsx::createWorkbook("antaresVizMedTSO_maps")
@@ -441,6 +467,7 @@ writeMEDTsoMapInput <- function(areas, links, output_path){
   ## init worksheets
   openxlsx::addWorksheet(wb, "Areas")
   openxlsx::addWorksheet(wb, "Links")
+  openxlsx::addWorksheet(wb, "Graphical Parameters")
   
   ## Need data on worksheet to see all headers and footers
   if(!is.null(areas) && nrow(areas) > 0){
@@ -453,6 +480,36 @@ writeMEDTsoMapInput <- function(areas, links, output_path){
                         colNames = TRUE, rowNames = FALSE)
   }
   
+  default_link <- read.csv(system.file("application/data/MedTSO_map_default_graphicalu_parameters.csv", package = "antaresVizMedTSO"), 
+                           header = TRUE, sep = ";", stringsAsFactors = FALSE)
+  
+  if(!is.null(inputs)){
+    
+    keep_input <- which(sapply(inputs, function(x) !is.null(x)))
+    if(length(keep_input) > 0){
+      inputs <- inputs[keep_input]
+      match_names <- match(names(inputs), default_link$id)
+      if(!all(is.na(match_names))){
+        inputs <- inputs[which(!is.na(match_names))]
+        match_names <- setdiff(match_names, NA)
+        
+        value <- sapply(inputs, function(x){
+          if(class(x) %in% c("numeric", "integer")){
+            x <- gsub(".", ",", as.character(x), fixed = TRUE)
+          } else {
+            if(length(x) > 0) x <- paste(x, collapse = ",")
+          }
+          x
+        })
+        
+        default_link$value[match_names] <- value
+      }
+    }
+  }
+  
+  openxlsx::writeData(wb, sheet = "Graphical Parameters", data.frame(default_link), 
+                      colNames = TRUE, rowNames = FALSE)
+   
   ## Save workbook
   openxlsx::saveWorkbook(wb, output_path, overwrite = TRUE)
   

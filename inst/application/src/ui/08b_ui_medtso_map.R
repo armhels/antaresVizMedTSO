@@ -80,7 +80,7 @@ tabPanel(textOutput("label_tab_medtso_map_menu"),
                               
                               
                      ),
-                     tabPanel("Inputs",
+                     tabPanel("Parameters",
                               conditionalPanel(condition = "output.have_data_map_tso",
                                                br(),
                                                uiOutput("ui_file_sel_medtso_map"),

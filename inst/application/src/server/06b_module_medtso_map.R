@@ -301,7 +301,7 @@ data_map <- reactive({
 
 observe({
   if(input$import_data_medtso_maps > 0){
-    updateTabsetPanel(session, inputId = "medtso_map_panel", selected = "Inputs")
+    updateTabsetPanel(session, inputId = "medtso_map_panel", selected = "Parameters")
   }
 })
 
@@ -554,7 +554,8 @@ gg_interco_plots <- reactive({
           }
           
           tmp + ggtitle(input$title_interco) + 
-            theme(plot.title = element_text(face = "bold", size = 25, hjust = 0.5)) + 
+            theme(plot.title = element_text(face = "bold", size = 25, hjust = 0.5), 
+                  plot.subtitle = element_text(hjust = 1)) + 
             labs(
               subtitle="Arrows % refers to loading of interconnections during the year (Energy/limit)\nPie are % saturation hours"
             )
@@ -631,6 +632,32 @@ observe({
       if(!is.null(list_sel)){
         pos_areas(as.data.table(list_sel$areas))
         pos_links(as.data.table(list_sel$links))
+        
+        # update des inputs
+        if(!is.null(list_sel$inputs)){
+          ctrl <- lapply(1:nrow(list_sel$inputs), function(x){
+            type = list_sel$inputs$type[x]
+            id = list_sel$inputs$id[x]
+            label = list_sel$inputs$label[x]
+            value = list_sel$inputs$value[x]
+            if(type %in% "sliderInput"){
+              value <- as.numeric(gsub("^([[:space:]]*) | ([[:space:]]*)$", "", gsub(",", ".", value, fixed = TRUE)))
+            }
+            if(type %in% "selectInput" && id %in% "centers_columns"){
+              value <- gsub("^([[:space:]]*) | ([[:space:]]*)$", "", unlist(strsplit(value, ",")))
+            }
+            
+            if(type %in% "selectInput"){
+              updateSelectInput(session, inputId = id, label = label, selected = value)
+            } else if(type %in% "textInput"){
+              updateTextInput(session, inputId = id, label = label, value = value)
+            } else if(type %in% "colourInput"){
+              updateColourInput(session, inputId = id, label = label, value = value)
+            } else if(type %in% "sliderInput"){
+              updateSliderInput(session, inputId = id, label = label, value = value)
+            }
+          })
+        }
       }
     }
   })
@@ -640,7 +667,39 @@ observe({
       paste('MEDTso_maps_selection_', format(Sys.time(), format = "%Y%d%m_%H%M%S"), '.xlsx', sep='')
     },
     content = function(con) {
-      writeMEDTsoMapInput(pos_areas(), pos_links(), con)
+      writeMEDTsoMapInput(pos_areas(), pos_links(), 
+                          list(title_countries = input$title_countries,
+                               column_selection = input$column_selection,
+                               col_min = input$col_min,
+                               col_med = input$col_med,
+                               col_max = input$col_max,
+                               arrow_width_countries = input$arrow_width_countries,
+                               arrow_size_countries = input$arrow_size_countries,
+                               arrow_textsize_countries = input$arrow_textsize_countries,
+                               col_arrow_1_countries = input$col_arrow_1_countries,
+                               col_arrow_2_countries = input$col_arrow_2_countries,
+                               title_centers = input$title_centers,
+                               centers_columns = input$centers_columns,
+                               col_sp = input$col_sp,
+                               pie_size_centers = input$pie_size_centers,
+                               pie_textsize_centers = input$pie_textsize_centers,
+                               pie_alpha_centers = input$pie_alpha_centers,
+                               arrow_width_centers = input$arrow_width_centers,
+                               arrow_size_centers = input$arrow_size_centers,
+                               arrow_textsize_centers = input$arrow_textsize_centers,
+                               col_arrow_1 = input$col_arrow_1,
+                               col_arrow_2 = input$col_arrow_2,
+                               title_interco = input$title_interco,
+                               col_sp_interco = input$col_sp_interco,
+                               pie_size_interco = input$pie_size_interco,
+                               pie_textsize_interco = input$pie_textsize_interco,
+                               pie_alpha_interco = input$pie_alpha_interco,
+                               arrow_width_interco = input$arrow_width_interco,
+                               arrow_size_interco = input$arrow_size_interco,
+                               arrow_textsize_interco = input$arrow_textsize_interco,
+                               col_arrow_1_interco = input$col_arrow_1_interco,
+                               col_arrow_2_interco = input$col_arrow_2_interco),
+                          con)
     }
   )
   
