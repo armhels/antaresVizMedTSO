@@ -119,6 +119,12 @@ function(input, output, session) {
   
   source("src/server/06b_module_medtso_map.R", local = T)
   
+  #------------
+  # Format excel output
+  #------------
+  
+  source("src/server/11_format_output.R", local = T)
+  
   #----------------
   # shared inputs
   #----------------

@@ -23,9 +23,10 @@ suppressWarnings({
 
 
 # choose a directory
-source("src/scripts/directoryInput.R")
-source("src/scripts/subsetDataTable.R")
-source("src/scripts/utils_medtso_maps.R")
+source("src/scripts/directoryInput.R", encoding = "UTF-8")
+source("src/scripts/subsetDataTable.R", encoding = "UTF-8")
+source("src/scripts/utils_medtso_maps.R", encoding = "UTF-8")
+source("src/scripts/utils_format_output.R", encoding = "UTF-8")
 
 # shared inputs
 .global_shared_prodStack <- data.frame(
@@ -105,3 +106,8 @@ ref_medtsomap_data <- readMEDTsoMapInput("data/MedTSO_map_template.xlsx")
 
 sp_object <- readRDS("data/final_sp_map.RDS")
 sp_object@data <- as.data.table(sp_object@data)
+
+#------- format output
+
+defaut_template <- system.file("application/data/excel_templates/Output_Selection_template.xlsx", package = "antaresVizMedTSO")
+defaut_output_params <- readTemplateFile(defaut_template)

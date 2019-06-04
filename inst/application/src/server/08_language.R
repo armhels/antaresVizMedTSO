@@ -42,6 +42,10 @@ output$label_tab_medtso_map_menu <- renderText({
   antaresVizMedTSO:::.getLabelLanguage("Med-TSO Maps", current_language$language)
 })
 
+output$label_tab_format_output <- renderText({
+  antaresVizMedTSO:::.getLabelLanguage("Export", current_language$language)
+})
+
 output$label_tab_parameters <- renderText({
   antaresVizMedTSO:::.getLabelLanguage("Parameters", current_language$language)
 })
@@ -55,6 +59,10 @@ output$label_tab_import_data <- renderText({
 })
 
 output$label_tab_import_data_2 <- renderText({
+  antaresVizMedTSO:::.getLabelLanguage("Import Data", current_language$language)
+})
+
+output$label_tab_import_data_3 <- renderText({
   antaresVizMedTSO:::.getLabelLanguage("Import Data", current_language$language)
 })
 
@@ -78,12 +86,24 @@ output$title_import_data_3 <- renderText({
   paste0(antaresVizMedTSO:::.getLabelLanguage("Antares study selection", current_language$language), " : ")
 })
 
+output$title_import_data_4 <- renderText({
+  paste0(antaresVizMedTSO:::.getLabelLanguage("Antares study selection", current_language$language), " : ")
+})
+
 observe({
   # button
   updateActionButton(session, "init_sim", label = antaresVizMedTSO:::.getLabelLanguage("Set simulation", current_language$language))
   updateActionButton(session, "import_data", label = antaresVizMedTSO:::.getLabelLanguage("Validate & import data", current_language$language))
   updateActionButton(session, "quit", label = antaresVizMedTSO:::.getLabelLanguage("Quit application", current_language$language))
   updateActionButton(session, "update_module", label = antaresVizMedTSO:::.getLabelLanguage("Launch Analysis", current_language$language))
+  
+  updateActionButton(session, "init_sim_medtso_maps", label = antaresVizMedTSO:::.getLabelLanguage("Set simulation", current_language$language))
+  updateActionButton(session, "import_data_medtso_maps", label = antaresVizMedTSO:::.getLabelLanguage("Validate & import data", current_language$language))
+  
+  updateActionButton(session, "init_sim_format_output", label = antaresVizMedTSO:::.getLabelLanguage("Set simulation", current_language$language))
+  updateActionButton(session, "import_data_format_output", label = antaresVizMedTSO:::.getLabelLanguage("Validate & import data", current_language$language))
+  
+  # updateActionButton(session, "export_annual_format_output", label = antaresVizMedTSO:::.getLabelLanguage("Generate output file", current_language$language))
   
   updateCheckboxInput(session, "sel_compare_mcyear", 
                       label = antaresVizMedTSO:::.getLabelLanguage("mcYear on all modules ?", current_language$language))
@@ -125,6 +145,8 @@ observe({
   
   # Remove virtual Areas
   updateCheckboxInput(session, "rmva_ctrl", antaresVizMedTSO:::.getLabelLanguage("enabled", current_language$language))
+  updateCheckboxInput(session, "rmva_ctrl_medtso_maps", antaresVizMedTSO:::.getLabelLanguage("enabled", current_language$language))
+  updateCheckboxInput(session, "rmva_ctrl_format_output", antaresVizMedTSO:::.getLabelLanguage("enabled", current_language$language))
   
   # H5
   updateCheckboxInput(session, "enabled_write_h5", antaresVizMedTSO:::.getLabelLanguage("enabled", current_language$language))
@@ -148,11 +170,21 @@ output$current_opts_2 <- renderText({
   
 })
 
+output$current_opts_3 <- renderText({
+  paste0(antaresVizMedTSO:::.getLabelLanguage("ANTARES Simulation", current_language$language), " : ", 
+         current_study_path())
+  
+})
+
 output$title_readAntares <- renderText({
   antaresVizMedTSO:::.getLabelLanguage("readAntares parameters", current_language$language)
 })
 
 output$title_readAntares_2 <- renderText({
+  antaresVizMedTSO:::.getLabelLanguage("readAntares parameters", current_language$language)
+})
+
+output$title_readAntares_3 <- renderText({
   antaresVizMedTSO:::.getLabelLanguage("readAntares parameters", current_language$language)
 })
 
@@ -177,6 +209,10 @@ output$title_removeVirtualAreas <- renderText({
 })
 
 output$title_removeVirtualAreas_2 <- renderText({
+  paste0(antaresVizMedTSO:::.getLabelLanguage("Remove virtual Areas", current_language$language), " : ")
+})
+
+output$title_removeVirtualAreas_3 <- renderText({
   paste0(antaresVizMedTSO:::.getLabelLanguage("Remove virtual Areas", current_language$language), " : ")
 })
 
@@ -254,6 +290,10 @@ output$no_data_11 <- renderText({
 })
 
 output$no_data_12 <- renderText({
+  antaresVizMedTSO:::.getLabelLanguage("No data imported", current_language$language)
+})
+
+output$no_data_13 <- renderText({
   antaresVizMedTSO:::.getLabelLanguage("No data imported", current_language$language)
 })
 

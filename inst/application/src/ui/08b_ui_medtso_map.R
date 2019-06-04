@@ -71,6 +71,7 @@ tabPanel(textOutput("label_tab_medtso_map_menu"),
                                                                          )
                                                         ),
                                                         
+                                                        hr(),
                                                         uiOutput("ui_sel_file_import_medtso_maps"),
                                                         
                                                         div(actionButton("import_data_medtso_maps", "Validate & import data", icon = icon("upload")), align = "center")

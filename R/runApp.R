@@ -5,7 +5,7 @@
 #' @return 
 #' an App Shiny. 
 #' 
-#' @import shiny shinydashboard ggplot2 ggrepel ggforce sp
+#' @import shiny shinydashboard ggplot2 ggrepel ggforce sp stringr
 #' @importFrom shinyWidgets useShinydashboard
 #' @importFrom DT renderDT DTOutput
 #' @importFrom colourpicker colourInput updateColourInput

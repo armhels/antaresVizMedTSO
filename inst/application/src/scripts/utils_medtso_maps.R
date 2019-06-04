@@ -12,15 +12,30 @@ get_data_map <- function(opts, areas = NULL, links = NULL, mcYears = 1,
                          storageFlexibility = NULL, production = NULL,
                          reassignCosts = FALSE, newCols = TRUE, rowBal = TRUE){
   
+  if(length(storageFlexibility) > 0) storageFlexibility <- tolower(storageFlexibility)
+  if(length(production) > 0) production <- tolower(production)
+  if(length(areas) > 0) areas <- tolower(areas)
+  if(length(links) > 0) links <- tolower(links)
+  
   if(!is.null(areas)){
-    data_areas <- readAntares(areas = areas, links = links, 
-                              timeStep = "annual", select = NULL, mcYears = mcYears)
-    
-    if(removeVirtualAreas){
-      data_areas <- removeVirtualAreas(data_areas, storageFlexibility = storageFlexibility, production = production,
-                                       reassignCosts = reassignCosts, newCols = newCols, rowBal = rowBal)
+    if(!removeVirtualAreas){
+      data_areas <- readAntares(areas = areas, links = links, 
+                                timeStep = "annual", select = NULL, mcYears = mcYears)
+    } else {
+      data_areas <- readAntares(areas = "all", 
+                            links = "all",
+                            timeStep = "annual", 
+                            select = NULL, 
+                            mcYears = mcYears)
+      
+      data_areas <- suppressWarnings({removeVirtualAreas(data_areas, storageFlexibility = storageFlexibility, production = production,
+                                                     reassignCosts = reassignCosts, newCols = newCols, rowBal = rowBal)})
+      
+      sel_areas <- areas
+      data_areas$areas <- data_areas$areas[area %in% sel_areas, ]
+      data_areas$links <- NULL
     }
-    
+
     data_areas <- data_areas$areas
     gc()
     
@@ -31,17 +46,31 @@ get_data_map <- function(opts, areas = NULL, links = NULL, mcYears = 1,
   
   if(!is.null(links)){
     
-    data_links_h <- readAntares(areas = areas, links = links, timeStep = "hourly", 
+    data_links_h <- readAntares(areas = NULL, links = links, timeStep = "hourly", 
                                 select = NULL, mcYears = 1, linkCapacity = TRUE)
     
-    if(removeVirtualAreas){
-      data_links_h <- removeVirtualAreas(data_links_h, storageFlexibility = storageFlexibility, production = production,
-                                         reassignCosts = reassignCosts, newCols = newCols, rowBal = rowBal)
-      
-    }
-    
-    data_links_h <- data_links_h$links
-    gc()
+    # removeVirtualAreas not impact link data
+    # if(!removeVirtualAreas){
+    # data_links_h <- readAntares(areas = areas, links = links, timeStep = "hourly", 
+    #                             select = NULL, mcYears = 1, linkCapacity = TRUE)
+    # } else {
+    #   
+    #   data_links_h <- readAntares(areas = "all", 
+    #                             links = "all",
+    #                             timeStep = "hourly", 
+    #                             select = NULL, 
+    #                             mcYears = mcYears, linkCapacity = TRUE)
+    #   
+    #   data_links_h <- suppressWarnings({removeVirtualAreas(data_links_h, storageFlexibility = storageFlexibility, production = production,
+    #                                                      reassignCosts = reassignCosts, newCols = newCols, rowBal = rowBal)})
+    #   sel_links <- links
+    #   data_links_h$areas <- NULL
+    #   data_links_h$links <- data_links_h$links[link %in% sel_links, ]
+    #   gc(reset = T)
+    # }
+    # 
+    # data_links_h <- data_links_h$links
+    # gc()
     
     data_links <- data_links_h[, list(
       value_ab_center = round(sum(`FLOW LIN.`[`FLOW LIN.` > 0]) / 1000, 0),

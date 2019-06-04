@@ -531,14 +531,14 @@ gg_interco_plots <- reactive({
             setnames(pos_links_pie, c("lon_pie", "lat_pie"), c("long", "lat"))
             
             if(nrow(data_map$links$centers) > 0){
-            data_links <- copy(data_map$links$centers)
-            setnames(data_links, c("pie_ab", "pie_ba", "pie_null"), c("% A->B Saturation", "% B->A Saturation", "% Null Saturation"))
-            tmp <- add_pie(res_map$map, ref_map, pos_links_pie, data_links, 
-                           id_col = "link",
-                           pie_col = c("% A->B Saturation", "% B->A Saturation", "% Null Saturation"),
-                           colors = c(input$col_arrow_1_interco, input$col_arrow_2_interco, "gray"),
-                           r = input$pie_size_interco, text_size = input$pie_textsize_interco, 
-                           legend_position = res_map$legend_position, alpha = input$pie_alpha_interco) 
+              data_links <- copy(data_map$links$centers)
+              setnames(data_links, c("pie_ab", "pie_ba", "pie_null"), c("% A->B Saturation", "% B->A Saturation", "% Null Saturation"))
+              tmp <- add_pie(res_map$map, ref_map, pos_links_pie, data_links, 
+                             id_col = "link",
+                             pie_col = c("% A->B Saturation", "% B->A Saturation", "% Null Saturation"),
+                             colors = c(input$col_arrow_1_interco, input$col_arrow_2_interco, "gray"),
+                             r = input$pie_size_interco, text_size = input$pie_textsize_interco, 
+                             legend_position = res_map$legend_position, alpha = input$pie_alpha_interco) 
             } else {
               tmp <- res_map$map
             }
@@ -602,6 +602,7 @@ output$ui_file_sel_medtso_map <- renderUI({
     )
   )
 })
+
 observe({
   file_sel <- input$file_sel_medtso_map
   
@@ -661,47 +662,47 @@ observe({
       }
     }
   })
-  
-  output$get_sel_file_medtso_map <- downloadHandler(
-    filename = function() {
-      paste('MEDTso_maps_selection_', format(Sys.time(), format = "%Y%d%m_%H%M%S"), '.xlsx', sep='')
-    },
-    content = function(con) {
-      writeMEDTsoMapInput(pos_areas(), pos_links(), 
-                          list(title_countries = input$title_countries,
-                               column_selection = input$column_selection,
-                               col_min = input$col_min,
-                               col_med = input$col_med,
-                               col_max = input$col_max,
-                               arrow_width_countries = input$arrow_width_countries,
-                               arrow_size_countries = input$arrow_size_countries,
-                               arrow_textsize_countries = input$arrow_textsize_countries,
-                               col_arrow_1_countries = input$col_arrow_1_countries,
-                               col_arrow_2_countries = input$col_arrow_2_countries,
-                               title_centers = input$title_centers,
-                               centers_columns = input$centers_columns,
-                               col_sp = input$col_sp,
-                               pie_size_centers = input$pie_size_centers,
-                               pie_textsize_centers = input$pie_textsize_centers,
-                               pie_alpha_centers = input$pie_alpha_centers,
-                               arrow_width_centers = input$arrow_width_centers,
-                               arrow_size_centers = input$arrow_size_centers,
-                               arrow_textsize_centers = input$arrow_textsize_centers,
-                               col_arrow_1 = input$col_arrow_1,
-                               col_arrow_2 = input$col_arrow_2,
-                               title_interco = input$title_interco,
-                               col_sp_interco = input$col_sp_interco,
-                               pie_size_interco = input$pie_size_interco,
-                               pie_textsize_interco = input$pie_textsize_interco,
-                               pie_alpha_interco = input$pie_alpha_interco,
-                               arrow_width_interco = input$arrow_width_interco,
-                               arrow_size_interco = input$arrow_size_interco,
-                               arrow_textsize_interco = input$arrow_textsize_interco,
-                               col_arrow_1_interco = input$col_arrow_1_interco,
-                               col_arrow_2_interco = input$col_arrow_2_interco),
-                          con)
-    }
-  )
-  
 })
+
+
+output$get_sel_file_medtso_map <- downloadHandler(
+  filename = function() {
+    paste('MEDTso_maps_selection_', format(Sys.time(), format = "%Y%d%m_%H%M%S"), '.xlsx', sep='')
+  },
+  content = function(con) {
+    writeMEDTsoMapInput(pos_areas(), pos_links(), 
+                        list(title_countries = input$title_countries,
+                             column_selection = input$column_selection,
+                             col_min = input$col_min,
+                             col_med = input$col_med,
+                             col_max = input$col_max,
+                             arrow_width_countries = input$arrow_width_countries,
+                             arrow_size_countries = input$arrow_size_countries,
+                             arrow_textsize_countries = input$arrow_textsize_countries,
+                             col_arrow_1_countries = input$col_arrow_1_countries,
+                             col_arrow_2_countries = input$col_arrow_2_countries,
+                             title_centers = input$title_centers,
+                             centers_columns = input$centers_columns,
+                             col_sp = input$col_sp,
+                             pie_size_centers = input$pie_size_centers,
+                             pie_textsize_centers = input$pie_textsize_centers,
+                             pie_alpha_centers = input$pie_alpha_centers,
+                             arrow_width_centers = input$arrow_width_centers,
+                             arrow_size_centers = input$arrow_size_centers,
+                             arrow_textsize_centers = input$arrow_textsize_centers,
+                             col_arrow_1 = input$col_arrow_1,
+                             col_arrow_2 = input$col_arrow_2,
+                             title_interco = input$title_interco,
+                             col_sp_interco = input$col_sp_interco,
+                             pie_size_interco = input$pie_size_interco,
+                             pie_textsize_interco = input$pie_textsize_interco,
+                             pie_alpha_interco = input$pie_alpha_interco,
+                             arrow_width_interco = input$arrow_width_interco,
+                             arrow_size_interco = input$arrow_size_interco,
+                             arrow_textsize_interco = input$arrow_textsize_interco,
+                             col_arrow_1_interco = input$col_arrow_1_interco,
+                             col_arrow_2_interco = input$col_arrow_2_interco),
+                        con)
+  }
+)
 
