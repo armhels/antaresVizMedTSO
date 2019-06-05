@@ -489,7 +489,7 @@ formatAnnualOutputs <- function(data_areas_dist_clust,
     
     equivalent_full_load <- data.table(
       copy(annual_capacity[,1:2]),
-      annual_generation[,-c(1:2)]/1000/copy(annual_capacity)[,-c(1:2)])
+      (annual_generation[,-c(1:2)]*1000)/copy(annual_capacity)[,-c(1:2)])
     cols_num <- colnames(equivalent_full_load)[-(1:2)]
     equivalent_full_load[, (cols_num) := lapply(.SD, function(x) {x[is.nan(x)] <- 0 ; x}), .SDcols = (cols_num)]
     
