@@ -6,14 +6,14 @@ require(openxlsx)
 
 
 # Somme des variables finissant par _chiffre :
-aggregateClusters <- function(data, var, hourly = F){
+aggregateClusters <- function(data, var, hourly = F, div = 1){
   data <- copy(data)
   ind <- grep("_[0-9]$", data[["cluster"]])
   data[ind, cluster := gsub(pattern = "_[0-9]$", "", cluster)]
   if(hourly){
-    data <- data[, .(var = sum(get(var))), by = .(area, cluster, time)]  
+    data <- data[, .(var = sum(get(var)) / div), by = .(area, cluster, time)]  
   }else {
-    data <- data[, .(var = sum(get(var))), by = .(area, cluster)]
+    data <- data[, .(var = sum(get(var)) / div), by = .(area, cluster)]
   }
   data
 }
@@ -85,9 +85,18 @@ importAntaresDatasAnnual <- function(opts, areas_districts_selections, links_sel
                                                                     storageFlexibility = storageFlexibility, production = production,
                                                                     reassignCosts = reassignCosts, newCols = newCols, rowBal = rowBal)})
       
-      data_areas_dist_clust$areas <- data_areas_dist_clust$areas[area %in% areas_selection, ]
-      data_areas_dist_clust$clusters <- data_areas_dist_clust$clusters[area %in% areas_clusters_selection, ]
-      data_areas_dist_clust$districts <- data_areas_dist_clust$districts[district %in% districts_selection, ]
+      if(!is.null(data_areas_dist_clust$areas) && nrow(data_areas_dist_clust$areas) > 0){
+        data_areas_dist_clust$areas <- data_areas_dist_clust$areas[area %in% areas_selection, ]
+      }
+      
+      if(!is.null(data_areas_dist_clust$clusters) && nrow(data_areas_dist_clust$clusters) > 0){
+        data_areas_dist_clust$clusters[area %in% areas_clusters_selection, ]
+      }
+      
+      if(!is.null(data_areas_dist_clust$districts) && nrow(data_areas_dist_clust$districts) > 0){
+        data_areas_dist_clust$districts <- data_areas_dist_clust$districts[district %in% districts_selection, ]
+      }
+      
       data_areas_dist_clust$links <- NULL
       gc(reset = T)
       
@@ -141,25 +150,63 @@ importAntaresDatasAnnual <- function(opts, areas_districts_selections, links_sel
   }
   
   if(!is.null(mcYears)){
+    
+    # fix surplus
+    if(removeVirtualAreas && length(storageFlexibility) > 0){
+      for(v in tolower(storageFlexibility)){
+        if(!v %in% colnames(data_areas_dist_clustH$areas)){
+          data_areas_dist_clustH$areas[, c(v) := 0]
+        }
+      }
+    }
+    
+    if(removeVirtualAreas && length(production) > 0){
+      for(v in tolower(production)){
+        if(!v %in% colnames(data_areas_dist_clustH$areas)){
+          data_areas_dist_clustH$areas[, c(v) := 0]
+        }
+      }
+    }
+    
     surplus <- suppressWarnings({antaresProcessing::surplus(data_areas_dist_clustH)}) 
     surplus_districts <- suppressWarnings({antaresProcessing::surplus(data_areas_dist_clustH, groupByDistrict = T)})
     surplus <- rbindlist(list(surplus, surplus_districts), use.names = FALSE)
     
-    data_areas_dist_clustH$areas <- data_areas_dist_clustH$areas[area %in% areas_selection, list(area, mcYear, timeId, time, day, month, hour, PSP)]
-    data_areas_dist_clustH$clusters <- data_areas_dist_clustH$clusters[area %in% areas_clusters_selection, ]
-    data_areas_dist_clustH$links <- data_areas_dist_clustH$links[link %in% links_selections, ]
-    data_areas_dist_clustH$districts <- data_areas_dist_clustH$districts[district %in% districts_selection, list(district, mcYear, timeId, time, day, month, hour, PSP)]
+    if(!is.null(data_areas_dist_clustH$areas) && nrow(data_areas_dist_clustH$areas) > 0){
+      data_areas_dist_clustH$areas <- data_areas_dist_clustH$areas[area %in% areas_selection, list(area, mcYear, timeId, time, day, month, hour, PSP)]
+    }
     
+    if(!is.null(data_areas_dist_clustH$clusters) && nrow(data_areas_dist_clustH$clusters) > 0){
+      data_areas_dist_clustH$clusters <- data_areas_dist_clustH$clusters[area %in% areas_clusters_selection, ]
+    }
+    
+    if(!is.null(data_areas_dist_clustH$districts) && nrow(data_areas_dist_clustH$districts) > 0){
+      data_areas_dist_clustH$districts <- data_areas_dist_clustH$districts[district %in% districts_selection, list(district, mcYear, timeId, time, day, month, hour, PSP)]
+    }
+    
+    if(!is.null(data_areas_dist_clustH$links) && nrow(data_areas_dist_clustH$links) > 0){
+      data_areas_dist_clustH$links <- data_areas_dist_clustH$links[link %in% links_selections, ]
+    }
     
   } else {
     surplus <- data.table(area = character(0), globalSurplus = numeric(0), 
                           producerSurplus = numeric(0), consumerSurplus = numeric(0), congestionFees = numeric(0))
     
-    data_areas_dist_clustH$areas <- data_areas_dist_clustH$areas[area %in% areas_selection, list(area, timeId, time, day, month, hour, PSP)]
-    data_areas_dist_clustH$clusters <- data_areas_dist_clustH$clusters[area %in% areas_clusters_selection, ]
-    data_areas_dist_clustH$links <- data_areas_dist_clustH$links[link %in% links_selections, ]
-    data_areas_dist_clustH$districts <- data_areas_dist_clustH$districts[district %in% districts_selection, list(district, timeId, time, day, month, hour, PSP)]
+    if(!is.null(data_areas_dist_clustH$areas) && nrow(data_areas_dist_clustH$areas) > 0){
+      data_areas_dist_clustH$areas <- data_areas_dist_clustH$areas[area %in% areas_selection, list(area, timeId, time, day, month, hour, PSP)]
+    }
     
+    if(!is.null(data_areas_dist_clustH$clusters) && nrow(data_areas_dist_clustH$clusters) > 0){
+      data_areas_dist_clustH$clusters <- data_areas_dist_clustH$clusters[area %in% areas_clusters_selection, ]
+    }
+    
+    if(!is.null(data_areas_dist_clustH$districts) && nrow(data_areas_dist_clustH$districts) > 0){
+      data_areas_dist_clustH$districts <- data_areas_dist_clustH$districts[district %in% districts_selection, list(district, timeId, time, day, month, hour, PSP)]
+    }
+    
+    if(!is.null(data_areas_dist_clustH$links) && nrow(data_areas_dist_clustH$links) > 0){
+      data_areas_dist_clustH$links <- data_areas_dist_clustH$links[link %in% links_selections, ]
+    }
   }
   
   
@@ -168,46 +215,42 @@ importAntaresDatasAnnual <- function(opts, areas_districts_selections, links_sel
   # }
   
   
-  # Enrichissement par la somme des clusters par districts :  
-  try({
-    tmp <- merge(opts$districtsDef[district %in% areas_districts_selections], 
-                 data_areas_dist_clust$clusters, by = "area", allow.cartesian = T)
-    tmp[, c("production", "NP Cost", "NODU") := list(as.numeric(production), as.numeric(`NP Cost`), as.numeric(NODU))]
-    tmp <- na.omit(cube(tmp, j = lapply(.SD, sum), 
-                        by = c("district", "cluster"), .SDcols = c("production", "NP Cost", "NODU")))
-    setnames(tmp, "district", "area")
-    data_areas_dist_clust$clusters <- rbindlist(list(data_areas_dist_clust$clusters[area %in% areas_districts_selections], tmp), use.names = T, fill = TRUE)
-    rm(tmp)
-    gc()
-  }, T)
-  
-  # try({
-  #   tmp <- merge(opts$districtsDef[district %in% areas_districts_selections], 
-  #                data_areas_dist_clustH$clusters, by = c("area"), allow.cartesian = T)
-  #   tmp <- na.omit(cube(tmp, j = lapply(.SD, sum), 
-  #                       by = c("district", "cluster", "time"), .SDcols = c("production", "NP Cost", "NODU")))
-  #   setnames(tmp, "district", "area")
-  #   data_areas_dist_clustH$clusters <- 
-  #     rbindlist(list(data_areas_dist_clustH$clusters[area %in% areas_districts_selections], tmp), use.names = T, fill = TRUE)
-  # }, T)
+  # Enrichissement par la somme des clusters par districts : 
+  if(!is.null(data_areas_dist_clust)){
+    try({
+      tmp <- merge(opts$districtsDef[district %in% areas_districts_selections], 
+                   data_areas_dist_clust$clusters, by = "area", allow.cartesian = T)
+      tmp[, c("production", "NP Cost", "NODU") := list(as.numeric(production), as.numeric(`NP Cost`), as.numeric(NODU))]
+      tmp <- na.omit(cube(tmp, j = lapply(.SD, sum), 
+                          by = c("district", "cluster"), .SDcols = c("production", "NP Cost", "NODU")))
+      setnames(tmp, "district", "area")
+      data_areas_dist_clust$clusters <- rbindlist(list(data_areas_dist_clust$clusters[area %in% areas_districts_selections], tmp), use.names = T, fill = TRUE)
+      rm(tmp)
+      gc()
+    }, T)
+  }
   
   areas_districtsH <- rbindlist(list(data_areas_dist_clustH$areas, data_areas_dist_clustH$districts), use.names=FALSE)
-  
   data_areas_districts <- rbindlist(list(data_areas_dist_clust$areas, data_areas_dist_clust$districts), use.names=FALSE)
   
-  data_PSP <- areas_districtsH[, .(PSP_positif = sum(PSP[PSP > 0]),
-                                   PSP_negatif = sum(PSP[PSP < 0])), by = .(area)] 
+  if((!is.null(data_areas_districts) && nrow(data_areas_districts) > 0) & !is.null(areas_districtsH) && nrow(areas_districtsH) > 0){
+    data_PSP <- areas_districtsH[, .(PSP_positif = sum(PSP[PSP > 0]),
+                                     PSP_negatif = sum(PSP[PSP < 0])), by = .(area)] 
+    
+    rm(areas_districtsH)
+    gc()
+    
+    data_areas_districts <- merge(data_areas_districts, data_PSP, by = "area", all.x = TRUE)
+  }
   
-  rm(areas_districtsH)
-  gc()
-  
-  data_areas_districts <- merge(data_areas_districts, data_PSP, by = "area", all.x = TRUE)
   
   list(opts = opts,
        data_areas_dist_clust = data_areas_dist_clust, 
        data_areas_dist_clustH = data_areas_dist_clustH,
        dataForSurplus = surplus,
-       data_areas_districts = data_areas_districts)
+       data_areas_districts = data_areas_districts, 
+       areas_districts_selections = areas_districts_selections, 
+       links_selections = links_selections)
 }
 
 
@@ -247,10 +290,13 @@ formatAnnualOutputs <- function(data_areas_dist_clust,
     annual_generation_block <- copy(data_areas_districts)
     annual_generation_block <- 
       annual_generation_block[, c(tmp) := list(
-        NUCLEAR, COAL, LIGNITE,
-        GAS, OIL, `MIX. FUEL`+`MISC. DTG`, `H. ROR`+`H. STOR`, PSP_positif, NA, WIND, SOLAR, `MISC. NDG`,  #FIXME à checker
-        GAS+OIL+`MIX. FUEL`+`MISC. DTG`+`H. ROR`+`H. STOR`+PSP_positif+0+WIND+SOLAR+`MISC. NDG`,`SPIL. ENRG`)]
-    annual_generation_block[, "Net Total Generation [GWh]" := get("Total Generation before RES Curtailment [GWh]") - `SPIL. ENRG`]
+        NUCLEAR / 1000, COAL  / 1000, LIGNITE  / 1000,
+        GAS / 1000, OIL  / 1000, (`MIX. FUEL`+`MISC. DTG`)  / 1000, 
+        (`H. ROR`+`H. STOR`)  / 1000, PSP_positif  / 1000, NA, 
+        WIND  / 1000, SOLAR  / 1000, `MISC. NDG`  / 1000,  #FIXME à checker
+        (GAS+OIL+`MIX. FUEL`+`MISC. DTG`+`H. ROR`+`H. STOR`+PSP_positif+0+WIND+SOLAR+`MISC. NDG`)  / 1000,
+        `SPIL. ENRG` / 1000)]
+    annual_generation_block[, "Net Total Generation [GWh]" := get("Total Generation before RES Curtailment [GWh]") - (`SPIL. ENRG`  / 1000)]
     annual_generation_block <- annual_generation_block[, c(tmp,"Net Total Generation [GWh]"), with = F]
     
     t_annual_generation_block <- formater_tab(annual_generation_block, "Annual generation [GWh]", 
@@ -268,8 +314,8 @@ formatAnnualOutputs <- function(data_areas_dist_clust,
     annual_demand_block <- copy(data_areas_districts)
     annual_demand_block <- 
       annual_demand_block[, c(tmp) := list(
-        LOAD, PSP_negatif, NA, BALANCE, `ROW BAL.`,  #FIXME à checker
-        LOAD+PSP_negatif+0+BALANCE-`ROW BAL.`)]
+        LOAD  / 1000, PSP_negatif  / 1000, NA, BALANCE  / 1000, `ROW BAL.`  / 1000,  #FIXME à checker
+        (LOAD+PSP_negatif+0+BALANCE-`ROW BAL.`)  / 1000)]
     
     annual_demand_block <- annual_demand_block[, tmp, with = F]
     
@@ -293,12 +339,12 @@ formatAnnualOutputs <- function(data_areas_dist_clust,
     indicators_block <- copy(data_areas_districts)
     indicators_block <- 
       indicators_block[, c(tmp) := list(
-        `UNSP. ENRG`, LOLD, NA,  #FIXME à checker
-        `H. STOR`+`H. ROR`+WIND+SOLAR+`MISC. NDG`,
-        (`H. STOR`+`H. ROR`+WIND+SOLAR+`MISC. NDG`) - `SPIL. ENRG`,
+        `UNSP. ENRG`  / 1000, LOLD, NA,  #FIXME à checker
+        (`H. STOR`+`H. ROR`+WIND+SOLAR+`MISC. NDG`)  / 1000,
+        ((`H. STOR`+`H. ROR`+WIND+SOLAR+`MISC. NDG`) - `SPIL. ENRG`)  / 1000,
         ((`H. STOR`+`H. ROR`+WIND+SOLAR+`MISC. NDG`) - `SPIL. ENRG`)/LOAD*100,
         annual_generation_block[,get("RES Curtailment [GWh]")/get("Total Generation before RES Curtailment [GWh]")]*100,
-        `CO2 EMIS.`, `OV. COST`, `OP. COST`, `NP COST`, `MRG. PRICE`)]
+        `CO2 EMIS.`/ 1000000, `OV. COST` / 1000000, `OP. COST` / 1000000, `NP COST`  / 1000000, `MRG. PRICE`)]
     
     indicators_block <- indicators_block[, tmp, with = F]
     t_indicators_block <- formater_tab(indicators_block, "Indicators", new_names =  as.character(data_areas_districts$area))
@@ -321,7 +367,7 @@ formatAnnualOutputs <- function(data_areas_dist_clust,
              "CONGESTION RENT [M€/Year]")
     
     welfare_block <- surplus[, c("area", tmp) := list(
-      area, globalSurplus, producerSurplus, consumerSurplus, congestionFees)]
+      area, globalSurplus / 1000000, producerSurplus / 1000000, consumerSurplus / 1000000, congestionFees / 1000000)]
     welfare_block <- welfare_block[, tmp, with = F]
     t_welfare_block <- formater_tab(welfare_block, "Welfare system", new_names = as.character(surplus$area))
     
@@ -348,22 +394,22 @@ formatAnnualOutputs <- function(data_areas_dist_clust,
   
   try({
     if(!(is.null(data_areas_dist_clustH))){
-      if(!is.null(data_areas_dist_clustH$links)){
+      if(!is.null(data_areas_dist_clustH$links) && nrow(data_areas_dist_clustH$links) > 0){
         data_links_sums <- data_areas_dist_clustH$links[, list(
           "NTC A->B" = max(transCapacityDirect),
           "NTC B->A" = min(transCapacityIndirect), 
-          "A->B " = sum(`FLOW LIN.`[`FLOW LIN.` > 0]),
-          "B->A " = abs(sum(`FLOW LIN.`[`FLOW LIN.` < 0])),
           "A->B" = sum(`CONG. PROB +` > 0),
-          "B->A" = sum(`CONG. PROB -` > 0)), by = list(link = toupper(link))]
+          "B->A" = sum(`CONG. PROB -` > 0),
+          "A->B " = sum(`FLOW LIN.`[`FLOW LIN.` > 0]) / 1000,
+          "B->A " = abs(sum(`FLOW LIN.`[`FLOW LIN.` < 0])) / 1000), by = list(link = toupper(link))]
       } else {
         data_links_sums <- data_areas_dist_clustH[, list(
           "NTC A->B" = max(transCapacityDirect),
           "NTC B->A" = min(transCapacityIndirect), 
-          "A->B " = sum(`FLOW LIN.`[`FLOW LIN.` > 0]),
-          "B->A " = abs(sum(`FLOW LIN.`[`FLOW LIN.` < 0])),
           "A->B" = sum(`CONG. PROB +` > 0),
-          "B->A" = sum(`CONG. PROB -` > 0)), by = list(link = toupper(link))]
+          "B->A" = sum(`CONG. PROB -` > 0),
+          "A->B " = sum(`FLOW LIN.`[`FLOW LIN.` > 0]) / 1000,
+          "B->A " = abs(sum(`FLOW LIN.`[`FLOW LIN.` < 0])) / 1000), by = list(link = toupper(link))]
       }
       setorder(data_links_sums[, .r := match(toupper(links_selections), link)], .r)[, .r := NULL]
       data_links_sums[, "Output type" := " "]
@@ -376,7 +422,7 @@ formatAnnualOutputs <- function(data_areas_dist_clust,
     #=====================================Annual generation [GWh] (production / 1000)=================================
     
     
-    data_areas_dist_clust$clusters <- aggregateClusters(data_areas_dist_clust$clusters, "production")
+    data_areas_dist_clust$clusters <- aggregateClusters(data_areas_dist_clust$clusters, "production", div = 1000)
     setnames(data_areas_dist_clust$clusters, "var", "production")
     
     annual_generation <- dcast(data_areas_dist_clust$clusters, cluster ~ area, value.var = "production", fill = 0)
@@ -388,11 +434,11 @@ formatAnnualOutputs <- function(data_areas_dist_clust,
     annual_generation <- rbindlist(list(template, annual_generation), fill = T)
     
     tmp_block <- copy(data_areas_districts)
-    tmp_block <- tmp_block[, .(area, `H. ROR`, `H. STOR`, 
-                               "PSP (somme valeurs horaires positives)" = PSP_positif, 
-                               "PSP (somme valeurs horaires négatives)" = PSP_negatif, 
-                               "MIX. FUEL + MISC. DTG" = `MIX. FUEL` + `MISC. DTG`,
-                               WIND, SOLAR, `MISC. NDG`)]
+    tmp_block <- tmp_block[, .(area, "H. ROR" = `H. ROR`/ 1000, "H. STOR" = `H. STOR`/ 1000, 
+                               "PSP (somme valeurs horaires positives)" = PSP_positif / 1000, 
+                               "PSP (somme valeurs horaires négatives)" = PSP_negatif / 1000, 
+                               "MIX. FUEL + MISC. DTG" = (`MIX. FUEL` + `MISC. DTG`) / 1000,
+                               "WIND" = WIND / 1000, "SOLAR" = SOLAR / 1000, "MISC. NDG" = `MISC. NDG` / 1000)]
     
     t_tmp_block <- data.table(variable = colnames(tmp_block)[-1], t(tmp_block[, -1]))
     names(t_tmp_block) <- c("variable", as.character(tmp_block$area))
@@ -461,9 +507,9 @@ formatAnnualOutputs <- function(data_areas_dist_clust,
     
     tmp_block_comp <- copy(data_areas_districts)
     tmp_block_comp <- tmp_block_comp[, c(tmp) := list(
-      `H. STOR`+`H. ROR`, LOAD,
-      PSP_negatif, BALANCE, `ROW BAL.`, BALANCE- `ROW BAL.`, `SPIL. ENRG`,
-      `UNSP. ENRG`, LOLD, `CO2 EMIS.`)]
+      (`H. STOR`+`H. ROR`) / 1000, LOAD / 1000,
+      PSP_negatif / 1000, BALANCE / 1000, `ROW BAL.` / 1000, (BALANCE- `ROW BAL.`) / 1000, `SPIL. ENRG` / 1000,
+      `UNSP. ENRG` / 1000, LOLD, `CO2 EMIS.`)]
     tmp_block_comp <- tmp_block_comp[, tmp, with = F]
     tmp_block_comp <- formater_tab(tmp_block_comp, output_type = NULL, new_names =  as.character(data_areas_districts$area))
     
@@ -473,7 +519,7 @@ formatAnnualOutputs <- function(data_areas_dist_clust,
              "Marginal Cost Yearly Average (excl. 3000 €/MWh) [€]",
              "Pan-EU Marginal Cost Yearly Average (excl. 3000 €/MWh) Weighted By Demand [€]")
     overall_block <- copy(data_areas_districts)
-    overall_block <- overall_block[, c(tmp) := list(`OV. COST`, `MRG. PRICE`, NA, NA)]
+    overall_block <- overall_block[, c(tmp) := list(`OV. COST` / 1000000, `MRG. PRICE`, NA, NA)]
     overall_block <- overall_block[, tmp, with = F]
     overall_block <- formater_tab(overall_block, output_type = NULL, new_names =  as.character(data_areas_districts$area))
     
@@ -499,70 +545,85 @@ formatAnnualOutputs <- function(data_areas_dist_clust,
     template[, c(toupper(areas_districts_selections)) := numeric(0)]
     data_long_out <- rbindlist(list(template, data_long_out), fill = T)  
   }
-  try({
-    t_all[, colnames(t_all)[-c(1,2)] := lapply(.SD, function(x) {
-      x[is.nan(x)] <- 0 ; 
-      x[is.infinite(x)] <- 0;
-      x[is.na(x)] <- 0; x}), .SDcols = (colnames(t_all)[-c(1,2)])]  }, T)
-  try({
-    t_welfare_block[, colnames(t_welfare_block)[-c(1,2)] := lapply(.SD, function(x) {
-      x[is.nan(x)] <- 0 ; 
-      x[is.infinite(x)] <- 0;
-      x[is.na(x)] <- 0; x}), .SDcols = (colnames(t_welfare_block)[-c(1,2)])]}, T)
-  try({
-    data_long_out[, colnames(data_long_out)[-c(1,2)] := lapply(.SD, function(x) {
-      x[is.nan(x)] <- 0 ; 
-      x[is.infinite(x)] <- 0;
-      x[is.na(x)] <- 0; x}), .SDcols = (colnames(data_long_out)[-c(1,2)])]}, T)
   
+  if(nrow(t_all) > 0){
+    try({
+      t_all[, colnames(t_all)[-c(1,2)] := lapply(.SD, function(x) {
+        x[is.nan(x)] <- 0 ; 
+        x[is.infinite(x)] <- 0;
+        x[is.na(x)] <- 0; x}), .SDcols = (colnames(t_all)[-c(1,2)])]  }, T)
+  }
+  
+  if(nrow(t_welfare_block) > 0){
+    try({
+      t_welfare_block[, colnames(t_welfare_block)[-c(1,2)] := lapply(.SD, function(x) {
+        x[is.nan(x)] <- 0 ; 
+        x[is.infinite(x)] <- 0;
+        x[is.na(x)] <- 0; x}), .SDcols = (colnames(t_welfare_block)[-c(1,2)])]}, T)
+  }
+  
+  if(nrow(data_long_out) > 0){
+    try({
+      data_long_out[, colnames(data_long_out)[-c(1,2)] := lapply(.SD, function(x) {
+        x[is.nan(x)] <- 0 ; 
+        x[is.infinite(x)] <- 0;
+        x[is.na(x)] <- 0; x}), .SDcols = (colnames(data_long_out)[-c(1,2)])]}, T)
+  }
   
   list(t_all = t_all, t_welfare_block = t_welfare_block, line_style = line_style, data_links_sums = data_links_sums,
-       data_intro = data_intro, data_long_out = data_long_out) 
+       data_intro = data_intro, data_long_out = data_long_out, areas_districts_selections = areas_districts_selections,
+       links_selections = links_selections) 
 }
 
 
 #export
-exportAnnualOutputs <- function(infile_name, outfile_name, annual_outputs,
-                                links_selections, areas_districts_selections, data_intro){
+exportAnnualOutputs <- function(infile_name, outfile_name, annual_outputs, data_intro){
   
   wb <- createWorkbook()
   wb <- loadWorkbook(infile_name)
   options(scipen = 0)
   try({
     writeData(wb, "Identification", annual_outputs$data_intro[-4,])
-    writeData(wb, "Identification", toupper(areas_districts_selections), startRow = 14, startCol = 2)
-    writeData(wb, "Identification", toupper(links_selections), startRow = 14, startCol = 3)
+    writeData(wb, "Identification", toupper(annual_outputs$areas_districts_selections), startRow = 14, startCol = 2)
+    writeData(wb, "Identification", toupper(annual_outputs$links_selections), startRow = 14, startCol = 3)
     writeData(wb, "Identification", data_intro[4, get(colnames(data_intro)[2])], startRow = 14, startCol = 4)
   }, T)
   
   try({
-    
-    colnames(annual_outputs$t_all)[2] <- "Output type"
-    colnames(annual_outputs$t_welfare_block)[2] <- "Output type"
     writeData(wb, "Yearly Outputs Short", annual_outputs$data_intro)
     
-    writeData(wb, "Yearly Outputs Short", annual_outputs$t_all[,1:2], startRow = 6)
-    writeData(wb, "Yearly Outputs Short", annual_outputs$t_all[,-(1:2)], startRow = 6, borders = "all", startCol = 3)
+    if(nrow(annual_outputs$t_all) > 0){
+      colnames(annual_outputs$t_all)[2] <- "Output type"
+      writeData(wb, "Yearly Outputs Short", annual_outputs$t_all[,1:2], startRow = 6)
+      writeData(wb, "Yearly Outputs Short", annual_outputs$t_all[,-(1:2)], startRow = 6, borders = "all", startCol = 3)
+    } 
     
-    writeData(wb, "Yearly Outputs Short", annual_outputs$t_welfare_block[,1:2], startRow = 42)
-    writeData(wb, "Yearly Outputs Short", annual_outputs$t_welfare_block[,-(1:2)], startRow = 42, borders = "all", startCol = 3)
+    if(nrow(annual_outputs$t_welfare_block) > 0){
+      colnames(annual_outputs$t_welfare_block)[2] <- "Output type"
+      writeData(wb, "Yearly Outputs Short", annual_outputs$t_welfare_block[,1:2], startRow = 42)
+      writeData(wb, "Yearly Outputs Short", annual_outputs$t_welfare_block[,-(1:2)], startRow = 42, borders = "all", startCol = 3)
+    }
     
     writeData(wb, "Yearly Outputs Short", annual_outputs$line_style, startRow = 48)
   }, T)
   
   try({
-    writeData(wb, "Yearly Outputs Short", annual_outputs$data_links_sums, startRow = 50, borders = "all")
+    if(!is.null(annual_outputs$data_links_sums) && nrow(annual_outputs$data_links_sums) > 0){
+      writeData(wb, "Yearly Outputs Short", annual_outputs$data_links_sums, startRow = 50, borders = "all")
+    }
   }, T)
   try({
-    
-    colnames(annual_outputs$data_long_out)[2] <- "Output type"
     
     writeData(wb, "Yearly Outputs Long", annual_outputs$data_intro[,1:2])
     writeData(wb, "Yearly Outputs Long", annual_outputs$data_intro[,-(1:2)], borders = "all", startCol = 3)
     
-    writeData(wb, "Yearly Outputs Long", annual_outputs$data_long_out[,1:2], startRow = 6)
-    writeData(wb, "Yearly Outputs Long", annual_outputs$data_long_out[,-(1:2)], startRow = 6, borders = "all", startCol = 3)
-    
+    if(nrow(annual_outputs$data_long_out) > 0){
+      colnames(annual_outputs$data_long_out)[2] <- "Output type"
+      writeData(wb, "Yearly Outputs Long", annual_outputs$data_long_out[,1:2], startRow = 6)
+      writeData(wb, "Yearly Outputs Long", annual_outputs$data_long_out[,-(1:2)], startRow = 6, borders = "all", startCol = 3)
+      
+    }
+
   }, T)
   saveWorkbook(wb, file = outfile_name, overwrite = T)
   
@@ -647,36 +708,57 @@ importAntaresDatasHourly <- function(opts, areas_districts_selections, links_sel
     data_h <- suppressWarnings({removeVirtualAreas(data_h, storageFlexibility = storageFlexibility, production = production,
                                                    reassignCosts = reassignCosts, newCols = newCols, rowBal = rowBal)})
     
-    data_h$areas <- data_h$areas[area %in% areas_selection, ]
-    data_h$clusters <- data_h$clusters[area %in% areas_clusters_selection, ]
-    data_h$districts <- data_h$districts[district %in% districts_selection, ]
-    data_h$links <- data_h$links[link %in% links_selections, ]
+    
+    if(!is.null(data_h$areas) && nrow(data_h$areas) > 0){
+      data_h$areas <- data_h$areas[area %in% areas_selection, ]
+    }
+    
+    if(!is.null(data_h$clusters) && nrow(data_h$clusters) > 0){
+      data_h$clusters <- data_h$clusters[area %in% areas_clusters_selection, ]
+    }
+    
+    if(!is.null(data_h$districts) && nrow(data_h$districts) > 0){
+      data_h$districts <- data_h$districts[district %in% districts_selection, ]
+    }
+    
+    if(!is.null(data_h$links) && nrow(data_h$links) > 0){
+      data_h$links <- data_h$links[link %in% links_selections, ]
+    }
+    
     gc(reset = T)
     
   }
   
   
-  # Enrichissement par la somme des clusters par districts :  
-  try({
-    tmp <- merge(opts$districtsDef[district %in% areas_districts_selections], 
-                 data_h$clusters, by = c("area"), allow.cartesian = T)
-    tmp[, c("production", "NP Cost", "NODU") := list(as.numeric(production), as.numeric(`NP Cost`), as.numeric(NODU))]
-    tmp <- na.omit(cube(tmp, j = lapply(.SD, sum), 
-                        by = c("district", "cluster", "time"), .SDcols = c("production", "NP Cost", "NODU")))
-    setnames(tmp, "district", "area")
-    data_h$clusters <- rbindlist(list(data_h$clusters[area %in% areas_districts_selections], tmp), use.names = T, fill = TRUE)
-    rm(tmp)
-    gc()
-  }, T)
+  # Enrichissement par la somme des clusters par districts : 
+  if(!is.null(data_h$clusters) && nrow(data_h$clusters) > 0){
+    try({
+      tmp <- merge(opts$districtsDef[district %in% areas_districts_selections], 
+                   data_h$clusters, by = c("area"), allow.cartesian = T)
+      tmp[, c("production", "NP Cost", "NODU") := list(as.numeric(production), as.numeric(`NP Cost`), as.numeric(NODU))]
+      tmp <- na.omit(cube(tmp, j = lapply(.SD, sum), 
+                          by = c("district", "cluster", "time"), .SDcols = c("production", "NP Cost", "NODU")))
+      setnames(tmp, "district", "area")
+      data_h$clusters <- rbindlist(list(data_h$clusters[area %in% areas_districts_selections], tmp), use.names = T, fill = TRUE)
+      rm(tmp)
+      gc()
+    }, T)
+  }
+
   
-  data_h
+  list(data = data_h, areas_districts_selections = areas_districts_selections, links_selections = links_selections)
 }
 
 # formatage
 formatHourlyOutputs <- function(data_h, areas_selections,
                                 market_data_code, links_selections, dico = dico){
   data_out <- NA ; dt_stats <- NA ; areas_districts <- NA
-  data_links <- data_h$links
+  
+  if("data.table" %in% class(data_h) && attr(data_h, "type") == "links"){
+    data_links <- data_h
+  } else {
+    data_links <- data_h$links
+  }
   
   try({
     
@@ -715,6 +797,7 @@ formatHourlyOutputs <- function(data_h, areas_selections,
     setcolorder(data_all, neworder = c("area", "time", cols_availables))
     
     data_out <- unique(data_all[,.(Hour = .I, Date = time)])
+    areas_selections <- intersect(unique(data_all$area), areas_selections)
     for(i in areas_selections){
       data_out <- data.table(data_out, data_all[area %in% i, -(1:2)])
     }
@@ -731,7 +814,8 @@ formatHourlyOutputs <- function(data_h, areas_selections,
   
   
   #============================== Crossborder exchanges ========================================
-  if(!is.null(data_links)){
+  if(!is.null(data_links) && nrow(data_links) > 0){
+    
     
     data_out_2 <- dcast(data_links, time ~ link, value.var = "FLOW LIN.")
     rm(data_links)
@@ -739,7 +823,7 @@ formatHourlyOutputs <- function(data_h, areas_selections,
     
     data_out_2[, Hour := .I]
     setnames(data_out_2, "time", "Date")
-    setcolorder(data_out_2, c("Hour", "Date", tolower(links_selections)))
+    setcolorder(data_out_2, c("Hour", "Date", intersect(colnames(data_out_2), tolower(links_selections))))
     colnames(data_out_2)[-(1:2)] <- toupper(colnames(data_out_2)[-(1:2)])
     dt_stats_2 <- makeTabStats(data_out_2)
   } else{
@@ -747,20 +831,20 @@ formatHourlyOutputs <- function(data_h, areas_selections,
   }
   
   list(data_out = data_out, dt_stats = dt_stats, areas_districts = areas_districts,
-       data_out_2 = data_out_2, dt_stats_2 = dt_stats_2)
+       data_out_2 = data_out_2, dt_stats_2 = dt_stats_2, links_selections = links_selections, 
+       areas_districts_selections = areas_selections)
   
 }
 
 # export
-exportHourlyOutputs <- function(infile_name, outfile_name, hourly_outputs, data_intro, 
-                                areas_districts_selections, market_data_code, links_selections){
+exportHourlyOutputs <- function(infile_name, outfile_name, hourly_outputs, data_intro, market_data_code){
   
   wb <- loadWorkbook(infile_name)
   
   writeData(wb, "Identification", data_intro[-4,])
-  writeData(wb, "Identification", areas_districts_selections, startRow = 14, startCol = 2)
+  writeData(wb, "Identification", toupper(hourly_outputs$areas_districts_selections), startRow = 14, startCol = 2)
   writeData(wb, "Identification", market_data_code, startRow = 14, startCol = 3)
-  writeData(wb, "Identification", links_selections, startRow = 14, startCol = 4)
+  writeData(wb, "Identification", toupper(hourly_outputs$links_selections), startRow = 14, startCol = 4)
   writeData(wb, "Identification", data_intro[4, get(colnames(data_intro)[2])], startRow = 14, startCol = 5)
   
   writeData(wb, "Hourly Market Data", data_intro[1:3,])

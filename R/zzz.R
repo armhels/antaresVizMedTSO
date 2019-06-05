@@ -42,6 +42,13 @@ pkgEnv <- antaresRead:::pkgEnv
 .onLoad <- function(libname, pkgname) {
   setInteractivity("auto")
   options(antaresVizSizeGraph = 200)
+  
+  # keep current R_ZIPCMD
+  zip_cmd <- Sys.getenv("R_ZIPCMD")
+  options(medtso_zip = zip_cmd)
+  # And set zip.exe in package
+  Sys.setenv("R_ZIPCMD" = system.file("bin/zip.exe", package = "antaresVizMedTSO"))
+  
 }
 
 # Generate the list of aliases for function prodStack()
@@ -335,4 +342,11 @@ colorsVars <- unique(rbindlist(list(colorsVars, col_fr)))
   
   rhdf5::H5Fclose(h5file = H5locAntaresh5)
   rhdf5::h5closeAll()
+}
+
+.onUnload <- function(libpath){
+  zip_cmd <- getOption("medtso_zip")
+  if(!is.null(zip_cmd)){
+    Sys.setenv("R_ZIPCMD" = zip_cmd)
+  }
 }

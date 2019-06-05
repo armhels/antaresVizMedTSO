@@ -338,9 +338,13 @@ observe({
 
 output$export_annual_format_output <- downloadHandler(
   filename = function() {
-    paste('Annual_OutputFile_', format(Sys.time(), format = "%Y%d%m_%H%M%S"), '.xlsx', sep='')
+    paste('Annual_OutputFile_', format(Sys.time(), format = "%Y%d%m_%H%M%S"), '.zip', sep='')
   },
   content = function(con) {
+    
+    
+    tmp_file <- paste0(tempdir(), "/", "Annual_OutputFile_", format(Sys.time(), format = "%Y%d%m_%H%M%S"), '.xlsx')
+
     
     # importation des donnees
     if(!is.null(opts_format_output())){
@@ -363,6 +367,16 @@ output$export_annual_format_output <- downloadHandler(
           mcYears <- as.numeric(input$read_mcYears_format_output)
         }
         
+        # l <- list(opts = opts_format_output(), 
+        #           areas_districts_selections = input$read_areas_y_format_output,
+        #           links_selections = input$read_links_y_format_output, 
+        #           mcYears = mcYears, 
+        #           removeVirtualAreas = input$rmva_ctrl_format_output,
+        #           storageFlexibility = input$rmva_storageFlexibility_format_output, 
+        #           production = input$rmva_production_format_output,
+        #           reassignCosts = input$rmva_reassignCosts_format_output, 
+        #           newCols = input$rmva_newCols_format_output)
+        # saveRDS(l, "l.RDS")
         # import data
         data <- withCallingHandlers({
           tryCatch({
@@ -452,8 +466,8 @@ output$export_annual_format_output <- downloadHandler(
                                 data_areas_dist_clustH = data$data_areas_dist_clustH,
                                 dataForSurplus = data$dataForSurplus,
                                 data_areas_districts = data$data_areas_districts,
-                                links_selections = input$read_links_y_format_output,
-                                areas_districts_selections = input$read_areas_y_format_output,
+                                links_selections = data$links_selections,
+                                areas_districts_selections = data$areas_districts_selections,
                                 vars = vars, opts = data$opts, data_intro = data_intro)
           },
           error = function(e){
@@ -485,10 +499,8 @@ output$export_annual_format_output <- downloadHandler(
           
           data <- withCallingHandlers({
             tryCatch({
-              exportAnnualOutputs(infile_name = infile_name, outfile_name = con,
-                                  annual_outputs = data, links_selections = input$read_links_y_format_output, 
-                                  areas_districts_selections = input$read_areas_y_format_output, 
-                                  data_intro = data_intro)
+              exportAnnualOutputs(infile_name = infile_name, outfile_name = tmp_file,
+                                  annual_outputs = data, data_intro = data_intro)
             },
             error = function(e){
               showModal(modalDialog(
@@ -515,9 +527,13 @@ output$export_annual_format_output <- downloadHandler(
       
       if(is.null(data)){
         wb <- openxlsx::createWorkbook()
-        openxlsx::saveWorkbook(wb, con, overwrite = TRUE)
+        openxlsx::saveWorkbook(wb, tmp_file, overwrite = TRUE)
       }
       
+      # fichier .zip
+      zip(con, tmp_file, flags = "-r -j")
+      # suppression du .csv
+      rm(tmp_file)
     }
   }
 )
@@ -525,9 +541,12 @@ output$export_annual_format_output <- downloadHandler(
 
 output$export_hourly_format_output <- downloadHandler(
   filename = function() {
-    paste('Hourly_OutputFile_', format(Sys.time(), format = "%Y%d%m_%H%M%S"), '.xlsx', sep='')
+    paste('Hourly_OutputFile_', format(Sys.time(), format = "%Y%d%m_%H%M%S"), '.zip', sep='')
   },
   content = function(con) {
+    
+    tmp_file <- paste0(tempdir(), "/", "Hourly_OutputFile_", format(Sys.time(), format = "%Y%d%m_%H%M%S"), '.xlsx')
+    
     
     # importation des donnees
     if(!is.null(opts_format_output())){
@@ -617,10 +636,10 @@ output$export_hourly_format_output <- downloadHandler(
         data <- withCallingHandlers({
           tryCatch({
             formatHourlyOutputs(
-              data_h = data,
-              areas_selections = input$read_areas_h_format_output,
+              data_h = data$data,
+              areas_selections = data$areas_districts_selections,
               market_data_code = input$var_h_format_output,
-              links_selections = input$read_links_h_format_output,
+              links_selections = data$links_selections,
               dico = dico())
           },
           error = function(e){
@@ -654,11 +673,8 @@ output$export_hourly_format_output <- downloadHandler(
           
           data <- withCallingHandlers({
             tryCatch({
-              exportHourlyOutputs(hourly_outputs = data, infile_name = infile_name, outfile_name = con,
-                                  data_intro = data_intro, 
-                                  areas_districts_selections = input$read_areas_h_format_output,
-                                  market_data_code = input$var_h_format_output,
-                                  links_selections = input$read_links_h_format_output)
+              exportHourlyOutputs(hourly_outputs = data, infile_name = infile_name, outfile_name = tmp_file,
+                                  data_intro = data_intro, market_data_code = input$var_h_format_output)
             },
             error = function(e){
               showModal(modalDialog(
@@ -685,8 +701,13 @@ output$export_hourly_format_output <- downloadHandler(
       
       if(is.null(data)){
         wb <- openxlsx::createWorkbook()
-        openxlsx::saveWorkbook(wb, con, overwrite = TRUE)
+        openxlsx::saveWorkbook(wb, tmp_file, overwrite = TRUE)
       }
+      
+      # fichier .zip
+      zip(con, tmp_file, flags = "-r -j")
+      # suppression du .csv
+      rm(tmp_file)
       
     }
   }

@@ -32,7 +32,7 @@ get_data_map <- function(opts, areas = NULL, links = NULL, mcYears = 1,
                                                      reassignCosts = reassignCosts, newCols = newCols, rowBal = rowBal)})
       
       sel_areas <- areas
-      data_areas$areas <- data_areas$areas[area %in% sel_areas, ]
+      if(!"all" %in% sel_areas) data_areas$areas <- data_areas$areas[area %in% sel_areas, ]
       data_areas$links <- NULL
     }
 
@@ -436,7 +436,7 @@ add_pie <- function(base_ggmap, ref_map, data_pos, data_pie,
 }
 
 
-input_path <- "C:\\Users\\Datastorm\\Desktop\\MED-Tso_app\\final_shiny\\MedTSO_map_template.xlsx"
+# input_path <- "C:\\Users\\Datastorm\\Desktop\\MED-Tso_app\\final_shiny\\MedTSO_map_template.xlsx"
 readMEDTsoMapInput <- function(input_path){
   
   sel <- list(areas = NULL, links = NULL, inputs = NULL)
