@@ -309,7 +309,7 @@ formatAnnualOutputs <- function(data_areas_dist_clust,
         GAS / 1000, OIL  / 1000, (`MIX. FUEL`+`MISC. DTG`)  / 1000, 
         (`H. ROR`+`H. STOR`)  / 1000, PSP_positif  / 1000, NA, 
         WIND  / 1000, SOLAR  / 1000, `MISC. NDG`  / 1000,  #FIXME à checker
-        (GAS+OIL+`MIX. FUEL`+`MISC. DTG`+`H. ROR`+`H. STOR`+PSP_positif+0+WIND+SOLAR+`MISC. NDG`)  / 1000,
+        (NUCLEAR+COAL+LIGNITE+GAS+OIL+`MIX. FUEL`+`MISC. DTG`+`H. ROR`+`H. STOR`+PSP_positif+0+WIND+SOLAR+`MISC. NDG`)  / 1000,
         `SPIL. ENRG` / 1000)]
     annual_generation_block[, "Net Total Generation [GWh]" := get("Total Generation before RES Curtailment [GWh]") - (`SPIL. ENRG`  / 1000)]
     annual_generation_block <- annual_generation_block[, c(tmp,"Net Total Generation [GWh]"), with = F]
@@ -329,8 +329,8 @@ formatAnnualOutputs <- function(data_areas_dist_clust,
     annual_demand_block <- copy(data_areas_districts)
     annual_demand_block <- 
       annual_demand_block[, c(tmp) := list(
-        LOAD  / 1000, PSP_negatif  / 1000, NA, BALANCE  / 1000, `ROW BAL.`  / 1000,  #FIXME à checker
-        (LOAD+PSP_negatif+0+BALANCE-`ROW BAL.`)  / 1000)]
+        LOAD  / 1000, abs(PSP_negatif  / 1000), NA, BALANCE  / 1000, `ROW BAL.`  / 1000,  #FIXME à checker
+        (LOAD+abs(PSP_negatif)+0+BALANCE-`ROW BAL.`)  / 1000)]
     
     annual_demand_block <- annual_demand_block[, tmp, with = F]
     
@@ -527,7 +527,7 @@ formatAnnualOutputs <- function(data_areas_dist_clust,
     tmp_block_comp <- copy(data_areas_districts)
     tmp_block_comp <- tmp_block_comp[, c(tmp) := list(
       (`H. STOR`+`H. ROR`) / 1000, LOAD / 1000,
-      PSP_negatif / 1000, BALANCE / 1000, `ROW BAL.` / 1000, (BALANCE- `ROW BAL.`) / 1000, `SPIL. ENRG` / 1000,
+      abs(PSP_negatif / 1000), BALANCE / 1000, `ROW BAL.` / 1000, (BALANCE- `ROW BAL.`) / 1000, `SPIL. ENRG` / 1000,
       `UNSP. ENRG` / 1000, LOLD, `CO2 EMIS.`)]
     tmp_block_comp <- tmp_block_comp[, tmp, with = F]
     tmp_block_comp <- formater_tab(tmp_block_comp, output_type = NULL, new_names =  as.character(data_areas_districts$area))
