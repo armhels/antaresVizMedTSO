@@ -12,12 +12,12 @@ Gas conventional old 1;gas_conventional old 1
 Gas conventional old 2;gas_conventional old 2
 Gas CCGT old 1;gas_ccgt old 1
 Gas CCGT old 2;gas_ccgt old 2
-Gas CCGT new;gas_ccgt present 1
-Gas CCGT CCS;gas_ccgt present 2
-Gas OCGT old;gas_ccgt new
-Gas OCGT new;gas_ccgt ccs
-Gas CCGT present 1;gas_ocgt old
-Gas CCGT present 2;gas_ocgt new
+Gas CCGT new;gas_ccgt new
+Gas CCGT CCS;gas_ccgt ccs
+Gas OCGT old;gas_ocgt old
+Gas OCGT new;gas_ocgt new
+Gas CCGT present 1;gas_ccgt present 1
+Gas CCGT present 2;gas_ccgt present 2
 Light oil;light oil_light oil
 Heavy oil old 1;heavy oil_old 1
 Heavy oil old 2;heavy oil_old 2

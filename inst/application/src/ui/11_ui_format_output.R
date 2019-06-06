@@ -27,7 +27,7 @@ tabPanel(textOutput("label_tab_format_output"),
                                 )
                               ), 
                               
-                              conditionalPanel(condition = "output.have_study_format_output",
+                              conditionalPanel(condition = "output.have_study_format_output_tmp",
                                                fluidRow(
                                                  column(12,
                                                         hr(), 

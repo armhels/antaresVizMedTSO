@@ -1,8 +1,8 @@
 Package: antaresVizMedTSO
 Type: Package
 Title: Antares Visualizations
-Version: 0.15.4
-Date: 2019-06-05
+Version: 0.15.5
+Date: 2019-06-06
 Authors@R: c(
     person("Benoit", "Thieurmel", email = "benoit.thieurmel@datastorm.fr", role = c("aut", "cre")),
     person("Francois", "Guillem", , "francois.guillem@rte-france.com", role = "aut"),

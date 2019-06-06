@@ -51,8 +51,23 @@ importAntaresDatasAnnual <- function(opts, areas_districts_selections, links_sel
   opts$districtsDef[, district := tolower(district)]
   opts$districtsDef[, area := tolower(area)]
   
-  if("all" %in% links_selections) links_selections <- unique(tolower(opts$linkList))
-  if("all" %in% areas_districts_selections) areas_districts_selections <- unique(c(tolower(opts$areaList), tolower(opts$districtList)))
+  if("all" %in% links_selections){
+    links_selections <- unique(tolower(opts$linkList))
+    if(removeVirtualAreas && (length(storageFlexibility) > 0 || length(production) > 0)){
+      ind_rm <- grepl(paste(paste0("(", c(storageFlexibility, production), ")"), collapse = "|"), 
+                      links_selections)
+      links_selections <- links_selections[!ind_rm]
+    }
+  }
+  if("all" %in% areas_districts_selections){
+    areas_districts_selections <- unique(c(tolower(opts$areaList), tolower(opts$districtList)))
+    
+    if(removeVirtualAreas && (length(storageFlexibility) > 0 || length(production) > 0)){
+      ind_rm <- grepl(paste(paste0("(", c(storageFlexibility, production), ")"), collapse = "|"), 
+                      areas_districts_selections)
+      areas_districts_selections <- areas_districts_selections[!ind_rm]
+    }
+  }
   
   if(length(areas_districts_selections) > 0){
     
@@ -452,13 +467,17 @@ formatAnnualOutputs <- function(data_areas_dist_clust,
     annual_generation[, index_order := .I]
     cols_common <- names(annual_generation)[-c(1, 2, ncol(annual_generation))]
     
-    annual_generation[variable %in% t_tmp_block$variable, (cols_common) := t_tmp_block[, cols_common, with = F]]
+    order_var <- match(t_tmp_block$variable, annual_generation$variable)
+    annual_generation[order_var, (cols_common) := t_tmp_block[, cols_common, with = F]]
     setorder(annual_generation, "index_order")
-    annual_generation[variable %in% t_tmp_block$variable]
     annual_generation[, index_order := NULL]
     
     #=====================================Installed Capacities [MW]=================================
     cluster_desc <- readClusterDesc(opts = opts)
+    if(!is.null(cluster_desc) && nrow(cluster_desc) > 0){
+      cluster_desc[, nominalcapacity := nominalcapacity *  unitcount]
+    }
+    
     tmp <- merge(opts$districtsDef[district %in% areas_districts_selections], 
                  cluster_desc, by = "area")
     tmp <- tmp[,.(nominalcapacity = sum(nominalcapacity)), by = c("district", "cluster")]
@@ -662,7 +681,15 @@ importAntaresDatasHourly <- function(opts, areas_districts_selections, links_sel
   
   if(length(areas_districts_selections) > 0){
     
-    if("all" %in% areas_districts_selections) areas_districts_selections <- unique(c(tolower(opts$areaList), tolower(opts$districtList)))
+    if("all" %in% areas_districts_selections){
+      areas_districts_selections <- unique(c(tolower(opts$areaList), tolower(opts$districtList)))
+      
+      if(removeVirtualAreas && (length(storageFlexibility) > 0 || length(production) > 0)){
+        ind_rm <- grepl(paste(paste0("(", c(storageFlexibility, production), ")"), collapse = "|"), 
+                        areas_districts_selections)
+        areas_districts_selections <- areas_districts_selections[!ind_rm]
+      }
+    }
     
     areas_districts_selections <- tolower(areas_districts_selections)
     areasForDist <- as.character(opts$districtsDef[tolower(district) %in% areas_districts_selections, tolower(area)])
@@ -687,8 +714,15 @@ importAntaresDatasHourly <- function(opts, areas_districts_selections, links_sel
     links_selections <- NULL
   }
   
-  if("all" %in% links_selections) links_selections <- unique(tolower(opts$linkList))
-  
+  if("all" %in% links_selections){
+    links_selections <- unique(tolower(opts$linkList))
+    if(removeVirtualAreas && (length(storageFlexibility) > 0 || length(production) > 0)){
+      ind_rm <- grepl(paste(paste0("(", c(storageFlexibility, production), ")"), collapse = "|"), 
+                      links_selections)
+      links_selections <- links_selections[!ind_rm]
+    }
+  }
+
   if(!removeVirtualAreas){
     data_h <- readAntares(areas = areas_selection, 
                           districts = districts_selection,

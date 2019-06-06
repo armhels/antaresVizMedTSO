@@ -74,7 +74,7 @@ observe({
 })
 
 # init opts after validation
-opts_format_output <- reactive({
+opts_format_output_tmp <- reactive({
   if(input$init_sim_format_output > 0){
     opts <- 
       tryCatch({
@@ -111,24 +111,32 @@ opts_format_output <- reactive({
 })
 
 output$current_opts_h5_format_output <- reactive({
-  opts_format_output()$h5
+  opts_format_output_tmp()$h5
 })
 
 outputOptions(output, "current_opts_h5_format_output", suspendWhenHidden = FALSE)
 
-current_study_path_format_output <- reactive({
-  if(input$init_sim_format_output > 0){
-    rev(unlist(strsplit(isolate(input$study_path_format_output), "/")))[1]
+
+# control : have not null opts ?
+opts_format_output <- reactive({
+  if(input$import_data_format_output > 0){
+    isolate({
+      opts_format_output_tmp()
+    })
+  } else {
+    NULL
   }
 })
 
-
-# control : have not null opts ?
 output$have_study_format_output <- reactive({
   !is.null(opts_format_output())
 })
-
 outputOptions(output, "have_study_format_output", suspendWhenHidden = FALSE)
+
+output$have_study_format_output_tmp <- reactive({
+  !is.null(opts_format_output_tmp())
+})
+outputOptions(output, "have_study_format_output_tmp", suspendWhenHidden = FALSE)
 
 observe({
   if(input$import_data_format_output > 0){
@@ -140,23 +148,10 @@ observe({
 # update readAntares / opts parameters
 
 observe({
-  opts <- opts_format_output()
+  opts <- opts_format_output_tmp()
   current_language <- current_language$language
   if(!is.null(opts)){
     isolate({
-      
-      areas <- c("all", unique(c(opts$areaList, opts$districtList)))
-      updateSelectInput(session, "read_areas_y_format_output", choices = areas, selected = areas[1])
-      updateSelectInput(session, "read_areas_h_format_output", choices = areas, selected = areas[1])
-      
-      # links
-      links <- c("all", opts$linkList)
-      updateSelectInput(session, "read_links_y_format_output", paste0(antaresVizMedTSO:::.getLabelLanguage("Links", current_language), " : "), 
-                        choices = links, selected = links[1])
-      
-      updateSelectInput(session, "read_links_h_format_output", paste0(antaresVizMedTSO:::.getLabelLanguage("Links", current_language), " : "), 
-                        choices = links, selected = links[1])
-      
       # mcYears
       mcy <- c(opts$mcYears)
       updateSelectInput(session, "read_mcYears_format_output", paste0(antaresVizMedTSO:::.getLabelLanguage("mcYears", current_language), " : "), 
@@ -169,6 +164,40 @@ observe({
                         choices = opts$areaList, selected = NULL)
       updateSelectInput(session, "rmva_production_format_output", paste0(antaresVizMedTSO:::.getLabelLanguage("production", current_language), " : "),
                         choices = opts$areaList, selected = NULL)
+      
+    })
+  }
+})
+
+observe({
+  opts <- opts_format_output()
+  current_language <- current_language$language
+  if(!is.null(opts)){
+    isolate({
+      
+      areas <- c("all", unique(c(opts$areaList, opts$districtList)))
+      if(input$rmva_ctrl_format_output && (length(input$rmva_storageFlexibility_format_output) > 0 || length(input$rmva_production_format_output) > 0)){
+        ind_rm <- grepl(paste(paste0("(", c(input$rmva_storageFlexibility_format_output, input$rmva_production_format_output), ")"), collapse = "|"), 
+                        areas)
+        areas <- areas[!ind_rm]
+      }
+      
+      updateSelectInput(session, "read_areas_y_format_output", choices = areas, selected = areas[1])
+      updateSelectInput(session, "read_areas_h_format_output", choices = areas, selected = areas[1])
+      
+      # links
+      links <- c("all", unique(c(opts$linkList)))
+      if(input$rmva_ctrl_format_output && (length(input$rmva_storageFlexibility_format_output) > 0 || length(input$rmva_production_format_output) > 0)){
+        ind_rm <- grepl(paste(paste0("(", c(input$rmva_storageFlexibility_format_output, input$rmva_production_format_output), ")"), collapse = "|"), 
+                        links)
+        links <- links[!ind_rm]
+      }
+      
+      updateSelectInput(session, "read_links_y_format_output", paste0(antaresVizMedTSO:::.getLabelLanguage("Links", current_language), " : "), 
+                        choices = links, selected = links[1])
+      
+      updateSelectInput(session, "read_links_h_format_output", paste0(antaresVizMedTSO:::.getLabelLanguage("Links", current_language), " : "), 
+                        choices = links, selected = links[1])
       
     })
   }
@@ -327,15 +356,6 @@ observe({
 
 
 # import data ----
-
-
-observe({
-  if(input$import_data_format_output > 0){
-    updateTabsetPanel(session, inputId = "medtso_map_panel", selected = "Parameters")
-  }
-})
-
-
 output$export_annual_format_output <- downloadHandler(
   filename = function() {
     paste('Annual_OutputFile_', format(Sys.time(), format = "%Y%d%m_%H%M%S"), '.zip', sep='')
