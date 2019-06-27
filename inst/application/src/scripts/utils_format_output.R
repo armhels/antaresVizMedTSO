@@ -413,16 +413,16 @@ formatAnnualOutputs <- function(data_areas_dist_clust,
         data_links_sums <- data_areas_dist_clustH$links[, list(
           "NTC A->B" = max(transCapacityDirect),
           "NTC B->A" = min(transCapacityIndirect), 
-          "A->B" = sum(`CONG. PROB +` > 0),
-          "B->A" = sum(`CONG. PROB -` > 0),
+          "A->B" = sum(`CONG. PROB +` == 100),
+          "B->A" = sum(`CONG. PROB -` == 100),
           "A->B " = sum(`FLOW LIN.`[`FLOW LIN.` > 0]) / 1000,
           "B->A " = abs(sum(`FLOW LIN.`[`FLOW LIN.` < 0])) / 1000), by = list(link = toupper(link))]
       } else {
         data_links_sums <- data_areas_dist_clustH[, list(
           "NTC A->B" = max(transCapacityDirect),
           "NTC B->A" = min(transCapacityIndirect), 
-          "A->B" = sum(`CONG. PROB +` > 0),
-          "B->A" = sum(`CONG. PROB -` > 0),
+          "A->B" = sum(`CONG. PROB +` == 100),
+          "B->A" = sum(`CONG. PROB -` == 100),
           "A->B " = sum(`FLOW LIN.`[`FLOW LIN.` > 0]) / 1000,
           "B->A " = abs(sum(`FLOW LIN.`[`FLOW LIN.` < 0])) / 1000), by = list(link = toupper(link))]
       }
