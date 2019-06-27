@@ -234,7 +234,7 @@ importAntaresDatasAnnual <- function(opts, areas_districts_selections, links_sel
   if(!is.null(data_areas_dist_clust)){
     try({
       tmp <- merge(opts$districtsDef[district %in% areas_districts_selections], 
-                   data_areas_dist_clust$clusters, by = "area", allow.cartesian = T)
+                   data_areas_dist_clust$clusters, by = "area", allow.cartesian = TRUE)
       tmp[, c("production", "NP Cost", "NODU") := list(as.numeric(production), as.numeric(`NP Cost`), as.numeric(NODU))]
       tmp <- na.omit(cube(tmp, j = lapply(.SD, sum), 
                           by = c("district", "cluster"), .SDcols = c("production", "NP Cost", "NODU")))
@@ -245,8 +245,11 @@ importAntaresDatasAnnual <- function(opts, areas_districts_selections, links_sel
     }, T)
   }
   
-  areas_districtsH <- rbindlist(list(data_areas_dist_clustH$areas, data_areas_dist_clustH$districts), use.names=FALSE)
-  data_areas_districts <- rbindlist(list(data_areas_dist_clust$areas, data_areas_dist_clust$districts), use.names=FALSE)
+  setnames(data_areas_dist_clust$districts, "district", "area")
+  setnames(data_areas_dist_clustH$districts, "district", "area")
+
+  areas_districtsH <- rbindlist(list(data_areas_dist_clustH$areas, data_areas_dist_clustH$districts), use.names=TRUE, fill = TRUE)
+  data_areas_districts <- rbindlist(list(data_areas_dist_clust$areas, data_areas_dist_clust$districts), use.names=TRUE, fill = TRUE)
   
   if((!is.null(data_areas_districts) && nrow(data_areas_districts) > 0) & !is.null(areas_districtsH) && nrow(areas_districtsH) > 0){
     data_PSP <- areas_districtsH[, .(PSP_positif = sum(PSP[PSP > 0]),
@@ -432,6 +435,14 @@ formatAnnualOutputs <- function(data_areas_dist_clust,
     }
   }, T)
   
+  if(nrow(data_links_sums) > 0){
+    ind_null_ntc <- which(data_links_sums[[3]] == 0 & data_links_sums[[4]] == 0)
+    if(length(ind_null_ntc) > 0){
+      data_links_sums[[5]][ind_null_ntc] <- 0
+      data_links_sums[[6]][ind_null_ntc] <- 0              
+    }
+  }
+  
   if(!(is.null(data_areas_dist_clust))){
     #============================== YEARLY OUTPUT LONG ========================================
     #=====================================Annual generation [GWh] (production / 1000)=================================
@@ -479,7 +490,7 @@ formatAnnualOutputs <- function(data_areas_dist_clust,
     }
     
     tmp <- merge(opts$districtsDef[district %in% areas_districts_selections], 
-                 cluster_desc, by = "area")
+                 cluster_desc, by = "area", allow.cartesian = TRUE)
     tmp <- tmp[,.(nominalcapacity = sum(nominalcapacity)), by = c("district", "cluster")]
     setnames(tmp, "district", "area")
     cluster_desc <- rbindlist(list(cluster_desc[area %in% areas_districts_selections], tmp), use.names = T, fill = TRUE)
@@ -768,7 +779,7 @@ importAntaresDatasHourly <- function(opts, areas_districts_selections, links_sel
   if(!is.null(data_h$clusters) && nrow(data_h$clusters) > 0){
     try({
       tmp <- merge(opts$districtsDef[district %in% areas_districts_selections], 
-                   data_h$clusters, by = c("area"), allow.cartesian = T)
+                   data_h$clusters, by = c("area"), allow.cartesian = TRUE)
       tmp[, c("production", "NP Cost", "NODU") := list(as.numeric(production), as.numeric(`NP Cost`), as.numeric(NODU))]
       tmp <- na.omit(cube(tmp, j = lapply(.SD, sum), 
                           by = c("district", "cluster", "time"), .SDcols = c("production", "NP Cost", "NODU")))
@@ -799,9 +810,9 @@ formatHourlyOutputs <- function(data_h, areas_selections,
     areas_selections <- tolower(areas_selections)
     data_h$clusters <- aggregateClusters(data_h$clusters, "production", hourly = T)
     
-    data_h_dist <- rbindlist(list(data_h$areas, data_h$districts), use.names = F)
-    colnames(data_h_dist)[1] <- "area"
-    
+    setnames(data_h$districts, "district", "area")
+    data_h_dist <- rbindlist(list(data_h$areas, data_h$districts), use.names = T, fill = T)
+
     if("PSP" %in% colnames(data_h_dist) && "PSP_TURB" %in% market_data_code) {
       data_h_dist[, PSP_TURB := ifelse(PSP > 0, PSP, 0)]
     }
@@ -830,7 +841,10 @@ formatHourlyOutputs <- function(data_h, areas_selections,
     
     setcolorder(data_all, neworder = c("area", "time", cols_availables))
     
-    data_out <- unique(data_all[,.(Hour = .I, Date = time)])
+    data_out <- unique(data_all[,.(Date = time)])
+    data_out[, Hour := .I]
+    setcolorder(data_out, c("Hour", "Date")) 
+    
     areas_selections <- intersect(unique(data_all$area), areas_selections)
     for(i in areas_selections){
       data_out <- data.table(data_out, data_all[area %in% i, -(1:2)])
