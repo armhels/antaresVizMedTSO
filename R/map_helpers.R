@@ -272,7 +272,7 @@
       options$areaChartColors <- colorDef
     }
     
-    map <- updateMinicharts(map, optsArea$coords$area, chartdata = optsArea$size,
+    map <- updateMinicharts(map, as.character(optsArea$coords$area), chartdata = optsArea$size,
                             time = optsArea$coords$time,
                             maxValues = optsArea$maxSize, width = optsArea$Ra,
                             height = options$areaMaxHeight,

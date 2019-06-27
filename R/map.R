@@ -321,9 +321,17 @@ plotMap <- function(x,
     
     # Keep all poygones areas
     if (areas) {
-      areaList <- unique(x$areas$area)
+      areaList <- unique(as.character(x$areas$area))
       mapLayout$coords$draw = FALSE
       mapLayout$coords$draw[mapLayout$coords$area %in% areaList] <- TRUE
+      
+      order_coord <- setdiff(match(areaList, mapLayout$coords$area), NA)
+      order_coord <- c(order_coord, setdiff(1:nrow(mapLayout$coords), order_coord))
+      mapLayout$coords <- mapLayout$coords[order_coord, ] 
+      order_map <- match(mapLayout$coords$geoAreaId[mapLayout$coords$draw], mapLayout$map$geoAreaId)
+      order_map <- c(order_map, setdiff(1:length(mapLayout$map$geoAreaId), order_map))
+      mapLayout$map <- mapLayout$map[order_map, ]
+      
     }
     
     # keep only links linked to one area at least
