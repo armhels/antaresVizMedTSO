@@ -91,6 +91,10 @@ tabPanel(textOutput("label_tab_format_output"),
                                                  column(6, 
                                                         div(h4("Annual"), align = "center"),
                                                         
+                                                        textInput("scenario_annual", "Scenario : ", "2030 - Scenario 1", width = "100%"),
+                                                        
+                                                        textInput("status_annual", "Status : ", "Reference", width = "100%"),
+                                                        
                                                         selectInput("read_areas_y_format_output", "Areas & Districts :", choices = NULL, 
                                                                     selected = NULL, multiple = TRUE, width = "100%"),
                                                         
@@ -100,6 +104,10 @@ tabPanel(textOutput("label_tab_format_output"),
                                                  ),
                                                  column(6, 
                                                         div(h4("Hourly"), align = "center"),
+                                                        
+                                                        textInput("scenario_hourly", "Scenario : ", "2030 - Scenario 1", width = "100%"),
+                                                        
+                                                        textInput("status_hourly", "Status : ", "Reference", width = "100%"),
                                                         
                                                         selectInput("read_areas_h_format_output", "Areas & Districts :", choices = NULL, 
                                                                     selected = NULL, multiple = TRUE, width = "100%"),

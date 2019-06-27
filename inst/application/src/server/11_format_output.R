@@ -455,8 +455,10 @@ output$export_annual_format_output <- downloadHandler(
         if(is.null(mcYears_xlsx)) mcYears_xlsx <- "synthetic"
 
         data_intro <- data.table("Scenario" = c("Simulator", "Date", "Status", "MC-Year Selection", "Study", "Simulation"), 
-                                 "2030 - Scenario 1" = c("ANTARES", as.character(Sys.Date()), "Reference", mcYears_xlsx, 
+                                 "2030 - Scenario 1" = c("ANTARES", as.character(Sys.Date()), input$status_annual, mcYears_xlsx, 
                                                          opts_format_output()$studyName, sim_name))
+        
+        colnames(data_intro)[2] <- input$scenario_annual
         
         
         options(scipen = 10000, digits = 1)
@@ -647,9 +649,10 @@ output$export_hourly_format_output <- downloadHandler(
         sim_name <- unlist(strsplit(opts_format_output()$simPath, "/"))
         sim_name <- sim_name[length(sim_name)]
         data_intro <- data.table("Scenario" = c("Simulator", "Date", "Status", "MC-Year Selection", "Study", "Simulation"), 
-                                 "2030 - Scenario 1" = c("ANTARES", as.character(Sys.Date()), "Reference", mcYears_xlsx, 
+                                 "2030 - Scenario 1" = c("ANTARES", as.character(Sys.Date()), input$status_hourly, mcYears_xlsx, 
                                                          opts_format_output()$studyName, sim_name))
         
+        colnames(data_intro)[2] <- input$scenario_hourly
         
         options(scipen = 10000, digits = 1)
         
