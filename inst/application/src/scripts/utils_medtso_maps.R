@@ -47,7 +47,7 @@ get_data_map <- function(opts, areas = NULL, links = NULL, mcYears = 1,
   if(!is.null(links)){
     
     data_links_h <- readAntares(areas = NULL, links = links, timeStep = "hourly", 
-                                select = NULL, mcYears = 1, linkCapacity = TRUE)
+                                select = NULL, mcYears = mcYears, linkCapacity = TRUE)
     
     # removeVirtualAreas not impact link data
     # if(!removeVirtualAreas){
@@ -77,8 +77,8 @@ get_data_map <- function(opts, areas = NULL, links = NULL, mcYears = 1,
       value_ba_center = round(abs(sum(`FLOW LIN.`[`FLOW LIN.` < 0])) / 1000, 0),
       arrow_ab = sum(`FLOW LIN.`[`FLOW LIN.` > 0]) / sum(transCapacityDirect),
       arrow_ba = abs(sum(`FLOW LIN.`[`FLOW LIN.` < 0])) / sum(transCapacityIndirect),
-      pie_ab = sum(`CONG. PROB +` > 0) / .N,
-      pie_ba = sum(`CONG. PROB -` > 0) / .N
+      pie_ab = sum(`CONG. PROB +` == 100) / .N,
+      pie_ba = sum(`CONG. PROB -` == 100) / .N
     ), by = link]
     
     data_links[is.na(arrow_ab), arrow_ab := 0]
@@ -89,11 +89,11 @@ get_data_map <- function(opts, areas = NULL, links = NULL, mcYears = 1,
     
     data_links[, pie_null := 1 - pmin(1, pie_ab + pie_ba)]
     
-    data_links_arrows <- data_links[, list(link, value = value_ab_center, pct = paste0(trunc(arrow_ab * 100, 0), "%"))]
+    data_links_arrows <- data_links[, list(link, value = value_ab_center, pct = paste0(round(arrow_ab * 100, 1), "%"))]
     
     data_links_inv <- copy(data_links)
     data_links_inv[, link := sapply(link, function(x)  paste0(rev(unlist(strsplit(x, " - "))), collapse = " - "))]
-    data_links_inv <- data_links_inv[, list(link, value = value_ba_center, pct = paste0(trunc(arrow_ba * 100, 0), "%"))]
+    data_links_inv <- data_links_inv[, list(link, value = value_ba_center, pct = paste0(round(arrow_ba * 100, 1), "%"))]
     
     data_links_arrows <- rbindlist(list(data_links_arrows, data_links_inv))
     
