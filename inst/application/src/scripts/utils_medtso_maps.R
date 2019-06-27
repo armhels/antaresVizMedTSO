@@ -112,34 +112,6 @@ get_data_map <- function(opts, areas = NULL, links = NULL, mcYears = 1,
 
 }
 
-
-# sp_object
-# ref_pos_areas
-# data_map
-# var_countries = "MRG. PRICE" 
-# var_countries = NULL
-# palette_colors = c("#ff0000", "#0000ff", "#00ff00")
-# label_size = 3
-# label_color = "black"
-
-# sp_object
-# ref_map_areas <- data.table(ref_medtsomap_data$areas)
-# data_map <- ddm
-# var_countries = "MRG. PRICE"
-# var_label = "code"
-# palette_colors = c("#ff0000", "#0000ff", "#00ff00")
-# label_size = 3
-# label_color = "black"
-# # 
-# init_map_sp(sp_object,
-#             data.table(ref_medtsomap_data$areas),
-#             ddm,
-#             var_countries = "MRG. PRICE",
-#             var_label = "code",
-#             palette_colors = c("#ff0000", "#0000ff", "#00ff00"),
-#             label_size = 3,
-#             label_color = "black")$map
-
 init_map_sp <- function(
   sp_object, ref_map_areas, data_map,
   var_countries = "MRG. PRICE", 
@@ -203,15 +175,6 @@ init_map_sp <- function(
   list(map = res, legend_position = c(map_lon_limit[2] - ((map_lon_limit[2] - map_lon_limit[1])/10), map_lat_limit[2] - ((map_lat_limit[2] - map_lat_limit[1])/10)))
   
 }
-
-
-# data_links_arrows <- copy(data_map$links$arrows)
-# col_value = "value"
-# color = "black"
-# size = 0.9
-# length = 0.05
-# lon_gap = 0
-# lat_gap = 0
 
 add_links <- function(res_map, ref_pos_links, data_links_arrows, col_value, 
                       color = c("green", "red"),  size = 0.9, text_size = 4,
@@ -323,7 +286,6 @@ add_pie <- function(base_ggmap, ref_map, data_pos, data_pie,
                     r = 2, text_size = 2, colors = NULL, legend_position = NULL, 
                     label_col = NULL, alpha = 0.5){
   
-  
   if("draw_pie" %in% colnames(data_pos)){
     label_only <- as.character(data_pos[draw_pie == 0, code])
     label_only <- intersect(unique(ref_map$code), label_only)
@@ -397,9 +359,11 @@ add_pie <- function(base_ggmap, ref_map, data_pos, data_pie,
           sub_plot <- ggplot(df) + geom_arc_bar(
             aes(x0 = 0, y0 = 0 , r0 = r/2, r = r, amount = value,fill = variable),
             stat = 'pie', alpha = alpha)  +
-            geom_text(aes(x = xlab , 
-                          y = ylab, 
-                          label = label), size = text_size) + coord_fixed() + labs(x = NULL, y = NULL) + 
+            # geom_text(aes(x = xlab , y = ylab, label = label), size = text_size) + 
+            geom_text_repel(aes(x = xlab , y = ylab, label = label), size = text_size, 
+                            segment.size = 0.2, min.segment.length = 0, 
+                            point.padding = NA, box.padding = 0) + 
+            coord_fixed() + labs(x = NULL, y = NULL) + 
             theme(legend.position = "none", rect = element_blank(),
                   line = element_blank(), text = element_blank())
           

@@ -533,7 +533,8 @@ gg_interco_plots <- reactive({
             if(nrow(data_map$links$centers) > 0){
               data_links <- copy(data_map$links$centers)
               setnames(data_links, c("pie_ab", "pie_ba", "pie_null"), c("% A->B Saturation", "% B->A Saturation", "% Null Saturation"))
-              tmp <- add_pie(res_map$map, ref_map, pos_links_pie, data_links, 
+              
+              tmp <- add_pie(res_map$map, ref_map = NULL, pos_links_pie, data_links, 
                              id_col = "link",
                              pie_col = c("% A->B Saturation", "% B->A Saturation", "% Null Saturation"),
                              colors = c(input$col_arrow_1_interco, input$col_arrow_2_interco, "gray"),
