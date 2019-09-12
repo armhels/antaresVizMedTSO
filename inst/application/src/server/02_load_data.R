@@ -99,6 +99,30 @@ observe({
                   data[[i]] <- NULL
                 }
               }
+              
+              if(!is.null(data$areas)){
+                data$areas[, c("Battery_storage_&_pumping", 
+                               "Battery_discharge_&_turbine",
+                               "Others_non-renewable", 
+                               "Hydro") := list(
+                                 ifelse(PSP < 0, PSP, 0),
+                                 ifelse(PSP > 0, PSP, 0),
+                                 `MIX. FUEL` + `MISC. DTG`,
+                                 `H. STOR` + `H. ROR`
+                               )]
+              }
+            } else if("antaresDataTable" %in% class(data)){
+              if(nrow(data) > 0 && "area" %in% colnames(data)){
+                data[, c("Battery_storage_&_pumping", 
+                               "Battery_discharge_&_turbine",
+                               "Others_non-renewable", 
+                               "Hydro") := list(
+                                 ifelse(PSP < 0, PSP, 0),
+                                 ifelse(PSP > 0, PSP, 0),
+                                 `MIX. FUEL` + `MISC. DTG`,
+                                 `H. STOR` + `H. ROR`
+                               )]
+              }
             }
             
  

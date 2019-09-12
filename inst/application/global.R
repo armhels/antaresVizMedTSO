@@ -111,3 +111,16 @@ sp_object@data <- as.data.table(sp_object@data)
 
 defaut_template <- system.file("application/data/excel_templates/Output_Selection_template.xlsx", package = "antaresVizMedTSO")
 defaut_output_params <- readTemplateFile(defaut_template)
+
+# new alias on map
+setAlias("Total generation", "Total generation", c("areas", "NUCLEAR", 
+                                                   "COAL", 
+                                                   "LIGNITE", 
+                                                   "GAS", 
+                                                   "OIL", 
+                                                   "Others_non-renewable", 
+                                                   "Hydro", 
+                                                   "Battery_discharge_&_turbine", 
+                                                   "WIND", 
+                                                   "SOLAR", 
+                                                   "MISC. NDG"))
