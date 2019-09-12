@@ -28,13 +28,13 @@ Reservoir;H. STOR
 Pump Storage - Open Loop (turbine);vide
 Pump Storage - Open Loop (pump);vide
 Pump Storage - Closed Loop (turbine);PSP (somme valeurs horaires positives)
-Pump Storage - Closed Loop (pump);PSP (somme valeurs horaires négatives)
+Pump Storage - Closed Loop (pump);PSP (somme valeurs horaires negatives)
 Wind Onshore;WIND
 Wind Offshore;vide
 Solar (Photovoltaic);SOLAR
 Solar (Thermal);vide
 Others renewable;MISC. NDG
-Others non-renewable;MIX. FUEL + MISC. DTG
+Others non-renewable;other_nonrenewable
 Lignite biofuel;lignite_bio
 Hard Coal biofuel;hard coal_bio
 Gas biofuel;gas_bio

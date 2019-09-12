@@ -8,8 +8,19 @@ require(openxlsx)
 # Somme des variables finissant par _chiffre :
 aggregateClusters <- function(data, var, hourly = F, div = 1){
   data <- copy(data)
-  ind <- grep("_[0-9]$", data[["cluster"]])
-  data[ind, cluster := gsub(pattern = "_[0-9]$", "", cluster)]
+  # ind <- grep("_[0-9]$", data[["cluster"]])
+  # data[ind, cluster := gsub(pattern = "_[0-9]$", "", cluster)]
+  data$cluster <- sapply(data$cluster, function(x){
+    tmp <- strsplit(as.character(x), "_")[[1]]
+    if(length(tmp) > 1){
+      tmp <- paste(tmp[1], tmp[2], sep = "_")
+    } 
+    tmp
+  })
+  
+  # other non res + mixed fioul
+  data[tolower(group) %in% c("other", "mixed fuel"), cluster := "other_nonrenewable"]
+  
   if(hourly){
     data <- data[, .(var = sum(get(var)) / div), by = .(area, cluster, time)]  
   }else {
@@ -185,7 +196,8 @@ importAntaresDatasAnnual <- function(opts, areas_districts_selections, links_sel
     
     surplus <- suppressWarnings({antaresProcessing::surplus(data_areas_dist_clustH)}) 
     surplus_districts <- suppressWarnings({antaresProcessing::surplus(data_areas_dist_clustH, groupByDistrict = T)})
-    surplus <- rbindlist(list(surplus, surplus_districts), use.names = FALSE)
+    setnames(surplus_districts, "district", "area")
+    surplus <- rbindlist(list(surplus, surplus_districts), use.names = T, fill = T)
     
     if(!is.null(data_areas_dist_clustH$areas) && nrow(data_areas_dist_clustH$areas) > 0){
       data_areas_dist_clustH$areas <- data_areas_dist_clustH$areas[area %in% areas_selection, list(area, mcYear, timeId, time, day, month, hour, PSP)]
@@ -478,7 +490,7 @@ formatAnnualOutputs <- function(data_areas_dist_clust,
     tmp_block <- copy(data_areas_districts)
     tmp_block <- tmp_block[, .(area, "H. ROR" = `H. ROR`/ 1000, "H. STOR" = `H. STOR`/ 1000, 
                                "PSP (somme valeurs horaires positives)" = PSP_positif / 1000, 
-                               "PSP (somme valeurs horaires négatives)" = PSP_negatif / 1000, 
+                               "PSP (somme valeurs horaires negatives)" = PSP_negatif / 1000, 
                                "MIX. FUEL + MISC. DTG" = (`MIX. FUEL` + `MISC. DTG`) / 1000,
                                "WIND" = WIND / 1000, "SOLAR" = SOLAR / 1000, "MISC. NDG" = `MISC. NDG` / 1000)]
     
