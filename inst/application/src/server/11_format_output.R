@@ -155,7 +155,7 @@ observe({
       # mcYears
       mcy <- c(opts$mcYears)
       updateSelectInput(session, "read_mcYears_format_output", paste0(antaresVizMedTSO:::.getLabelLanguage("mcYears", current_language), " : "), 
-                        choices = mcy, selected = mcy[1])
+                        choices = mcy, selected = mcy)
       
       # removeVirtualAreas
       updateCheckboxInput(session, "rmva_ctrl_format_output", antaresVizMedTSO:::.getLabelLanguage("Remove virtual Areas", current_language), FALSE)
@@ -354,6 +354,13 @@ observe({
   })
 })
 
+observe({
+  tmp_mcyears <- input$read_mcYears_format_output
+  if(!is.null(tmp_mcyears) && length(tmp_mcyears) > 0){
+    updateSelectInput(session, "read_mcYears_y_format_output", choices = tmp_mcyears, selected = tmp_mcyears)
+    updateSelectInput(session, "read_mcYears_h_format_output", choices = tmp_mcyears, selected = tmp_mcyears[1])
+  }
+})
 
 # import data ----
 output$export_annual_format_output <- downloadHandler(
@@ -363,47 +370,50 @@ output$export_annual_format_output <- downloadHandler(
   content = function(con) {
     
     
-    tmp_file <- paste0(tempdir(), "/", "Annual_OutputFile_", format(Sys.time(), format = "%Y%d%m_%H%M%S"), '.xlsx')
-
+    
     
     # importation des donnees
     if(!is.null(opts_format_output())){
-      # not a .h5 file, so read data
-      if(!opts_format_output()$h5){
+      
+      progress <- Progress$new(session, min=0, max=1)
+      on.exit(progress$close())
+      progress$set(message = 'Annual Output', detail = 'Importing data...')
+      
+      progress$set(value = 0.1)
+      
+      # browser()
+      # Treat mcYears
+      if(input$read_type_mcYears_format_output == "synthetic"){
+        mcYears <- NULL
+      } else if(input$read_type_mcYears_format_output == "all"){
+        mcYears <- NULL
+      } else {
+        mcYears <- as.numeric(input$read_mcYears_y_format_output)
+      }
+      
+      if(length(mcYears) == 0) mcYears <- NULL
+      if(is.null(mcYears)){
+        i <- 1
+      } else {
+        i <- length(mcYears)
+      }
+      
+      tmp_files <- lapply(1:i, function(tmp){
         
-        progress <- Progress$new(session, min=0, max=1)
-        on.exit(progress$close())
-        progress$set(message = 'Annual Output', detail = 'Importing data...')
+        tmp_file <- paste0(tempdir(), "/", "Annual_OutputFile_", format(Sys.time(), format = "%Y%d%m_%H%M%S"), '.xlsx')
         
-        progress$set(value = 0.1)
-        
-        # browser()
-        # Treat mcYears
-        if(input$read_type_mcYears_format_output == "synthetic"){
-          mcYears <- NULL
-        } else if(input$read_type_mcYears_format_output == "all"){
-          mcYears <- NULL
+        if(tmp == 1 & is.null(mcYears)){
+          mcy <- NULL
         } else {
-          mcYears <- as.numeric(input$read_mcYears_format_output)
+          mcy <- mcYears[tmp]
         }
         
-        # l <- list(opts = opts_format_output(), 
-        #           areas_districts_selections = input$read_areas_y_format_output,
-        #           links_selections = input$read_links_y_format_output, 
-        #           mcYears = mcYears, 
-        #           removeVirtualAreas = input$rmva_ctrl_format_output,
-        #           storageFlexibility = input$rmva_storageFlexibility_format_output, 
-        #           production = input$rmva_production_format_output,
-        #           reassignCosts = input$rmva_reassignCosts_format_output, 
-        #           newCols = input$rmva_newCols_format_output)
-        # saveRDS(l, "l.RDS")
-        # import data
         data <- withCallingHandlers({
           tryCatch({
             importAntaresDatasAnnual(opts = opts_format_output(), 
                                      areas_districts_selections = input$read_areas_y_format_output,
                                      links_selections = input$read_links_y_format_output, 
-                                     mcYears = mcYears, 
+                                     mcYears = mcy, 
                                      removeVirtualAreas = input$rmva_ctrl_format_output,
                                      storageFlexibility = input$rmva_storageFlexibility_format_output, 
                                      production = input$rmva_production_format_output,
@@ -432,130 +442,119 @@ output$export_annual_format_output <- downloadHandler(
         progress$set(value = 0.5)
         
         if(length(data) > 0){
-          data
+          data <- data
         } else {
-          NULL
+          data <- NULL
         }
-      } else {
-        data <- NULL
-      }
-      
-      
-      if(!is.null(data)){
-        
-        progress$set(message = 'Annual Output', detail = 'Formatting data...')
-        
-        vars <- system.file("application/data/excel_templates/variablesAnnualOutputLong.csv", package = "antaresVizMedTSO")
-        vars <- data.table::fread(vars)
-        
-        sim_name <- unlist(strsplit(opts_format_output()$simPath, "/"))
-        sim_name <- sim_name[length(sim_name)]
 
-        mcYears_xlsx <- mcYears
-        if(is.null(mcYears_xlsx)) mcYears_xlsx <- "synthetic"
-
-        data_intro <- data.table("Scenario" = c("Simulator", "Date", "Status", "MC-Year Selection", "Study", "Simulation"), 
-                                 "2030 - Scenario 1" = c("ANTARES", as.character(Sys.Date()), input$status_annual, mcYears_xlsx, 
-                                                         opts_format_output()$studyName, sim_name))
-        
-        colnames(data_intro)[2] <- input$scenario_annual
-        
-        
-        options(scipen = 10000, digits = 1)
-        
-        
-        # l <- list(data_areas_dist_clust = data$data_areas_dist_clust,
-        #           data_areas_dist_clustH = data$data_areas_dist_clustH,
-        #           dataForSurplus = data$dataForSurplus,
-        #           data_areas_districts = data$data_areas_districts,
-        #           links_selections = input$read_links_y_format_output,
-        #           areas_districts_selections = input$read_areas_y_format_output,
-        #           vars = vars, opts = data$opts, data_intro = data_intro)
-        # 
-        # saveRDS(l, "l2.RDS")
-        # 
-        # data <- formatAnnualOutputs(data_areas_dist_clust = data$data_areas_dist_clust,
-        #                             data_areas_dist_clustH = data$data_areas_dist_clustH,
-        #                             dataForSurplus = data$dataForSurplus,
-        #                             data_areas_districts = data$data_areas_districts,
-        #                             links_selections = input$read_links_y_format_output,
-        #                             areas_districts_selections = input$read_areas_y_format_output,
-        #                             vars = vars, opts = data$opts, data_intro = data_intro)
-        
-        data <- withCallingHandlers({
-          tryCatch({
-            formatAnnualOutputs(data_areas_dist_clust = data$data_areas_dist_clust,
-                                data_areas_dist_clustH = data$data_areas_dist_clustH,
-                                dataForSurplus = data$dataForSurplus,
-                                data_areas_districts = data$data_areas_districts,
-                                links_selections = data$links_selections,
-                                areas_districts_selections = data$areas_districts_selections,
-                                vars = vars, opts = data$opts, data_intro = data_intro)
-          },
-          error = function(e){
-            showModal(modalDialog(
-              title = "Error formatting data",
-              easyClose = TRUE,
-              footer = NULL,
-              e
-            ))
-            NULL
-          })},
-          warning = function(w){
-            showModal(modalDialog(
-              title = "Warning formatting data",
-              easyClose = TRUE,
-              footer = NULL,
-              w
-            ))
-          }
-        )
-        
-        progress$set(value = 0.7)
-        
         if(!is.null(data)){
-          infile_name <- system.file("application/data/excel_templates/Annual_OutputFile_Template__R.xlsx", package = "antaresVizMedTSO")
-          options(scipen = 10000, digits = 1)
           
-          progress$set(message = 'Annual Output', detail = 'Writting data...')
+          progress$set(message = 'Annual Output', detail = 'Formatting data...')
+          
+          vars <- system.file("application/data/excel_templates/variablesAnnualOutputLong.csv", package = "antaresVizMedTSO")
+          vars <- data.table::fread(vars)
+          
+          sim_name <- unlist(strsplit(opts_format_output()$simPath, "/"))
+          sim_name <- sim_name[length(sim_name)]
+          
+          mcYears_xlsx <- mcy
+          if(is.null(mcYears_xlsx)) mcYears_xlsx <- "synthetic"
+          
+          data_intro <- data.table("Scenario" = c("Simulator", "Date", "Status", "MC-Year Selection", "Study", "Simulation"), 
+                                   "2030 - Scenario 1" = c("ANTARES", as.character(Sys.Date()), input$status_annual, mcYears_xlsx, 
+                                                           opts_format_output()$studyName, sim_name))
+          
+          colnames(data_intro)[2] <- input$scenario_annual
+          
+          
+          options(scipen = 10000, digits = 1)
           
           data <- withCallingHandlers({
             tryCatch({
-              exportAnnualOutputs(infile_name = infile_name, outfile_name = tmp_file,
-                                  annual_outputs = data, data_intro = data_intro)
+              formatAnnualOutputs(data_areas_dist_clust = data$data_areas_dist_clust,
+                                  data_areas_dist_clustH = data$data_areas_dist_clustH,
+                                  dataForSurplus = data$dataForSurplus,
+                                  data_areas_districts = data$data_areas_districts,
+                                  links_selections = data$links_selections,
+                                  areas_districts_selections = data$areas_districts_selections,
+                                  vars = vars, opts = data$opts, data_intro = data_intro)
             },
             error = function(e){
               showModal(modalDialog(
-                title = "Error writing data",
+                title = "Error formatting data",
                 easyClose = TRUE,
                 footer = NULL,
                 e
               ))
-              list()
-            })}, 
+              NULL
+            })},
             warning = function(w){
               showModal(modalDialog(
-                title = "Warning writing data",
+                title = "Warning formatting data",
                 easyClose = TRUE,
                 footer = NULL,
                 w
               ))
             }
           )
+          
+          progress$set(value = 0.7)
+          
+          if(!is.null(data)){
+            infile_name <- system.file("application/data/excel_templates/Annual_OutputFile_Template__R.xlsx", package = "antaresVizMedTSO")
+            options(scipen = 10000, digits = 1)
+            
+            progress$set(message = 'Annual Output', detail = 'Writting data...')
+            
+            data <- withCallingHandlers({
+              tryCatch({
+                exportAnnualOutputs(infile_name = infile_name, outfile_name = tmp_file,
+                                    annual_outputs = data, data_intro = data_intro)
+              },
+              error = function(e){
+                showModal(modalDialog(
+                  title = "Error writing data",
+                  easyClose = TRUE,
+                  footer = NULL,
+                  e
+                ))
+                list()
+              })}, 
+              warning = function(w){
+                showModal(modalDialog(
+                  title = "Warning writing data",
+                  easyClose = TRUE,
+                  footer = NULL,
+                  w
+                ))
+              }
+            )
+          }
+        }   
+        
+        progress$set(value = 1)
+        
+        if(is.null(data)){
+          wb <- openxlsx::createWorkbook()
+          openxlsx::saveWorkbook(wb, tmp_file, overwrite = TRUE)
         }
-      }   
+        tmp_file
+      })
       
-      progress$set(value = 1)
-      
-      if(is.null(data)){
-        wb <- openxlsx::createWorkbook()
-        openxlsx::saveWorkbook(wb, tmp_file, overwrite = TRUE)
+      if(length(tmp_files) > 0){
+        # fichier .zip
+        zip(con, tmp_files, flags = "-r -j")
+        # suppression du .csv
+        rm(tmp_files)
+      } else {
+        showModal(modalDialog(
+          title = "Error writing data",
+          easyClose = TRUE,
+          footer = NULL,
+          "No able to write any file"
+        ))
       }
-      
-      # fichier .zip
-      zip(con, tmp_file, flags = "-r -j")
-      # suppression du .csv
-      rm(tmp_file)
+
     }
   }
 )
@@ -588,7 +587,7 @@ output$export_hourly_format_output <- downloadHandler(
         } else if(input$read_type_mcYears_format_output == "all"){
           mcYears <- NULL
         } else {
-          mcYears <- as.numeric(input$read_mcYears_format_output)
+          mcYears <- as.numeric(input$read_mcYears_h_format_output)
         }
         
         # import data
