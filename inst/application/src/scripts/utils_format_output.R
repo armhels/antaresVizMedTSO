@@ -4,10 +4,13 @@ require(antaresProcessing)
 require(stringr)
 require(openxlsx)
 
-
 # Somme des variables finissant par _chiffre :
-aggregateClusters <- function(data, var, hourly = F, div = 1){
+aggregateClusters <- function(data, var, opts, hourly = F, div = 1){
   data <- copy(data)
+  if(!"group" %in% colnames(data)){
+    cdesc <- readClusterDesc(opts)
+    data <- merge(data, cdesc[, list(area, cluster, group)], all.x = T, by = c("area", "cluster"))
+  }
   # ind <- grep("_[0-9]$", data[["cluster"]])
   # data[ind, cluster := gsub(pattern = "_[0-9]$", "", cluster)]
   data$cluster <- sapply(data$cluster, function(x){
@@ -476,7 +479,7 @@ formatAnnualOutputs <- function(data_areas_dist_clust,
     #=====================================Annual generation [GWh] (production / 1000)=================================
     
     
-    data_areas_dist_clust$clusters <- aggregateClusters(data_areas_dist_clust$clusters, "production", div = 1000)
+    data_areas_dist_clust$clusters <- aggregateClusters(data_areas_dist_clust$clusters, "production", opts, div = 1000)
     setnames(data_areas_dist_clust$clusters, "var", "production")
     
     annual_generation <- dcast(data_areas_dist_clust$clusters, cluster ~ area, value.var = "production", fill = 0)
@@ -524,7 +527,7 @@ formatAnnualOutputs <- function(data_areas_dist_clust,
     cluster_desc <- rbindlist(list(cluster_desc[area %in% areas_districts_selections], tmp), use.names = T, fill = TRUE)
     
     # Somme des variables finissant par _chiffre :
-    cluster_desc <- aggregateClusters(cluster_desc, "nominalcapacity")
+    cluster_desc <- aggregateClusters(cluster_desc, "nominalcapacity", opts)
     setnames(cluster_desc, "var", "nominalcapacity")
     
     annual_capacity <- dcast(cluster_desc, cluster ~ area, value.var = "nominalcapacity", fill = 0)
@@ -819,12 +822,13 @@ importAntaresDatasHourly <- function(opts, areas_districts_selections, links_sel
   }
 
   
-  list(data = data_h, areas_districts_selections = areas_districts_selections, links_selections = links_selections)
+  list(data = data_h, areas_districts_selections = areas_districts_selections, 
+       links_selections = links_selections, opts = opts)
 }
 
 # formatage
 formatHourlyOutputs <- function(data_h, areas_selections,
-                                market_data_code, links_selections, dico = dico){
+                                market_data_code, links_selections, opts, dico = dico){
   data_out <- NA ; dt_stats <- NA ; areas_districts <- NA
   
   if("data.table" %in% class(data_h) && attr(data_h, "type") == "links"){
@@ -836,7 +840,7 @@ formatHourlyOutputs <- function(data_h, areas_selections,
   try({
     
     areas_selections <- tolower(areas_selections)
-    data_h$clusters <- aggregateClusters(data_h$clusters, "production", hourly = T)
+    data_h$clusters <- aggregateClusters(data_h$clusters, "production", opts, hourly = T)
     
     if(!is.null(data_h$districts) && nrow(data_h$districts) > 0){
       setnames(data_h$districts, "district", "area")

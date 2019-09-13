@@ -625,9 +625,9 @@ output$export_hourly_format_output <- downloadHandler(
         progress$set(value = 0.5)
         
         if(length(data) > 0){
-          data
+          data <- data
         } else {
-          NULL
+          data <- NULL
         }
       } else {
         data <- NULL
@@ -662,6 +662,7 @@ output$export_hourly_format_output <- downloadHandler(
               areas_selections = data$areas_districts_selections,
               market_data_code = input$var_h_format_output,
               links_selections = data$links_selections,
+              opts = data$opts,
               dico = dico())
           },
           error = function(e){
