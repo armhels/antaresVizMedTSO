@@ -157,9 +157,8 @@ availableLanguages_labels <- colnames(language_labels)
 # language for columns
 language_columns <- fread(input = system.file("language_columns.csv", package = "antaresVizMedTSO"), encoding = "UTF-8")
 
-language_columns$en <- as.character(language_columns$en)
+language_columns[, c(colnames(language_columns)) := lapply(.SD, as.character), .SDcols = colnames(language_columns)]
 
-language_columns$fr <- as.character(language_columns$fr)
 # Encoding(language_columns$fr) <- "latin1"
 
 expand_language_columns <- copy(language_columns)
@@ -167,8 +166,11 @@ expand_language_columns <- copy(language_columns)
 # add _std _min _max
 language_columns[, tmp_row := 1:nrow(language_columns)]
 
-language_columns <- language_columns[, list(en = c(en, paste0(en, c("_std", "_min", "_max"))),
-                        fr = c(fr, paste0(fr, c("_std", "_min", "_max")))), by = tmp_row]
+tmp_expr <- paste0(colnames(language_columns), " = c(", colnames(language_columns), ", paste0(", 
+       colnames(language_columns), ", c('_std', '_min', '_max')))")
+eval_lg_colums <- paste0("list(", paste(tmp_expr, collapse = ", "), ")")
+
+language_columns <- language_columns[, eval(parse(text = eval_lg_colums)), by = tmp_row]
 
 language_columns[, tmp_row := NULL]
 
@@ -186,6 +188,34 @@ language_columns[, tmp_row := NULL]
   up_columns
 }
 
+# map cumul
+map_cumul <- fread(input = system.file("map_cumul.csv", package = "antaresVizMedTSO"), encoding = "UTF-8")
+colnames(map_cumul) <- tolower(colnames(map_cumul))
+
+map_cumul$en <- as.character(map_cumul$en)
+map_cumul$operation <- as.character(map_cumul$operation)
+map_cumul$division <- as.numeric(as.character(map_cumul$division))
+map_cumul$decimales <- as.numeric(as.character(map_cumul$decimales))
+
+# merge des autres langie
+map_cumul <- merge(map_cumul, expand_language_columns, by = "en", all.x = T)
+for(l in setdiff(colnames(expand_language_columns), "en")){
+  map_cumul[is.na(get(l)), c(l) := en]
+}
+
+
+# add _std _min _max
+map_cumul[, tmp_row := 1:nrow(map_cumul)]
+
+tmp_expr <- paste0(colnames(expand_language_columns), " = c(", colnames(expand_language_columns), ", paste0(", 
+                   colnames(expand_language_columns), ", c('_std', '_min', '_max')))")
+eval_lg_colums <- paste0("list(operation = operation[1], division = division[1], decimales = decimales[1], ", 
+                         paste(tmp_expr, collapse = ", "), ")")
+
+map_cumul <- map_cumul[, eval(parse(text = eval_lg_colums)), by = tmp_row]
+
+map_cumul[, tmp_row := NULL]
+
 # map color
 colorsVars <- fread(input = system.file("color.csv", package = "antaresVizMedTSO"))
 colorsVars <- unique(colorsVars, by = "Column")
@@ -200,6 +230,8 @@ rev_ind_match <- match(colorsVars$Column, expand_language_columns$en)
 col_fr <- colorsVars[Column %in% expand_language_columns$en][, Column := expand_language_columns$fr[rev_ind_match[!is.na(rev_ind_match)]]]
 colorsVars <- unique(rbindlist(list(colorsVars, col_fr)))
 
+col_medtso <- colorsVars[Column %in% expand_language_columns$en][, Column := expand_language_columns$en_medtso[rev_ind_match[!is.na(rev_ind_match)]]]
+colorsVars <- unique(rbindlist(list(colorsVars, col_medtso)))
 
 .check_if_is_html_cont <- function(htmlWidget = NULL){
   if (!("htmlwidget" %in% class(htmlWidget) | "MWController" %in% class(htmlWidget))){

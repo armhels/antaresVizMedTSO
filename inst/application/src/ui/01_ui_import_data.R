@@ -2,7 +2,7 @@ tabPanel(textOutput("label_tab_import_data"),
          h3(textOutput("title_import_data")),
          fluidRow(
            column(5, 
-                  directoryInput('directory', label = '', value = 'C:\\Users\\Datastorm\\Desktop\\Med-TSO\\Full MedTSO')
+                  directoryInput('directory', label = '', value = 'C:\\Users\\Datastorm\\Desktop\\Med-TSO\\Antares_FULL_V2\\Full%20MedTSO%20V2\\Full MedTSO V2')
            ), 
            conditionalPanel(condition = "output.ctrl_is_antares_study | output.ctrl_is_antares_h5", 
                             column(1, 

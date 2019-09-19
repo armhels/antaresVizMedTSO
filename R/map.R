@@ -168,7 +168,7 @@ plotMap <- function(x,
                     labelAreaVar = "none",
                     colLinkVar = "none", sizeLinkVar = "none", 
                     popupLinkVars = c(),
-                    type = c("detail", "avg"),
+                    type = c("detail", "avg", "cumul"),
                     timeId = NULL,
                     mcYear = "average",
                     main = "",
@@ -398,7 +398,7 @@ plotMap <- function(x,
     plotFun <- function(t, colAreaVar, sizeAreaVars, popupAreaVars, areaChartType, 
                         uniqueScale, showLabels, labelAreaVar, colLinkVar, sizeLinkVar, 
                         popupLinkVars, 
-                        type = c("detail", "avg"), mcYear,
+                        type = c("detail", "avg", "cumul"), mcYear,
                         initial = TRUE, session = NULL, outputId = "output1",
                         dateRange = NULL, sizeMiniPlot = FALSE, options = NULL) {
       
@@ -407,8 +407,8 @@ plotMap <- function(x,
       }
       
       type <- match.arg(type)
-      if (type == "avg") t <- NULL
-      else if (is.null(t)) t <- 0
+      # if (type == "avg") t <- NULL
+      # else if (is.null(t)) t <- 0
       
       # Prepare data
       if (mcYear == "average") x <- syntx
@@ -465,9 +465,9 @@ plotMap <- function(x,
         }
       }
       map <- map %>% 
-        .redrawLinks(x, mapLayout, mcYear, t, colLinkVar, sizeLinkVar, popupLinkVars, options) %>% 
-        .redrawCircles(x, mapLayout, mcYear, t, colAreaVar, sizeAreaVars, popupAreaVars, 
-                       uniqueScale, showLabels, labelAreaVar, areaChartType, options, sizeMiniPlot)
+        .redrawLinks(x, mapLayout, mcYear, type, colLinkVar, sizeLinkVar, popupLinkVars, options, language = language) %>% 
+        .redrawCircles(x, mapLayout, mcYear, type, colAreaVar, sizeAreaVars, popupAreaVars, 
+                       uniqueScale, showLabels, labelAreaVar, areaChartType, options, sizeMiniPlot, language = language)
       
       # combineWidgets(map, width = width, height = height) # bug
       map
@@ -743,8 +743,10 @@ plotMap <- function(x,
     ),
     type = mwRadio(
       {
-        choices <- c("detail", "avg")
-        names(choices) <- c(.getLabelLanguage("By time id", language), .getLabelLanguage("Average", language))
+        choices <- c("detail", "avg", "cumul")
+        names(choices) <- c(.getLabelLanguage("By time id", language), 
+                            .getLabelLanguage("Average", language), 
+                            .getLabelLanguage("Cumul", language))
         choices
       },
       value = type, 

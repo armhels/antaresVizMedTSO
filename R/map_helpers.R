@@ -27,8 +27,8 @@
 #'            the data
 #' 
 #' @noRd
-.getColAndSize <- function(data, coords, mergeBy, mcy, t, colVar, sizeVar, 
-                           popupVars, colorScaleOpts, labelVar = NULL) {
+.getColAndSize <- function(data, coords, mergeBy, mcy, type, colVar, sizeVar, 
+                           popupVars, colorScaleOpts, labelVar = NULL, language = "en") {
   
   if (mcy != "average") data <- data[J(as.numeric(mcy))]
   
@@ -45,11 +45,32 @@
   # subset on element find in coords
   data <- data[get(mergeBy) %in% coords[[mergeBy]]]
   
-  if (is.null(t)) {
+  if (type %in% c("avg")){
     if (length(neededVars) > 0) {
       data <- data[, lapply(.SD, mean), 
                    keyby = mergeBy, 
                    .SDcols = neededVars]
+    } else {
+      data <- unique(data[, mergeBy, with = FALSE])
+    }
+  }
+  
+  if (type %in% c("cumul")){
+    if (length(neededVars) > 0) {
+      indi_column <- match(neededVars, map_cumul[[language]])
+      operation <- map_cumul$operation[indi_column]
+      operation[is.na(operation)] <- "sum"
+      
+      division <- map_cumul$division[indi_column]
+      division[is.na(division)] <- 1
+      
+      decimales <- map_cumul$decimales[indi_column]
+      decimales[is.na(decimales)] <- 0
+      
+      tmp_expr <- paste0("'", neededVars, "' = round(", operation, "(`", neededVars, 
+                         "`)/", division, ", ", decimales, ")")
+      
+      data <- data[, eval(parse(text = paste0("list(", paste(tmp_expr, collapse = ", "), ")"))), keyby = mergeBy]
     } else {
       data <- unique(data[, mergeBy, with = FALSE])
     }
@@ -164,10 +185,10 @@
 }
 
 # Update the circles and polar charts representing areas in an existing map
-.redrawCircles <- function(map, x, mapLayout, mcy, t, colAreaVar, sizeAreaVars,
+.redrawCircles <- function(map, x, mapLayout, mcy, type, colAreaVar, sizeAreaVars,
                            popupAreaVars, uniqueScale, showLabels, labelAreaVar,
                            areaChartType,
-                           options, sizeMiniPlot = FALSE) {
+                           options, sizeMiniPlot = FALSE, language = "en") {
   
   if (is.null(x$areas)) return(map)
   if (nrow(x$areas) == 0) return(map)
@@ -178,9 +199,9 @@
   ml <- copy(mapLayout)
   
   # Compute color and size of areas for the given time step.
-  optsArea <- .getColAndSize(x$areas, ml$coords, "area", mcy, t,
+  optsArea <- .getColAndSize(x$areas, ml$coords, "area", mcy, type,
                              colAreaVar, sizeAreaVars, popupAreaVars,
-                             options$areaColorScaleOpts, labelVar = labelAreaVar)
+                             options$areaColorScaleOpts, labelVar = labelAreaVar, language = language)
   
   if(nrow(optsArea$coords) > 0){
     ml$coords <- optsArea$coords
@@ -321,8 +342,8 @@
 }
 
 # Update the links in an existing map
-.redrawLinks <- function(map, x, mapLayout, mcy, t, colLinkVar, sizeLinkVar, 
-                         popupLinkVars, options) {
+.redrawLinks <- function(map, x, mapLayout, mcy, type, colLinkVar, sizeLinkVar, 
+                         popupLinkVars, options, language = "en") {
   if (is.null(x$links)) return(map)
   if (nrow(x$links) == 0) return(map)
   
@@ -331,7 +352,7 @@
   ml <- copy(mapLayout)
   
   # Get color and size of links
-  optsLink <- .getColAndSize(x$links, mapLayout$links, "link", mcy, t,
+  optsLink <- .getColAndSize(x$links, mapLayout$links, "link", mcy, type,
                              colLinkVar, sizeLinkVar, popupLinkVars,  
                              options$linkColorScaleOpts)
   
