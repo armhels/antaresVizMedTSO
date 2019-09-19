@@ -1,49 +1,49 @@
 EN;OPERATION;DIVISION;DECIMALES
-FLOW LIN.;sum;1;0
-UCAP LIN.;sum;1;0
-FLOW QUAD.;sum;1;0
-CONG. FEE (ALG.);sum;1;0
-CONG. FEE (ABS.);sum;1;0
+FLOW LIN.;sum;1000000;2
+UCAP LIN.;sum;1000000;2
+FLOW QUAD.;sum;1000000;2
+CONG. FEE (ALG.);sum;1000000;2
+CONG. FEE (ABS.);sum;1000000;2
 MARG. COST;mean;1;2
 CONG. PROB +;mean;1;2
 CONG. PROB -;mean;1;2
-HURDLE COST;sum;1;0
+HURDLE COST;sum;1000000;2
 transCapacityDirect;max;1;0
 transCapacityIndirect;max;1;0
 impedances;max;1;0
 hurdleCostDirect;max;1;2
 hurdleCostIndirect;max;1;2
-OV. COST;sum;1;0
-OP. COST;sum;1;0
+OV. COST;sum;1000000;0
+OP. COST;sum;1000000;0
 MRG. PRICE;mean;1;2
-CO2 EMIS.;sum;1;0
-SPIL. ENRG;sum;1;0
+CO2 EMIS.;sum;1000000;2
+SPIL. ENRG;sum;1000000;2
 UNSP.ENRG;sum;1;0
 LOLD;sum;1;0
 LOLP;mean;1;2
-AVL DTG;sum;1;0
-DTG MRG;sum;1;0
-MAX MRG;sum;1;0
-PSP;sum;1;0
-NUCLEAR;sum;1;0
-LIGNITE;sum;1;0
-COAL;sum;1;0
-GAS;sum;1;0
-OIL;sum;1;0
-MIX. FUEL;sum;1;0
-MISC. DTG;sum;1;0
-H. STOR;sum;1;0
-H. ROR;sum;1;0
-WIND;sum;1;0
-SOLAR;sum;1;0
-MISC. NDG;sum;1;0
-BALANCE;sum;1;0
-ROW BAL.;sum;1;0
-NP COST;sum;1;0
+AVL DTG;sum;1000000;2
+DTG MRG;sum;1000000;2
+MAX MRG;sum;1000000;2
+PSP;sum;1000000;2
+NUCLEAR;sum;1000000;2
+LIGNITE;sum;1000000;2
+COAL;sum;1000000;2
+GAS;sum;1000000;2
+OIL;sum;1000000;2
+MIX. FUEL;sum;1000000;2
+MISC. DTG;sum;1000000;2
+H. STOR;sum;1000000;2
+H. ROR;sum;1000000;2
+WIND;sum;1000000;2
+SOLAR;sum;1000000;2
+MISC. NDG;sum;1000000;2
+BALANCE;sum;1000000;2
+ROW BAL.;sum;1000000;2
+NP COST;sum;1000000;2
 NODU;mean;1;1
 storageCapacity;max;1;0
 pumpingCapacity;max;1;0
-Battery_storage_&_pumping;sum;1;0
-Battery_discharge_&_turbine;sum;1;0
-Others_non-renewable;sum;1;0
-Hydro;sum;1;0
+Battery_storage_&_pumping;sum;1000000;2
+Battery_discharge_&_turbine;sum;1000000;2
+Others_non-renewable;sum;1000000;2
+Hydro;sum;1000000;2

@@ -1,71 +1,75 @@
-en;fr
-OV. COST ;cout_total
-OP. COST;cout_operationnel
-MRG. PRICE;prix_marginal
-CO2 EMIS.;CO2
-BALANCE;echanges
-ROW BAL.;balance_autre_pays
-PSP;pompage_turbinage
-MISC. NDG;renouvelable_autre
-LOAD;consommation
-H. ROR;hydraulique_fil
-WIND;eolien
-SOLAR;solaire
-NUCLEAR;nucleaire
-LIGNITE;lignite
-COAL;charbon
-GAS;gaz
-OIL;fioul
-MIX. FUEL;thermique_mixte
-MISC. DTG;thermique_autre
-H. STOR;hydraulique_lac
-UNSP. ENRG;energie_non_distribuee
-SPIL. ENRG;deversement
-LOLD;defaillance
-LOLP;probabilite_defaillance
-AVL DTG;marge_disponible
-DTG MRG;marge_pilotable
-MAX MRG;marge_maximum
-NP COST ;cout_demarrage
-NODU;unite_demarre
-FLOW LIN.;flux
-UCAP LIN.;flux_absolu
-FLOW QUAD.;flux_quadratique
-CONG. FEE (ALG.);cout_congestion
-CONG. FEE (ABS.);cout_congesiton_absolu
-MARG. COST;cout_marginal
-CONG. PROB +;congestion+
-CONG. PROB -;congestion-
-HURDLE COST;cout_interconnexion
-congestion;congestion
-effacement;effacement
-pumpedStorage;Pompage/turbinage
-import/export;Import/export
-mustRunTotal;mustRun Total
-mustRunPartial;mustRun Partiel
-mustRun;mustRun
-bioenergy;Autre renouvelable
-wind;Eolien
-solar;Solaire
-nuclear;Nucléaire
-hydraulic;Hydraulique
-gas;Gaz
-coal;Charbon
-other;Autres
-load;Consommation
-renewable;Renouvelable
-renewableNoDispatchable;Renouvelable non-acheminables
-thermal;Thermique
-thermalDispatchable;Thermique acheminables
-hydraulicDispatchable;Hydraulique acheminable
-oil;Fioul
-generation;Génération
-economy;Economie
-adequacy;Adéquation
-mixFuel;Thermique mixte
-misc. DTG;Thermique autre
-hydraulicRor;Hydraulique_fil
-hydraulicStor;Hydraulique_lac
-totalProduction;Production Totale
-netLoad;Consommation nette
-thermalAvailability;Marge disponible
+en;fr;en_medtso
+OV. COST ;Cout_total;Overall_cost
+OP. COST;Cout_exploitation;Operating_cost
+MRG. PRICE;Prix_marginal;Marginal_price
+CO2 EMIS.;Emissions_CO2;CO2_emissions
+BALANCE;Echanges;Balance
+ROW BAL.;Balance_autres_pays;RoW_Balance
+PSP;Pompage_turbinage;Pumping_Storage_Plant
+MISC. NDG;Autres_renouvelables;Other_renewables
+LOAD;Consommation;Demand
+H. ROR;Hydraulique_fil;Hydro_ROR
+WIND;Eolien;Wind
+SOLAR;Solaire;Solar
+NUCLEAR;Nucleaire;Nuclear
+LIGNITE;Lignite;Lignite
+COAL;Charbon;Coal
+GAS;Gaz;Gas
+OIL;Fioul;Oil
+MIX. FUEL;Thermique_mixte;Mix_Fuel
+MISC. DTG;Thermique_autre;Other_Fuel
+H. STOR;Hydraulique_lac;Hydro_reservoir
+UNSP. ENRG;Energie_non_distribuee;Unsupplied_energy
+SPIL. ENRG;Deversement;Dumped_energy
+LOLD;Duree_defaillance;Loss_of_load_duration
+LOLP;Probabilite_defaillance;Loss_of_load_prob
+AVL DTG;Thermique_disponible;Available_thermal
+DTG MRG;Marge_thermique;Thermal_margin
+MAX MRG;Marge_maximum;Maximum_margin
+NP COST ;Cout_demarrage;Starting_cost
+NODU;Unite_demarre;Nb_unit_commitment
+FLOW LIN.;Flux;Flow
+UCAP LIN.;Flux_absolu;Flow_(abs)
+FLOW QUAD.;Flux_quadratique;Flow_(quad)
+CONG. FEE (ALG.);Cout_congestion;Congestion_fee
+CONG. FEE (ABS.);Cout_congesition_absolu;Congestion_fee_(Abs)
+MARG. COST;Ecart_cout_marginal;Marginal_cost_diff
+CONG. PROB +;Congestion_prob+;Congestion_prob+
+CONG. PROB -;congestion_prob-;Congestion_prob-
+HURDLE COST;Hurdle_cost;Hurdle_cost
+congestion;Congestion;Congestion
+effacement;Effacement;Demand_side_Management
+pumpedStorage;Pompage/turbinage;pumpedStorage
+import/export;Import/export;import/export
+mustRunTotal;mustRun Total;mustRunTotal
+mustRunPartial;mustRun Partiel;mustRunPartial
+mustRun;mustRun;mustRun
+bioenergy;Bio-combustible;Biofuel
+wind;Eolien;Wind
+solar;Solaire;Solar
+nuclear;Nucleaire;Nuclear
+hydraulic;Hydraulique;Hydraulic
+gas;Gaz;Gas
+coal;Charbon;Coal
+other;Autres;Other
+load;Consommation;Demand
+renewable;Renouvelable;Renewable
+renewableNoDispatchable;Renouvelable non-dispatchable;renewableNoDispatchable
+thermal;Thermique;Thermal
+thermalDispatchable;Thermique dispatchable;thermalDispatchable
+hydraulicDispatchable;Hydraulique dispatchable;hydraulicDispatchable
+oil;Fioul;Oil
+generation;Génération;Generation
+economy;Economie;Economy
+adequacy;Adéquation;Adequacy
+mixFuel;Thermique mixte;mixFuel
+misc. DTG;Thermique autre;misc. DTG
+hydraulicRor;Hydraulique_fil;hydraulicRor
+hydraulicStor;Hydraulique_lac;hydraulicStor
+totalProduction;Production Totale;totalProduction
+netLoad;Consommation nette;netLoad
+thermalAvailability;Marge disponible;thermalAvailability
+Battery_storage_&_pumping;Stockage_batterie_&_pompage;Battery_storage_&_pumping
+Battery_discharge_&_turbine;Decharge_batterie_&_turbine;Battery_discharge_&_turbine
+Others_non-renewable;Autres_non-renouvelables;Others_non-renewable
+Hydro;Hydroélectricité;Hydro_generation

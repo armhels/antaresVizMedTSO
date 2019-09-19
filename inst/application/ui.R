@@ -37,7 +37,7 @@ navbarPage(title = HTML('<p style="margin-top: 0.05cm;">&nbsp;&nbsp;&nbsp;&nbsp;
                         display: block;
                         height: 21px;
                         text-decoration: none;
-                        overflow-x: hidden;", onclick="updateShinyLanguage('en')"),
+                        overflow-x: hidden;", onclick="updateShinyLanguage('en_medtso')"),
              tags$script(type="text/javascript", 'if(is.ie()){ alert("This site is not fully compatible with Internet Explorer");};'),
              
              div(id = "import_busy", tags$img(src= "spinner.gif", height = 100, 

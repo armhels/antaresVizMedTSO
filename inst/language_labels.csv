@@ -1,170 +1,170 @@
-en;fr
-timeStep;Pas de temps
-mcYears to be imported;Tirage à importer
-mcYear to be displayed;Tirage à visualiser
-H5request;Données
-area;Nœud
-Areas;Nœuds
-areas;Nœuds
-dateRange;Période
-unit;Unité
-legend;Légende
-stepPlot;stepPlot
-drawPoints;Afficher les points
-title;Titre
-main;Titre
-table;Table
-stack;Empilement
-variable;Variable
-secondAxis;2nd axe
-Variables 2nd axis;2nd axe : variable
-type;Type
-confidence interval;Interval de confiance
-min value;Valeur min.
-max value;Valeur max.
-elements;Elements
-aggregate;Agrégation
-none;sans
-mean;moyenne
-sum;somme
-mean by areas;moyenne par nœud
-sum by areas;somme par nœud
-highlight;Surbrillance
-Color;Couleur
-Size;Taille
-Size by alias;Taille par alias
-miniPlot;Mini-graphs
-sizeMiniPlot;Taille prop.
-Unique scale;Echelle unique
-Show labels;Voir les labels
-Popup;Popup
-Label;Label
-Links;Liens
-links;Liens
-districts;Districts
-Width;Epaisseur
-By time id;Par pas de temps
-Average;Moyen
-areaChartType;Graphique
-bar chart;Diagramme en barres
-pie chart;Camembert
-polar (area);Polaire (aire)
-polar (radius);Polaire (rayon)
-average;moyen
-hourly;Horaire
-daily;Journalier
-weekly;Hebdomadaire
-monthly;Mensuel
-annual;Annuel
-time series;Séries temporelles
-barplot;Diagramme en barres
-monotone;Monotone
-density;Densité
-cdf;Cdf
-heatmap;Heatmap
-Average mcYear;Tirage moyen
-By event;Par évènement
-By mcYear;Par tirage
-Selection;Sélection
-No data for this selection;Pas de données pour cette sélection
-No data;Pas de données
-Please select some mcYears;Veuillez sélectionner des années
-Please select some variables;Veuillez sélectionner des variables
-Please select some elements;Veuillez sélectionner des éléments
-not exists in this study;absente de l'étude
-Comparison of;Comparaison de
-Monotone of;Monotone de
-Density;Densité
-Density of;Densité de
-Proportion of time steps;Proportion du temps
-Cumulated distribution of;Distribution cumulée de
-Evolution of;Évolution de
-Flows from/to;Flux arrivant/partant
-Flows (%s);Flux (%s)
-Please choose an area;Veuillez sélectionner une zone
-Can't visualize stack;Visualisation impossible
-Production stack;Empilement
-Show legend;Voir la légende
-Hide legend;Cacher la légende
-Data;Données
-Exchanges;Echanges
-Time Series;Chroniques
-Map;Carte
-Current Layout;Positions actuelles
-Layout Builder;Editeur de positions
-plotMap;Cartographie
-Parameters;Paramètres
-Help;Aide
-Import Data;Importation des données
-Analysis;Analyse
-Antares study selection;Sélection d'une étude antares
-Select an antares study;Sélectionner une étude antares
-Select a simulation;Sélectionner une simulation
-Set simulation;Valider la simulation
-ANTARES Simulation;Simulation Antares
-Quit application;Quitter l'application
-Select;Sélection
-Validate & import data;Valider et importer les données
-Analysis parameters;Paramètres de l'analyse
-Studies;Etudes
-Compare;Comparaison
-mcYear on all modules ?;Tirage sur l'ensemble des modules ?
-Launch Analysis;Lancer l'analyse
-readAntares parameters;Paramètres de la fonction readAntares
-View parameters;Voir les paramètres
-Include study in analysis;Inclure l'étude dans l'analyse
-Remove study;Supprimer l'étude
-Remove virtual Areas;Suppression des noeuds virtuels
-enabled;active
-writeAntaresH5 parameters;Paramètres de la fonction writeAntaresH5
-Target directory;Répertoire de destination
-Write study in h5 ?;Ecrire l'étude au format .h5 ?
-Convert study to h5;Convertir l'étude en .h5
-mcYears selection;Sélection des tirages
-mcYears;Tirage(s)
-synthetic;Synthèse
-all;Tous
-custom;Personnalisée
-readAntares RAM limit (in Go);Limite RAM (Go) de readAntares
-antaresViz data module (in Mb);Limite (Mb) des modules de visualisation
-Share inputs between modules ?;Partage des inputs entre les modules ?
-No data imported;Pas de données importées
-No areas imported;Pas noeuds importés 
-No links imported;Pas de liens importés
-No antares output found in directory;Pas d'étude(s) antares trouvée(s) dans le répertoire
-Please first choose a folder with antares output;Sélectionner un répertoire contenant des études antares
-Please set or import a map layout before;Editer ou importer le positionnement des points
-Download Layout;Télécharger le positionnement
-Import a layout;Importer un positionnement
-Current map layout;Positionnement actuel
-Countries;Pays
-States;Etats
-Merge countries ?;Fusionner les pays ?
-Merge states ?;Fusionner les états ?
-Set map;Valider le fond de carte
-Re-Init layout;Remise à zéro
-Map Layout;Positions
-Done;Valider
-Next;Suivant
-Choose this study as a reference;Choisir cette étude comme référence
-Please place the following point on the map;Placer le point suivant sur la carte
-Drag the markers on the map to adjust coordinates then click the 'Done' button;Ajuster le positionnement les marqueurs sur la carte et avant de cliquer sur le bouton 'Valider'
-You can click on a marker to display information;Vous pouvez cliquer sur un marqueur pour afficher des informations
-Invalid Map Layout : wrongs nodes/links informations;Informations sur les positions invalides : tous les noeuds sont manquants
-To use a reference, select at least two studies, number of studies selected :;Pour utiliser une référence, sélectionnez au moins deux études, nombre d'études sélectionnées :
-Import a selection file (.xlsx);Importer un fichier de sélection (.xlsx)
-Download selection file template;Télécharger le modèle du fichier de sélection
-Generate current selection file;Générer le fichier de la sélection actuelle
-Error reading selection file;Erreur lors de la lecture du fichier de sélection
-Warning reading selection file;Warning lors de la lecture du fichier de sélection
-Select this study;Sélectionner cette étude
-Export all tables (without filters);Exporter toutes les tables (sans filtres)
-Export all tables (with filters);Exporter toutes les tables (avec filtres)
-Export this table;Exporter cette table
-Size;Taille
-N. Rows;Nb. Lignes
-N. Cols;Nb. Colonnes
-First 10 rows;10 premières lignes
-Med-TSO Maps; Cartes Med-TSO
-Export;Exportation
-Generate output file;Générer le fichier de sortie
+en;fr;en_medtso
+timeStep;Pas de temps;timeStep
+mcYears to be imported;Tirage à importer;mcYears to be imported
+mcYear to be displayed;Tirage à visualiser;mcYear to be displayed
+H5request;Données;H5request
+area;Nœud;area
+Areas;Nœuds;Areas
+areas;Nœuds;areas
+dateRange;Période;dateRange
+unit;Unité;unit
+legend;Légende;legend
+stepPlot;stepPlot;stepPlot
+drawPoints;Afficher les points;drawPoints
+title;Titre;title
+main;Titre;main
+table;Table;table
+stack;Empilement;stack
+variable;Variable;variable
+secondAxis;2nd axe;secondAxis
+Variables 2nd axis;2nd axe : variable;Variables 2nd axis
+type;Type;type
+confidence interval;Interval de confiance;confidence interval
+min value;Valeur min.;min value
+max value;Valeur max.;max value
+elements;Elements;elements
+aggregate;Agrégation;aggregate
+none;sans;none
+mean;moyenne;mean
+sum;somme;sum
+mean by areas;moyenne par nœud;mean by areas
+sum by areas;somme par nœud;sum by areas
+highlight;Surbrillance;highlight
+Color;Couleur;Color
+Size;Taille;Size
+Size by alias;Taille par alias;Size by alias
+miniPlot;Mini-graphs;miniPlot
+sizeMiniPlot;Taille prop.;sizeMiniPlot
+Unique scale;Echelle unique;Unique scale
+Show labels;Voir les labels;Show labels
+Popup;Popup;Popup
+Label;Label;Label
+Links;Liens;Links
+links;Liens;links
+districts;Districts;districts
+Width;Epaisseur;Width
+By time id;Par pas de temps;By time id
+Average;Moyen;Average
+areaChartType;Graphique;areaChartType
+bar chart;Diagramme en barres;bar chart
+pie chart;Camembert;pie chart
+polar (area);Polaire (aire);polar (area)
+polar (radius);Polaire (rayon);polar (radius)
+average;moyen;average
+hourly;Horaire;hourly
+daily;Journalier;daily
+weekly;Hebdomadaire;weekly
+monthly;Mensuel;monthly
+annual;Annuel;annual
+time series;Séries temporelles;time series
+barplot;Diagramme en barres;barplot
+monotone;Monotone;monotone
+density;Densité;density
+cdf;Cdf;cdf
+heatmap;Heatmap;heatmap
+Average mcYear;Tirage moyen;Average mcYear
+By event;Par évènement;By event
+By mcYear;Par tirage;By mcYear
+Selection;Sélection;Selection
+No data for this selection;Pas de données pour cette sélection;No data for this selection
+No data;Pas de données;No data
+Please select some mcYears;Veuillez sélectionner des années;Please select some mcYears
+Please select some variables;Veuillez sélectionner des variables;Please select some variables
+Please select some elements;Veuillez sélectionner des éléments;Please select some elements
+not exists in this study;absente de l'étude;not exists in this study
+Comparison of;Comparaison de;Comparison of
+Monotone of;Monotone de;Monotone of
+Density;Densité;Density
+Density of;Densité de;Density of
+Proportion of time steps;Proportion du temps;Proportion of time steps
+Cumulated distribution of;Distribution cumulée de;Cumulated distribution of
+Evolution of;Évolution de;Evolution of
+Flows from/to;Flux arrivant/partant;Flows from/to
+Flows (%s);Flux (%s);Flows (%s)
+Please choose an area;Veuillez sélectionner une zone;Please choose an area
+Can't visualize stack;Visualisation impossible;Can't visualize stack
+Production stack;Empilement;Production stack
+Show legend;Voir la légende;Show legend
+Hide legend;Cacher la légende;Hide legend
+Data;Données;Data
+Exchanges;Echanges;Exchanges
+Time Series;Chroniques;Time Series
+Map;Carte;Map
+Current Layout;Positions actuelles;Current Layout
+Layout Builder;Editeur de positions;Layout Builder
+plotMap;Cartographie;plotMap
+Parameters;Paramètres;Parameters
+Help;Aide;Help
+Import Data;Importation des données;Import Data
+Analysis;Analyse;Analysis
+Antares study selection;Sélection d'une étude antares;Antares study selection
+Select an antares study;Sélectionner une étude antares;Select an antares study
+Select a simulation;Sélectionner une simulation;Select a simulation
+Set simulation;Valider la simulation;Set simulation
+ANTARES Simulation;Simulation Antares;ANTARES Simulation
+Quit application;Quitter l'application;Quit application
+Select;Sélection;Select
+Validate & import data;Valider et importer les données;Validate & import data
+Analysis parameters;Paramètres de l'analyse;Analysis parameters
+Studies;Etudes;Studies
+Compare;Comparaison;Compare
+mcYear on all modules ?;Tirage sur l'ensemble des modules ?;mcYear on all modules ?
+Launch Analysis;Lancer l'analyse;Launch Analysis
+readAntares parameters;Paramètres de la fonction readAntares;readAntares parameters
+View parameters;Voir les paramètres;View parameters
+Include study in analysis;Inclure l'étude dans l'analyse;Include study in analysis
+Remove study;Supprimer l'étude;Remove study
+Remove virtual Areas;Suppression des noeuds virtuels;Remove virtual Areas
+enabled;active;enabled
+writeAntaresH5 parameters;Paramètres de la fonction writeAntaresH5;writeAntaresH5 parameters
+Target directory;Répertoire de destination;Target directory
+Write study in h5 ?;Ecrire l'étude au format .h5 ?;Write study in h5 ?
+Convert study to h5;Convertir l'étude en .h5;Convert study to h5
+mcYears selection;Sélection des tirages;mcYears selection
+mcYears;Tirage(s);mcYears
+synthetic;Synthèse;synthetic
+all;Tous;all
+custom;Personnalisée;custom
+readAntares RAM limit (in Go);Limite RAM (Go) de readAntares;readAntares RAM limit (in Go)
+antaresViz data module (in Mb);Limite (Mb) des modules de visualisation;antaresViz data module (in Mb)
+Share inputs between modules ?;Partage des inputs entre les modules ?;Share inputs between modules ?
+No data imported;Pas de données importées;No data imported
+No areas imported;Pas noeuds importés ;No areas imported
+No links imported;Pas de liens importés;No links imported
+No antares output found in directory;Pas d'étude(s) antares trouvée(s) dans le répertoire;No antares output found in directory
+Please first choose a folder with antares output;Sélectionner un répertoire contenant des études antares;Please first choose a folder with antares output
+Please set or import a map layout before;Editer ou importer le positionnement des points;Please set or import a map layout before
+Download Layout;Télécharger le positionnement;Download Layout
+Import a layout;Importer un positionnement;Import a layout
+Current map layout;Positionnement actuel;Current map layout
+Countries;Pays;Countries
+States;Etats;States
+Merge countries ?;Fusionner les pays ?;Merge countries ?
+Merge states ?;Fusionner les états ?;Merge states ?
+Set map;Valider le fond de carte;Set map
+Re-Init layout;Remise à zéro;Re-Init layout
+Map Layout;Positions;Map Layout
+Done;Valider;Done
+Next;Suivant;Next
+Choose this study as a reference;Choisir cette étude comme référence;Choose this study as a reference
+Please place the following point on the map;Placer le point suivant sur la carte;Please place the following point on the map
+Drag the markers on the map to adjust coordinates then click the 'Done' button;Ajuster le positionnement les marqueurs sur la carte et avant de cliquer sur le bouton 'Valider';Drag the markers on the map to adjust coordinates then click the 'Done' button
+You can click on a marker to display information;Vous pouvez cliquer sur un marqueur pour afficher des informations;You can click on a marker to display information
+Invalid Map Layout : wrongs nodes/links informations;Informations sur les positions invalides : tous les noeuds sont manquants;Invalid Map Layout : wrongs nodes/links informations
+To use a reference, select at least two studies, number of studies selected :;Pour utiliser une référence, sélectionnez au moins deux études, nombre d'études sélectionnées :;To use a reference, select at least two studies, number of studies selected :
+Import a selection file (.xlsx);Importer un fichier de sélection (.xlsx);Import a selection file (.xlsx)
+Download selection file template;Télécharger le modèle du fichier de sélection;Download selection file template
+Generate current selection file;Générer le fichier de la sélection actuelle;Generate current selection file
+Error reading selection file;Erreur lors de la lecture du fichier de sélection;Error reading selection file
+Warning reading selection file;Warning lors de la lecture du fichier de sélection;Warning reading selection file
+Select this study;Sélectionner cette étude;Select this study
+Export all tables (without filters);Exporter toutes les tables (sans filtres);Export all tables (without filters)
+Export all tables (with filters);Exporter toutes les tables (avec filtres);Export all tables (with filters)
+Export this table;Exporter cette table;Export this table
+Size;Taille;Size
+N. Rows;Nb. Lignes;N. Rows
+N. Cols;Nb. Colonnes;N. Cols
+First 10 rows;10 premières lignes;First 10 rows
+Med-TSO Maps; Cartes Med-TSO;Med-TSO Maps
+Export;Exportation;Export
+Generate output file;Générer le fichier de sortie;Generate output file
