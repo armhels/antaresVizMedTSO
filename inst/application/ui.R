@@ -40,6 +40,11 @@ navbarPage(title = HTML('<p style="margin-top: 0.05cm;">&nbsp;&nbsp;&nbsp;&nbsp;
                         overflow-x: hidden;", onclick="updateShinyLanguage('en_medtso')"),
              tags$script(type="text/javascript", 'if(is.ie()){ alert("This site is not fully compatible with Internet Explorer");};'),
              
+             tags$link(
+               rel = "icon", 
+               type = "image/x-icon", 
+               href = "http://localhost:1984/med_logo_DFT_icon.ico"),
+             
              div(id = "import_busy", tags$img(src= "spinner.gif", height = 100, 
                                               style = "position: fixed;top: 50%;z-index:10;left: 48%;"))
              # selectInput("language", "langue:",

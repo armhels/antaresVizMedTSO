@@ -182,5 +182,12 @@ function(input, output, session) {
       q("no")
     })
   }
+  
+  # if (!interactive()) {
+  #   session$onSessionEnded(function() {
+  #     stopApp()
+  #     q("no")
+  #   })
+  # }
 
 }
