@@ -292,6 +292,7 @@ observe({
     current_language <- current_language$language
     if (!is.null(file_sel)){
       withCallingHandlers({
+        list_warning <- list() 
         list_sel <- tryCatch({ 
           antaresVizMedTSO::readStudyShinySelection(file_sel$datapath)},
           error = function(e){
@@ -304,13 +305,17 @@ observe({
             NULL
           })}, 
         warning = function(w){
-          showModal(modalDialog(
-            title = antaresVizMedTSO:::.getLabelLanguage("Warning reading selection file", current_language),
-            easyClose = TRUE,
-            footer = NULL,
-            w
-          ))
+          list_warning[[length(list_warning) + 1]] <<- w$message
         })
+      
+      if(length(list_warning) > 0){
+        showModal(modalDialog(
+          title = "Warning reading selection file",
+          easyClose = TRUE,
+          footer = NULL,
+          HTML(paste0(list_warning, collapse  = "<br><br>"))
+        ))
+      }
       
       if(!is.null(list_sel)){
         # areas

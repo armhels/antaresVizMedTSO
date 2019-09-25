@@ -408,6 +408,7 @@ output$export_annual_format_output <- downloadHandler(
           mcy <- mcYears[tmp]
         }
         
+        list_warning <- list() 
         data <- withCallingHandlers({
           tryCatch({
             importAntaresDatasAnnual(opts = opts_format_output(), 
@@ -430,14 +431,18 @@ output$export_annual_format_output <- downloadHandler(
             NULL
           })}, 
           warning = function(w){
-            showModal(modalDialog(
-              title = "Warning reading data",
-              easyClose = TRUE,
-              footer = NULL,
-              w
-            ))
+            list_warning[[length(list_warning) + 1]] <<- w$message
           }
         )
+        
+        if(length(list_warning) > 0){
+          showModal(modalDialog(
+            title = "Warning reading data",
+            easyClose = TRUE,
+            footer = NULL,
+            HTML(paste0(list_warning, collapse  = "<br><br>"))
+          ))
+        }
         
         progress$set(value = 0.5)
         
@@ -469,6 +474,7 @@ output$export_annual_format_output <- downloadHandler(
           
           options(scipen = 10000, digits = 1)
           
+          list_warning <- list()           
           data <- withCallingHandlers({
             tryCatch({
               formatAnnualOutputs(data_areas_dist_clust = data$data_areas_dist_clust,
@@ -489,15 +495,18 @@ output$export_annual_format_output <- downloadHandler(
               NULL
             })},
             warning = function(w){
-              showModal(modalDialog(
-                title = "Warning formatting data",
-                easyClose = TRUE,
-                footer = NULL,
-                w
-              ))
+              list_warning[[length(list_warning) + 1]] <<- w$message
             }
           )
           
+          if(length(list_warning) > 0){
+            showModal(modalDialog(
+              title = "Warning formatting data",
+              easyClose = TRUE,
+              footer = NULL,
+              HTML(paste0(list_warning, collapse  = "<br><br>"))
+            ))
+          }
           progress$set(value = 0.7)
           
           if(!is.null(data)){
@@ -506,6 +515,7 @@ output$export_annual_format_output <- downloadHandler(
             
             progress$set(message = 'Annual Output', detail = 'Writting data...')
             
+            list_warning <- list() 
             data <- withCallingHandlers({
               tryCatch({
                 exportAnnualOutputs(infile_name = infile_name, outfile_name = tmp_file,
@@ -521,14 +531,18 @@ output$export_annual_format_output <- downloadHandler(
                 list()
               })}, 
               warning = function(w){
-                showModal(modalDialog(
-                  title = "Warning writing data",
-                  easyClose = TRUE,
-                  footer = NULL,
-                  w
-                ))
+                list_warning[[length(list_warning) + 1]] <<- w$message
               }
             )
+            
+            if(length(list_warning) > 0){
+              showModal(modalDialog(
+                title = "Warning writing data",
+                easyClose = TRUE,
+                footer = NULL,
+                HTML(paste0(list_warning, collapse  = "<br><br>"))
+              ))
+            }
           }
         }   
         
@@ -591,6 +605,7 @@ output$export_hourly_format_output <- downloadHandler(
         }
         
         # import data
+        list_warning <- list() 
         data <- withCallingHandlers({
           tryCatch({
             importAntaresDatasHourly(opts = opts_format_output(), 
@@ -613,14 +628,18 @@ output$export_hourly_format_output <- downloadHandler(
             NULL
           })}, 
           warning = function(w){
-            showModal(modalDialog(
-              title = "Warning reading data",
-              easyClose = TRUE,
-              footer = NULL,
-              w
-            ))
+            list_warning[[length(list_warning) + 1]] <<- w$message
           }
         )
+        
+        if(length(list_warning) > 0){
+          showModal(modalDialog(
+            title = "Warning reading data",
+            easyClose = TRUE,
+            footer = NULL,
+            HTML(paste0(list_warning, collapse  = "<br><br>"))
+          ))
+        }
         
         progress$set(value = 0.5)
         
@@ -655,6 +674,7 @@ output$export_hourly_format_output <- downloadHandler(
         
         options(scipen = 10000, digits = 1)
         
+        list_warning <- list() 
         data <- withCallingHandlers({
           tryCatch({
             formatHourlyOutputs(
@@ -675,15 +695,18 @@ output$export_hourly_format_output <- downloadHandler(
             NULL
           })},
           warning = function(w){
-            showModal(modalDialog(
-              title = "Warning formatting data",
-              easyClose = TRUE,
-              footer = NULL,
-              w
-            ))
+            list_warning[[length(list_warning) + 1]] <<- w$message
           }
         )
         
+        if(length(list_warning) > 0){
+          showModal(modalDialog(
+            title = "Warning formatting data",
+            easyClose = TRUE,
+            footer = NULL,
+            HTML(paste0(list_warning, collapse  = "<br><br>"))
+          ))
+        }
         progress$set(value = 0.7)
         
         if(!is.null(data)){
@@ -694,6 +717,7 @@ output$export_hourly_format_output <- downloadHandler(
           
           progress$set(message = 'Hourly Output', detail = 'Writting data...')
           
+          list_warning <- list() 
           data <- withCallingHandlers({
             tryCatch({
               exportHourlyOutputs(hourly_outputs = data, infile_name = infile_name, outfile_name = tmp_file,
@@ -709,14 +733,17 @@ output$export_hourly_format_output <- downloadHandler(
               list()
             })}, 
             warning = function(w){
-              showModal(modalDialog(
-                title = "Warning writing data",
-                easyClose = TRUE,
-                footer = NULL,
-                w
-              ))
+              list_warning[[length(list_warning) + 1]] <<- w$message
             }
           )
+          if(length(list_warning) > 0){
+            showModal(modalDialog(
+              title = "Warning writing data",
+              easyClose = TRUE,
+              footer = NULL,
+              HTML(paste0(list_warning, collapse  = "<br><br>"))
+            ))
+          }
         }
       }   
       

@@ -17,6 +17,8 @@ observe({
           }
           
           # import data
+          list_warning <- list() 
+          
           data <- withCallingHandlers({
             tryCatch({
               readAntares(areas = input$read_areas, links = input$read_links, clusters = input$read_clusters,
@@ -39,18 +41,23 @@ observe({
                 list()
               })}, 
             warning = function(w){
-              showModal(modalDialog(
-                title = "Warning reading data",
-                easyClose = TRUE,
-                footer = NULL,
-                w
-              ))
+              list_warning[[length(list_warning) + 1]] <<- w$message
             }
           )
+          
+          if(length(list_warning) > 0){
+            showModal(modalDialog(
+              title = "Warning reading data",
+              easyClose = TRUE,
+              footer = NULL,
+              HTML(paste0(list_warning, collapse  = "<br><br>"))
+            ))
+          }
           
           # removeVirtualAreas
           if(input$rmva_ctrl){
             if(length(data) > 0){
+              list_warning <- list() 
               data <- withCallingHandlers({
                 tryCatch({
                   removeVirtualAreas(x = data, 
@@ -68,14 +75,18 @@ observe({
                     list()
                   })}, 
                 warning = function(w){
-                  showModal(modalDialog(
-                    title = "removeVirtualAreas : warning",
-                    easyClose = TRUE,
-                    footer = NULL,
-                    w
-                  ))
+                  list_warning[[length(list_warning) + 1]] <<- w$message
                 }
               )
+              
+              if(length(list_warning) > 0){
+                showModal(modalDialog(
+                  title = "removeVirtualAreas : warning",
+                  easyClose = TRUE,
+                  footer = NULL,
+                  HTML(paste0(list_warning, collapse  = "<br><br>"))
+                ))
+              }
             }
           }
           
