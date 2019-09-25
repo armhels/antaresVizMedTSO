@@ -21,7 +21,8 @@ layout <- reactive({
   })
 })
 
-ml <- reactiveVal()
+ml <- reactiveVal(defaut_map_layout)
+
 # module for set and save layout
 map_language <- reactive({
   current_language$language
@@ -31,7 +32,10 @@ ml_builder <- callModule(antaresVizMedTSO:::changeCoordsServer, "ml", layout,
                          what = reactive("areas"), language = map_language, stopApp = FALSE)
 
 observe({
-  ml(ml_builder())
+  tmp_ml <- ml_builder()
+  if(!is.null(tmp_ml)){
+    ml(tmp_ml)
+  }
 })
 
 observe({

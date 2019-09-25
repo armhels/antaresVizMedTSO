@@ -21,6 +21,24 @@ suppressWarnings({
   })
 })
 
+if(file.exists("default_conf.yml")){
+  conf <- try(yaml::read_yaml("default_conf.yml"), silent = TRUE)
+  study_dir <- conf$study_dir
+  map_layout <- conf$map_layout
+  if(is.null(study_dir)) study_dir <- ""
+  if(is.null(map_layout)) map_layout <- ""
+} else {
+  map_layout <- ""
+  study_dir <- ""
+}
+
+defaut_map_layout <- NULL
+if(!is.null(map_layout) && file.exists(map_layout)){
+  tmp_ml <- try(readRDS(map_layout), silent = TRUE)
+  if("mapLayout" %in% class(tmp_ml)){
+    defaut_map_layout <- tmp_ml
+  }
+}
 
 # choose a directory
 source("src/scripts/directoryInput.R", encoding = "UTF-8")

@@ -4,7 +4,8 @@ tabPanel(textOutput("label_tab_format_output"),
                               h3(textOutput("title_import_data_4")),
                               fluidRow(
                                 column(5, 
-                                       directoryInput('directory_format_output', label = '', value = 'C:\\Users\\Datastorm\\Desktop\\Med-TSO\\Full MedTSO')
+                                       directoryInput('directory_format_output', label = '', 
+                                                      value = study_dir)
                                 ), 
                                 conditionalPanel(condition = "output.ctrl_is_antares_study_format_output", 
                                                  column(1, 

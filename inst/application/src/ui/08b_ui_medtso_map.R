@@ -4,7 +4,7 @@ tabPanel(textOutput("label_tab_medtso_map_menu"),
                               h3(textOutput("title_import_data_3")),
                               fluidRow(
                                 column(5, 
-                                       directoryInput('directory_medtso_maps', label = '', value = 'C:\\Users\\Datastorm\\Desktop\\Med-TSO\\Full MedTSO')
+                                       directoryInput('directory_medtso_maps', label = '', value = study_dir)
                                 ), 
                                 conditionalPanel(condition = "output.ctrl_is_antares_study_medtso_maps", 
                                                  column(1, 
