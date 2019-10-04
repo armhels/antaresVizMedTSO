@@ -98,7 +98,7 @@
       }
       
       # Special case of FLOW LIN
-      if (colVar == "FLOW LIN.") rangevar <- c(0, max(abs(rangevar)))
+      if (colVar %in% c("FLOW LIN.", .getColumnsLanguage("FLOW LIN.", language = language))) rangevar <- c(0, max(abs(rangevar)))
       
       # if (rangevar[1] >= 0) {
       #   domain <- rangevar
@@ -108,7 +108,7 @@
       
       domain <- rangevar 
       
-      if (colVar %in% c("FLOW LIN.", .getColumnsLanguage("FLOW LIN.", language = "fr"))) colorScaleOpts$x <- abs(data[[colVar]])
+      if (colVar %in% c("FLOW LIN.", .getColumnsLanguage("FLOW LIN.", language = language))) colorScaleOpts$x <- abs(data[[colVar]])
       else colorScaleOpts$x <- data[[colVar]]
       
       colorScaleOpts$domain <- domain
@@ -143,8 +143,8 @@
     res$dir <- sign(data$`FLOW LIN.`)
     #coords[, `FLOW LIN.` := abs(`FLOW LIN.`)]
   } else {
-    if(.getColumnsLanguage("FLOW LIN.", language = "fr")  %in% names(data)){
-      res$dir <- sign(data[[.getColumnsLanguage("FLOW LIN.", language = "fr")]])
+    if(.getColumnsLanguage("FLOW LIN.", language = language)  %in% names(data)){
+      res$dir <- sign(data[[.getColumnsLanguage("FLOW LIN.", language = language)]])
     } else {
       res$dir <- 0
     }
