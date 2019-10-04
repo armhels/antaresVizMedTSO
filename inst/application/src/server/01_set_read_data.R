@@ -373,6 +373,9 @@ observe({
       if(input$read_type_mcYears %in% "all"){
         mcYears = opts()$mcYears
       }
+      if(input$read_type_mcYears %in% "synthetic"){
+        mcYears = "synthetic"
+      }
       params <- list(areas = input$read_areas, links = input$read_links, 
                      clusters = input$read_clusters, districts = input$read_districts, 
                      misc = input$read_misc, thermalAvailability = input$read_thermalAvailabilities, 

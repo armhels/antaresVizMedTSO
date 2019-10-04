@@ -92,8 +92,8 @@ readStudyShinySelection <- function(input_path){
     if("mcYears" %in% sel_params[[1]] && !is.na(sel_params[sel_params[[1]] %in% "mcYears", 2])){
       tmp <- as.character(sel_params[sel_params[[1]] %in% "mcYears", 2])
       tmp <- gsub("^([[:space:]]*) | ([[:space:]]*)$", "", unlist(strsplit(tmp, ";")))
-      mcy <- as.numeric(tmp)
-      if(!isTRUE(all.equal(NA, mcy))) sel$mcYears <- mcy
+      mcy <- suppressWarnings(as.numeric(tmp))
+      if(!any(is.na(mcy))) sel$mcYears <- mcy
     }
     
     for(var in c("select", "storageFlexibility", "production")){
