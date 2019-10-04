@@ -4,7 +4,7 @@ navbarPage(title = HTML('<p style="margin-top: 0.05cm;">&nbsp;&nbsp;&nbsp;&nbsp;
            header = div(
              br(), br(), br(), br(),
              a(href = "https://www.med-tso.com/",
-               target = "_blank", img(src = "img/Med-TSO logo_0.JPG", class = "ribbon", style = "margin-left: 0.1cm;margin-top: 0.25cm;height: 48px")),
+               target = "_blank", img(src = "img/Med-TSO logo_0.JPG", class = "ribbon", style = "z-index: 99999;margin-left: 0.1cm;margin-top: 0.25cm;height: 48px")),
              # a(href = "https://github.com/rte-antares-rpackage/antaresVizMedTSO",
                # target = "_blank", img(src = "img/github.png", class = "ribbon", style = "margin-left: 1.5cm;margin-top: 0.3cm;height: 46px")),
              singleton(tags$script(src = 'events.js')), 

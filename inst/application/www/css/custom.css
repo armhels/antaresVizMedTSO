@@ -1,3 +1,5 @@
+.datepicker {z-index:99999 !important;}
+
 .selectize-control.multi .selectize-input:after {
   content: '';
   display: block;
