@@ -354,7 +354,7 @@
   # Get color and size of links
   optsLink <- .getColAndSize(x$links, mapLayout$links, "link", mcy, type,
                              colLinkVar, sizeLinkVar, popupLinkVars,  
-                             options$linkColorScaleOpts)
+                             options$linkColorScaleOpts, language = language)
   
   if(nrow(optsLink$coords) > 0){
     # Use default values if needed

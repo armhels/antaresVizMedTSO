@@ -45,6 +45,7 @@ districts;Districts;districts
 Width;Epaisseur;Width
 By time id;Par pas de temps;By time id
 Average;Moyen;Average
+Cumulation;Cumul;Cumulation
 areaChartType;Graphique;areaChartType
 bar chart;Diagramme en barres;bar chart
 pie chart;Camembert;pie chart

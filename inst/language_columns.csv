@@ -35,7 +35,7 @@ CONG. FEE (ALG.);Cout_congestion;Congestion_fee
 CONG. FEE (ABS.);Cout_congesition_absolu;Congestion_fee_(Abs)
 MARG. COST;Ecart_cout_marginal;Marginal_cost_diff
 CONG. PROB +;Congestion_prob+;Congestion_prob+
-CONG. PROB -;congestion_prob-;Congestion_prob-
+CONG. PROB -;Congestion_prob-;Congestion_prob-
 HURDLE COST;Hurdle_cost;Hurdle_cost
 congestion;Congestion;Congestion
 effacement;Effacement;Demand_side_Management
@@ -59,9 +59,9 @@ thermal;Thermique;Thermal
 thermalDispatchable;Thermique dispatchable;thermalDispatchable
 hydraulicDispatchable;Hydraulique dispatchable;hydraulicDispatchable
 oil;Fioul;Oil
-generation;Génération;Generation
+generation;Generation;Generation
 economy;Economie;Economy
-adequacy;Adéquation;Adequacy
+adequacy;Adequation;Adequacy
 mixFuel;Thermique mixte;mixFuel
 misc. DTG;Thermique autre;misc. DTG
 hydraulicRor;Hydraulique_fil;hydraulicRor
@@ -72,4 +72,5 @@ thermalAvailability;Marge disponible;thermalAvailability
 Battery_storage_&_pumping;Stockage_batterie_&_pompage;Battery_storage_&_pumping
 Battery_discharge_&_turbine;Decharge_batterie_&_turbine;Battery_discharge_&_turbine
 Others_non-renewable;Autres_non-renouvelables;Others_non-renewable
-Hydro;Hydroélectricité;Hydro_generation
+Hydro;Hydroelectricite;Hydro_generation
+Total generation;Production totale;Total generation

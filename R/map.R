@@ -746,7 +746,7 @@ plotMap <- function(x,
         choices <- c("detail", "avg", "cumul")
         names(choices) <- c(.getLabelLanguage("By time id", language), 
                             .getLabelLanguage("Average", language), 
-                            .getLabelLanguage("Cumul", language))
+                            .getLabelLanguage("Cumulation", language))
         choices
       },
       value = type, 
@@ -981,7 +981,7 @@ plotMap <- function(x,
     optionsT = mwSharedValue({
       if(length(colAreaVar) > 0){
         tmp_colAreaVar <- gsub("(_std$)|(_min$)|(_max$)", "", colAreaVar)
-        if(tmp_colAreaVar %in% c("prix_marginal", "MRG. PRICE")){
+        if(toupper(tmp_colAreaVar) %in% c("PRIX_MARGINAL", "MRG. PRICE")){
           plotMapOptions(areaColorScaleOpts = colorScaleOptions(
             negCol = "#FF0000",
             breaks = c(0, 30, seq(40, 100, 5), 110, 120, 130, Inf),
