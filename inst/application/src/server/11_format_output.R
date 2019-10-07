@@ -435,7 +435,7 @@ output$export_annual_format_output <- downloadHandler(
           }
         )
         
-        if(length(list_warning) > 0){
+        if(length(list_warning) > 0 & !is.null(data)){
           showModal(modalDialog(
             title = "Warning reading data",
             easyClose = TRUE,
@@ -499,7 +499,7 @@ output$export_annual_format_output <- downloadHandler(
             }
           )
           
-          if(length(list_warning) > 0){
+          if(length(list_warning) > 0 & !is.null(data)){
             showModal(modalDialog(
               title = "Warning formatting data",
               easyClose = TRUE,
@@ -535,7 +535,7 @@ output$export_annual_format_output <- downloadHandler(
               }
             )
             
-            if(length(list_warning) > 0){
+            if(length(list_warning) > 0 & !is.null(data) && length(data) > 0){
               showModal(modalDialog(
                 title = "Warning writing data",
                 easyClose = TRUE,
@@ -632,7 +632,7 @@ output$export_hourly_format_output <- downloadHandler(
           }
         )
         
-        if(length(list_warning) > 0){
+        if(length(list_warning) > 0 & !is.null(data)){
           showModal(modalDialog(
             title = "Warning reading data",
             easyClose = TRUE,
@@ -699,7 +699,7 @@ output$export_hourly_format_output <- downloadHandler(
           }
         )
         
-        if(length(list_warning) > 0){
+        if(length(list_warning) > 0 & !is.null(data)){
           showModal(modalDialog(
             title = "Warning formatting data",
             easyClose = TRUE,
@@ -736,7 +736,7 @@ output$export_hourly_format_output <- downloadHandler(
               list_warning[[length(list_warning) + 1]] <<- w$message
             }
           )
-          if(length(list_warning) > 0){
+          if(length(list_warning) > 0  & !is.null(data) && length(data) > 0){
             showModal(modalDialog(
               title = "Warning writing data",
               easyClose = TRUE,

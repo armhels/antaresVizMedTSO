@@ -308,7 +308,7 @@ observe({
           list_warning[[length(list_warning) + 1]] <<- w$message
         })
       
-      if(length(list_warning) > 0){
+      if(length(list_warning) > 0 & !is.null(list_sel)){
         showModal(modalDialog(
           title = "Warning reading selection file",
           easyClose = TRUE,

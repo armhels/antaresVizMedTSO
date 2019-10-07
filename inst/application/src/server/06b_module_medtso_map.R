@@ -210,7 +210,7 @@ observe({
           list_warning[[length(list_warning) + 1]] <<- w$message
         })
       
-      if(length(list_warning) > 0){
+      if(length(list_warning) > 0 & !is.null(list_sel)){
         showModal(modalDialog(
           title = "Warning reading selection file",
           easyClose = TRUE,
@@ -289,7 +289,7 @@ data_map <- reactive({
             }
           )
           
-          if(length(list_warning) > 0){
+          if(length(list_warning) > 0  & !is.null(data) && length(data) > 0){
             showModal(modalDialog(
               title = "Warning reading data",
               easyClose = TRUE,
@@ -637,7 +637,7 @@ observe({
           list_warning[[length(list_warning) + 1]] <<- w$message
         })
       
-      if(length(list_warning) > 0){
+      if(length(list_warning) > 0 & !is.null(list_sel)){
         showModal(modalDialog(
           title = "Warning reading selection file",
           easyClose = TRUE,
