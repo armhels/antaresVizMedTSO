@@ -45,7 +45,7 @@ observe({
             }
           )
           
-          if(length(list_warning) > 0){
+          if(length(list_warning) > 0 & !is.null(data) && length(data) > 0){
             showModal(modalDialog(
               title = "Warning reading data",
               easyClose = TRUE,
@@ -79,7 +79,7 @@ observe({
                 }
               )
               
-              if(length(list_warning) > 0){
+              if(length(list_warning) > 0 & !is.null(data) && length(data) > 0){
                 showModal(modalDialog(
                   title = "removeVirtualAreas : warning",
                   easyClose = TRUE,
