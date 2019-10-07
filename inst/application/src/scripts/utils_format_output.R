@@ -7,10 +7,14 @@ require(openxlsx)
 # Somme des variables finissant par _chiffre :
 aggregateClusters <- function(data, var, opts, hourly = F, div = 1){
   data <- copy(data)
-  if(!"group" %in% colnames(data)){
-    cdesc <- readClusterDesc(opts)
-    data <- merge(data, cdesc[, list(area, cluster, group)], all.x = T, by = c("area", "cluster"))
+  if("group" %in% colnames(data)){
+    data$group <- NULL
   }
+  
+  cdesc <- readClusterDesc(opts)
+  # data <- merge(data, cdesc[, list(area, cluster, group)], all.x = T, by = c("area", "cluster"))
+  data <- merge(data, unique(cdesc[, list(cluster, group = tolower(group))]), all.x = T, by = c("cluster"))
+  
   # ind <- grep("_[0-9]$", data[["cluster"]])
   # data[ind, cluster := gsub(pattern = "_[0-9]$", "", cluster)]
   data$cluster <- sapply(data$cluster, function(x){
@@ -270,7 +274,7 @@ importAntaresDatasAnnual <- function(opts, areas_districts_selections, links_sel
   } else if(!is.null(data_areas_dist_clust$areas) && nrow(data_areas_dist_clust$areas) > 0){
     data_areas_districts <- data_areas_dist_clust$areas
   }
- 
+  
   if(!is.null(data_areas_dist_clustH$districts) && nrow(data_areas_dist_clustH$districts) > 0){
     setnames(data_areas_dist_clustH$districts, "district", "area")
     if(!is.null(data_areas_dist_clustH$areas) && nrow(data_areas_dist_clustH$areas) > 0){
@@ -281,7 +285,7 @@ importAntaresDatasAnnual <- function(opts, areas_districts_selections, links_sel
   } else if(!is.null(data_areas_dist_clustH$areas) && nrow(data_areas_dist_clustH$areas) > 0){
     areas_districtsH <- data_areas_dist_clustH$areas
   }
-
+  
   if((!is.null(data_areas_districts) && nrow(data_areas_districts) > 0) & !is.null(areas_districtsH) && nrow(areas_districtsH) > 0){
     data_PSP <- areas_districtsH[, .(PSP_positif = sum(PSP[PSP > 0]),
                                      PSP_negatif = sum(PSP[PSP < 0])), by = .(area)] 
@@ -340,10 +344,11 @@ formatAnnualOutputs <- function(data_areas_dist_clust,
     annual_generation_block <- 
       annual_generation_block[, c(tmp) := list(
         NUCLEAR / 1000, COAL  / 1000, LIGNITE  / 1000,
-        GAS / 1000, OIL  / 1000, (`MIX. FUEL`+`MISC. DTG`)  / 1000, 
-        (`H. ROR`+`H. STOR`)  / 1000, PSP_positif  / 1000, NA, 
+        GAS / 1000, OIL  / 1000, (`MIX. FUEL`/1000+`MISC. DTG`/1000), 
+        (`H. ROR`/1000+`H. STOR`/1000), PSP_positif  / 1000, NA, 
         WIND  / 1000, SOLAR  / 1000, `MISC. NDG`  / 1000,  #FIXME à checker
-        (NUCLEAR+COAL+LIGNITE+GAS+OIL+`MIX. FUEL`+`MISC. DTG`+`H. ROR`+`H. STOR`+PSP_positif+0+WIND+SOLAR+`MISC. NDG`)  / 1000,
+        (NUCLEAR/1000+COAL/1000+LIGNITE/1000+GAS/1000+OIL/1000+`MIX. FUEL`/1000+`MISC. DTG`/1000+`H. ROR`/1000+`H. STOR`/1000+
+           PSP_positif/1000+0+WIND/1000+SOLAR/1000+`MISC. NDG`/1000),
         `SPIL. ENRG` / 1000)]
     annual_generation_block[, "Net Total Generation [GWh]" := get("Total Generation before RES Curtailment [GWh]") - (`SPIL. ENRG`  / 1000)]
     annual_generation_block <- annual_generation_block[, c(tmp,"Net Total Generation [GWh]"), with = F]
@@ -389,10 +394,10 @@ formatAnnualOutputs <- function(data_areas_dist_clust,
     indicators_block <- 
       indicators_block[, c(tmp) := list(
         `UNSP. ENRG`  / 1000, LOLD, LOLD / 8736 * 100,
-        (`H. STOR`+`H. ROR`+WIND+SOLAR+`MISC. NDG`)  / 1000,
-        ((`H. STOR`+`H. ROR`+WIND+SOLAR+`MISC. NDG`) - `SPIL. ENRG`)  / 1000,
-        ((`H. STOR`+`H. ROR`+WIND+SOLAR+`MISC. NDG`) - `SPIL. ENRG`)/LOAD*100,
-        annual_generation_block[,get("RES Curtailment [GWh]")] / ((`H. STOR`+`H. ROR`+WIND+SOLAR+`MISC. NDG`)  / 1000) *100,
+        (`H. STOR`/ 1000+`H. ROR`/ 1000+WIND/ 1000+SOLAR/ 1000+`MISC. NDG`/ 1000) ,
+        ((`H. STOR`/ 1000+`H. ROR`/ 1000+WIND/ 1000+SOLAR/ 1000+`MISC. NDG`/ 1000) - `SPIL. ENRG`/ 1000),
+        ((`H. STOR`/ 1000+`H. ROR`/ 1000+WIND/ 1000+SOLAR/ 1000+`MISC. NDG`/ 1000) - `SPIL. ENRG`/ 1000)/(LOAD/ 1000)*100,
+        annual_generation_block[,get("RES Curtailment [GWh]")] / ((`H. STOR`/ 1000+`H. ROR`/ 1000+WIND/ 1000+SOLAR/ 1000+`MISC. NDG`/ 1000)) *100,
         `CO2 EMIS.`/ 1000000, `OV. COST` / 1000000, `OP. COST` / 1000000, `NP COST`  / 1000000, `MRG. PRICE`)]
     
     indicators_block <- indicators_block[, tmp, with = F]
@@ -684,7 +689,7 @@ exportAnnualOutputs <- function(infile_name, outfile_name, annual_outputs, data_
       writeData(wb, "Yearly Outputs Long", annual_outputs$data_long_out[,-(1:2)], startRow = 6, borders = "all", startCol = 3)
       
     }
-
+    
   }, T)
   saveWorkbook(wb, file = outfile_name, overwrite = T)
   
@@ -764,7 +769,7 @@ importAntaresDatasHourly <- function(opts, areas_districts_selections, links_sel
       links_selections <- links_selections[!ind_rm]
     }
   }
-
+  
   if(!removeVirtualAreas){
     data_h <- readAntares(areas = areas_selection, 
                           districts = districts_selection,
@@ -820,7 +825,7 @@ importAntaresDatasHourly <- function(opts, areas_districts_selections, links_sel
       gc()
     }, T)
   }
-
+  
   
   list(data = data_h, areas_districts_selections = areas_districts_selections, 
        links_selections = links_selections, opts = opts)
@@ -854,7 +859,7 @@ formatHourlyOutputs <- function(data_h, areas_selections,
     }
     
     
-
+    
     if("PSP" %in% colnames(data_h_dist) && "PSP_TURB" %in% market_data_code) {
       data_h_dist[, PSP_TURB := ifelse(PSP > 0, PSP, 0)]
     }
