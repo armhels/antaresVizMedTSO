@@ -27,8 +27,7 @@
 #' @param typeSizeAreaVars
 #'   \code{logical}. Select \code{sizeAreaVars} using alias ? Default to \code{FALSE}
 #' @param aliasSizeAreaVars
-#'   If \code{typeSizeAreaVars} is set to TRUE, name of alias. You can find the list 
-#'   of alias with the function \code{\link[antaresRead]{showAliases}}
+#'   If \code{typeSizeAreaVars} is set to TRUE, name of alias.
 #' @param areaChartType
 #'   If parameter \code{sizeAreaVars} contains multiple variables, this parameter
 #'   determines the type of representation. Possible values are \code{"bar"} for
