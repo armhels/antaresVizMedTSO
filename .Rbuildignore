@@ -3,4 +3,4 @@
 ^appveyor\.yml$
 ^\.travis\.yml$
 ^codecov\.yml$
-inst/examples
+^create_desktop$

@@ -142,3 +142,6 @@ setAlias("Total generation", "Total generation", c("areas", "NUCLEAR",
                                                    "WIND", 
                                                    "SOLAR", 
                                                    "MISC. NDG"))
+
+# detect if running in electron (pas trouve mieux...)
+is_electron <- dir.exists("nativefier-app")

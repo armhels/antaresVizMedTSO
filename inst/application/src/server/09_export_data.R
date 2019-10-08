@@ -732,6 +732,13 @@ output$import_data <- downloadHandler(
         }
       )
 
+      if(is_electron){
+        showModal(modalDialog(
+          antaresVizMedTSO:::.getLabelLanguage("File automatically downloaded in default folder", current_language),
+          easyClose = TRUE,
+          footer = NULL
+        ))
+      }
       session$sendCustomMessage(type = 'hide_spinner',
                                 message = list(id = "#export_busy"))
     }
@@ -779,6 +786,14 @@ output$import_data_sel <- downloadHandler(
         }
       )
 
+      if(is_electron){
+        showModal(modalDialog(
+          antaresVizMedTSO:::.getLabelLanguage("File automatically downloaded in default folder", current_language),
+          easyClose = TRUE,
+          footer = NULL
+        ))
+      }
+      
       session$sendCustomMessage(type = 'hide_spinner',
                                 message = list(id = "#export_busy"))
     }
@@ -816,6 +831,14 @@ output$import_tab1 <- downloadHandler(
         }
       )
 
+      if(is_electron){
+        showModal(modalDialog(
+          antaresVizMedTSO:::.getLabelLanguage("File automatically downloaded in default folder", current_language),
+          easyClose = TRUE,
+          footer = NULL
+        ))
+      }
+      
       session$sendCustomMessage(type = 'hide_spinner',
                                 message = list(id = "#export_busy_1"))
     }
@@ -853,6 +876,14 @@ output$import_tab2 <- downloadHandler(
         }
       )
 
+      if(is_electron){
+        showModal(modalDialog(
+          antaresVizMedTSO:::.getLabelLanguage("File automatically downloaded in default folder", current_language),
+          easyClose = TRUE,
+          footer = NULL
+        ))
+      }
+      
       session$sendCustomMessage(type = 'hide_spinner',
                                 message = list(id = "#export_busy_2"))
     }
@@ -890,6 +921,14 @@ output$import_tab3 <- downloadHandler(
         }
       )
 
+      if(is_electron){
+        showModal(modalDialog(
+          antaresVizMedTSO:::.getLabelLanguage("File automatically downloaded in default folder", current_language),
+          easyClose = TRUE,
+          footer = NULL
+        ))
+      }
+      
       session$sendCustomMessage(type = 'hide_spinner',
                                 message = list(id = "#export_busy_3"))
     }
@@ -927,6 +966,14 @@ output$import_tab4 <- downloadHandler(
         }
       )
 
+      if(is_electron){
+        showModal(modalDialog(
+          antaresVizMedTSO:::.getLabelLanguage("File automatically downloaded in default folder", current_language),
+          easyClose = TRUE,
+          footer = NULL
+        ))
+      }
+      
       session$sendCustomMessage(type = 'hide_spinner',
                                 message = list(id = "#export_busy_4"))
     }

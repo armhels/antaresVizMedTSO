@@ -433,6 +433,14 @@ output$download_countries <- downloadHandler(
   filename <- paste0("Countries_", format(Sys.time(), format = "%Y%m%d_%H%M%s"), '.png'),
   content <- function(file) {
     ggsave(file, plot = gg_countries_plots(), width = 20, height = 20, limitsize = FALSE)
+    
+    if(is_electron){
+      showModal(modalDialog(
+        antaresVizMedTSO:::.getLabelLanguage("File automatically downloaded in default folder", current_language),
+        easyClose = TRUE,
+        footer = NULL
+      ))
+    }
   })
 
 # exchanges and production ----
@@ -514,6 +522,14 @@ output$download_centers <- downloadHandler(
   filename <- paste0("Exch_prod_", format(Sys.time(), format = "%Y%m%d_%H%M%s"), '.png'),
   content <- function(file) {
     ggsave(file, plot = gg_centers_plots(), width = 20, height = 20, limitsize = FALSE)
+    
+    if(is_electron){
+      showModal(modalDialog(
+        antaresVizMedTSO:::.getLabelLanguage("File automatically downloaded in default folder", current_language),
+        easyClose = TRUE,
+        footer = NULL
+      ))
+    }
   })
 
 
@@ -592,6 +608,14 @@ output$download_interco <- downloadHandler(
   filename <- paste0("Interconnexion_", format(Sys.time(), format = "%Y%m%d_%H%M%s"), '.png'),
   content <- function(file) {
     ggsave(file, plot = gg_interco_plots(), width = 20, height = 20, limitsize = FALSE)
+    
+    if(is_electron){
+      showModal(modalDialog(
+        antaresVizMedTSO:::.getLabelLanguage("File automatically downloaded in default folder", current_language),
+        easyClose = TRUE,
+        footer = NULL
+      ))
+    }
   })
 
 # sélection à partir d'un fichier -----
@@ -719,6 +743,14 @@ output$get_sel_file_medtso_map <- downloadHandler(
                              col_arrow_1_interco = input$col_arrow_1_interco,
                              col_arrow_2_interco = input$col_arrow_2_interco),
                         con)
+    
+    if(is_electron){
+      showModal(modalDialog(
+        antaresVizMedTSO:::.getLabelLanguage("File automatically downloaded in default folder", current_language),
+        easyClose = TRUE,
+        footer = NULL
+      ))
+    }
   }
 )
 

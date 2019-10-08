@@ -164,6 +164,14 @@ output$download_layout <- downloadHandler(
   },
   content = function(con) {
     saveRDS(ml(), file = con)
+    
+    if(is_electron){
+      showModal(modalDialog(
+        antaresVizMedTSO:::.getLabelLanguage("File automatically downloaded in default folder", current_language),
+        easyClose = TRUE,
+        footer = NULL
+      ))
+    }
   }
 )
 

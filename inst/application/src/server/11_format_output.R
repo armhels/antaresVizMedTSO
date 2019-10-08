@@ -368,10 +368,7 @@ output$export_annual_format_output <- downloadHandler(
     paste('Annual_OutputFile_', format(Sys.time(), format = "%Y%d%m_%H%M%S"), '.zip', sep='')
   },
   content = function(con) {
-    
-    
-    
-    
+  
     # importation des donnees
     if(!is.null(opts_format_output())){
       
@@ -560,6 +557,13 @@ output$export_annual_format_output <- downloadHandler(
         zip(con, tmp_files, flags = "-r -j")
         # suppression du .csv
         rm(tmp_files)
+        if(is_electron){
+          showModal(modalDialog(
+            antaresVizMedTSO:::.getLabelLanguage("File automatically downloaded in default folder", current_language),
+            easyClose = TRUE,
+            footer = NULL
+          ))
+        }
       } else {
         showModal(modalDialog(
           title = "Error writing data",
@@ -758,6 +762,14 @@ output$export_hourly_format_output <- downloadHandler(
       zip(con, tmp_file, flags = "-r -j")
       # suppression du .csv
       rm(tmp_file)
+      
+      if(is_electron){
+        showModal(modalDialog(
+          antaresVizMedTSO:::.getLabelLanguage("File automatically downloaded in default folder", current_language),
+          easyClose = TRUE,
+          footer = NULL
+        ))
+      }
       
     }
   }

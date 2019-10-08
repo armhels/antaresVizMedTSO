@@ -388,7 +388,14 @@ observe({
                      reassignCost = input$rmva_reassignCosts, newCols = input$rmva_newCols)
       
       writeStudyShinySelection(params, con)
-
+      
+      if(is_electron){
+        showModal(modalDialog(
+          antaresVizMedTSO:::.getLabelLanguage("File automatically downloaded in default folder", current_language),
+          easyClose = TRUE,
+          footer = NULL
+        ))
+      }
     }
   )
   
