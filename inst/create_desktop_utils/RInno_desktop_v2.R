@@ -16,7 +16,7 @@ remotes_pkgs <- c("rte-antares-rpackage/spMaps@med-tso",
 
 
 app_name = "antaresVizMedTSO"
-app_dir = "inst/create_desktop/"
+app_dir = "create_desktop/"
 dir_out = "RInno_installer"
 pkgs = cran_pkgs
 pkgs_path = "bin" 
@@ -32,15 +32,15 @@ overwrite = TRUE
 force_nativefier = TRUE
 nativefier_opts = c('--show-menu-bar')
 app_desc = 'Antares Visualizations of Med-TSO studies' 
-app_version = "0.0.1"
+app_version = "0.0.2"
 app_icon = "med_logo_DFT_icon.ico" 
 publisher = "Datastorm/RTE"
 
 # 1. copy defaut installation file ----
-copy_installation(app_dir, overwrite)
-
-file.remove(file.path(app_dir, "infoafter.txt"))
-file.remove(file.path(app_dir, "infobefore.txt"))
+# copy_installation(app_dir, overwrite)
+# 
+# file.remove(file.path(app_dir, "infoafter.txt"))
+# file.remove(file.path(app_dir, "infobefore.txt"))
 
 # modification du launcher (temps de chargement du global...)
 # L87 avant # start electron
@@ -187,7 +187,7 @@ res_iss <- glue::glue('{res_iss}\nSource: "C:\\Program Files\\R\\R-3.6.1\\*"; De
 
                 
 # pas besoin                
-res_iss <-  run_section(res_iss, R_flags = "/SILENT")
+# res_iss <-  run_section(res_iss, R_flags = "/SILENT")
   
 
 code_section
@@ -205,4 +205,5 @@ writeLines(res_iss, file.path(app_dir, paste0(app_name, ".iss")))
 # 6. Compile ----
 RInno:::check_app(app_dir, pkgs_path)
 options(RInno.app_name = app_name)
+options(RInno.app_dir = app_dir)
 compile_iss()
