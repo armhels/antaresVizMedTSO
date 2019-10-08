@@ -305,10 +305,10 @@ observe({
         }
 
         if(panel_name == "clusters") {
-          updateSelectInput(session, "lig1", label = "areas", choices = c("all", choix_lig1),
+          updateSelectInput(session, "lig1", label = "areas", choices = c("all", as.character(choix_lig1)),
                             selected = "all")
         } else {
-          updateSelectInput(session, "lig1", label = panel_name, choices = c("all", choix_lig1),
+          updateSelectInput(session, "lig1", label = panel_name, choices = c("all", as.character(choix_lig1)),
                             selected = "all")
         }
 
@@ -317,7 +317,7 @@ observe({
           choix_col1 <- choix_col1[-which(choix_col1 %in% c("month", "week", "day", "hour", "time"))]
         }
 
-        updateSelectInput(session, "col1", label = "Variables", choices = c("all", choix_col1),
+        updateSelectInput(session, "col1", label = "Variables", choices = c("all", as.character(choix_col1)),
                           selected = "all")
 
       } else if(nb_panels > 0){
@@ -344,13 +344,13 @@ observe({
 
           if(panel_name == "clusters") {
             updateSelectInput(session, paste0("lig", nb), label = "areas",
-                              choices = c("all", choix_lig1), selected = "all")
+                              choices = c("all", as.character(choix_lig1)), selected = "all")
           } else {
             updateSelectInput(session, paste0("lig", nb), label = panel_name,
-                              choices = c("all", choix_lig1), selected = "all")
+                              choices = c("all", as.character(choix_lig1)), selected = "all")
           }
 
-          updateSelectInput(session, paste0("col", nb), label = "Variables", choices = c("all", choix_col1),
+          updateSelectInput(session, paste0("col", nb), label = "Variables", choices = c("all", as.character(choix_col1)),
                             selected = "all")
         })
       } else {
@@ -380,10 +380,10 @@ choix_lig1_2 <- reactive({
 
       if(panel_name == "clusters" & !is.null(input[[paste0("lig", 1)]])) {
         if("all" %in% lig1) {
-          lig1 <- unique(data_nb$area)
+          lig1 <- as.character(unique(data_nb$area))
         }
         data_2 <- data_nb[area %in% lig1]
-        choix_lig1_2 <- c("all", unique(data_2$cluster))
+        choix_lig1_2 <- c("all", as.character(unique(data_2$cluster)))
 
         current_sel <- isolate(input$lig1_2)
         selected <- intersect(current_sel, choix_lig1_2)
@@ -406,8 +406,8 @@ observe({
   choix_lig1_2 <- choix_lig1_2()
   if(!is.null(choix_lig1_2)) {
     isolate({
-      updateSelectInput(session, "lig1_2", label = "Clusters", choices = choix_lig1_2$choices,
-                        selected = choix_lig1_2$selected)
+      updateSelectInput(session, "lig1_2", label = "Clusters", choices = as.character(choix_lig1_2$choices),
+                        selected = as.character(choix_lig1_2$selected))
     })
   }
 })
@@ -423,10 +423,10 @@ choix_lig2_2 <- reactive({
         data_nb <- imported_data[[2]]
         if(panel_name == "clusters" & !is.null(input[[paste0("lig", 2)]])) {
           if("all" %in% lig2) {
-            lig2 <- unique(data_nb$area)
+            lig2 <- as.character(unique(data_nb$area))
           }
           data_2 <- data_nb[area %in% lig2]
-          choix_lig2_2 <- c("all", unique(data_2$cluster))
+          choix_lig2_2 <- c("all", as.character(unique(data_2$cluster)))
 
           current_sel <- isolate(input$lig2_2)
           selected <- intersect(current_sel, choix_lig2_2)
@@ -452,8 +452,8 @@ observe({
   choix_lig2_2 <- choix_lig2_2()
   if(!is.null(choix_lig2_2)) {
     isolate({
-      updateSelectInput(session, "lig2_2", label = "Clusters", choices = choix_lig2_2$choices,
-                        selected = choix_lig2_2$selected)
+      updateSelectInput(session, "lig2_2", label = "Clusters", choices = as.character(choix_lig2_2$choices),
+                        selected = as.character(choix_lig2_2$selected))
 
     })
   }
@@ -470,10 +470,10 @@ choix_lig3_2 <- reactive({
         data_nb <- imported_data[[3]]
         if(panel_name == "clusters" & !is.null(input[[paste0("lig", 3)]])) {
           if("all" %in% lig3) {
-            lig3 <- unique(data_nb$area)
+            lig3 <- as.character(unique(data_nb$area))
           }
           data_2 <- data_nb[area %in% lig3]
-          choix_lig3_2 <- c("all", unique(data_2$cluster))
+          choix_lig3_2 <- c("all", as.character(unique(data_2$cluster)))
 
           current_sel <- isolate(input$lig3_2)
           selected <- intersect(current_sel, choix_lig3_2)
@@ -498,8 +498,8 @@ observe({
   choix_lig3_2 <- choix_lig3_2()
   if(!is.null(choix_lig3_2)) {
     isolate({
-      updateSelectInput(session, "lig3_2", label = "Clusters", choices = choix_lig3_2$choices,
-                        selected = choix_lig3_2$selected)
+      updateSelectInput(session, "lig3_2", label = "Clusters", choices = as.character(choix_lig3_2$choices),
+                        selected = as.character(choix_lig3_2$selected))
 
     })
   }
@@ -516,10 +516,10 @@ choix_lig4_2 <- reactive({
         data_nb <- imported_data[[4]]
         if(panel_name == "clusters" & !is.null(input[[paste0("lig", 4)]])) {
           if("all" %in% lig4) {
-            lig4 <- unique(data_nb$area)
+            lig4 <- as.character(unique(data_nb$area))
           }
           data_2 <- data_nb[area %in% lig4]
-          choix_lig4_2 <- c("all", unique(data_2$cluster))
+          choix_lig4_2 <- c("all", as.character(unique(data_2$cluster)))
 
           current_sel <- isolate(input$lig4_2)
           selected <- intersect(current_sel, choix_lig4_2)
@@ -544,8 +544,8 @@ observe({
   choix_lig4_2 <- choix_lig4_2()
   if(!is.null(choix_lig4_2)) {
     isolate({
-      updateSelectInput(session, "lig4_2", label = "Clusters", choices = choix_lig4_2$choices,
-                        selected = choix_lig4_2$selected)
+      updateSelectInput(session, "lig4_2", label = "Clusters", choices = as.character(choix_lig4_2$choices),
+                        selected = as.character(choix_lig4_2$selected))
 
     })
   }
