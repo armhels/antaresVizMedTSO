@@ -98,7 +98,7 @@
       }
       
       # Special case of FLOW LIN
-      if (colVar %in% c("FLOW LIN.", .getColumnsLanguage("FLOW LIN.", language = language))) rangevar <- c(0, max(abs(rangevar)))
+      if (gsub("(_std$)|(_min$)|(_max$)", "", colVar) %in% c("FLOW LIN.", .getColumnsLanguage("FLOW LIN.", language = language))) rangevar <- c(0, max(abs(rangevar)))
       
       # if (rangevar[1] >= 0) {
       #   domain <- rangevar
@@ -108,7 +108,7 @@
       
       domain <- rangevar 
       
-      if (colVar %in% c("FLOW LIN.", .getColumnsLanguage("FLOW LIN.", language = language))) colorScaleOpts$x <- abs(data[[colVar]])
+      if (gsub("(_std$)|(_min$)|(_max$)", "", colVar) %in% c("FLOW LIN.", .getColumnsLanguage("FLOW LIN.", language = language))) colorScaleOpts$x <- abs(data[[colVar]])
       else colorScaleOpts$x <- data[[colVar]]
       
       colorScaleOpts$domain <- domain

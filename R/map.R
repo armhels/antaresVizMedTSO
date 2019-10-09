@@ -980,7 +980,7 @@ plotMap <- function(x,
     optionsT = mwSharedValue({
       if(length(colAreaVar) > 0){
         tmp_colAreaVar <- gsub("(_std$)|(_min$)|(_max$)", "", colAreaVar)
-        if(toupper(tmp_colAreaVar) %in% c("PRIX_MARGINAL", "MRG. PRICE")){
+        if(toupper(tmp_colAreaVar) %in% toupper(.getColumnsLanguage("MRG. PRICE", language))){
           plotMapOptions(areaColorScaleOpts = colorScaleOptions(
             negCol = "#FF0000",
             breaks = c(0, 30, seq(40, 100, 5), 110, 120, 130, Inf),
