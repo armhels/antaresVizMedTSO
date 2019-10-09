@@ -202,7 +202,26 @@ importAntaresDatasAnnual <- function(opts, areas_districts_selections, links_sel
     }
     
     surplus <- suppressWarnings({antaresProcessing::surplus(data_areas_dist_clustH)}) 
-    surplus_districts <- suppressWarnings({antaresProcessing::surplus(data_areas_dist_clustH, groupByDistrict = T)})
+    
+    # des bugs dans antaresProcessing du a des NA....
+    # surplus_districts <- suppressWarnings({antaresProcessing::surplus(data_areas_dist_clustH, groupByDistrict = T)})
+    
+    opts$districtsDef[, district := tolower(district)]
+    opts$districtsDef[, area := tolower(area)]
+    
+    surplus_districts <- merge(surplus, opts$districtsDef, by = "area")
+    
+    cols_surplus <- c("consumerSurplus", "producerSurplus", "rowBalanceSurplus",
+                      "storageSurplus", "congestionFees", "globalSurplus")
+    
+    surplus_districts <- surplus_districts[, list(consumerSurplus = sum(consumerSurplus, na.rm = T), 
+                                       producerSurplus = sum(producerSurplus, na.rm = T),
+                                       rowBalanceSurplus = sum(rowBalanceSurplus, na.rm = T),
+                                       storageSurplus = sum(storageSurplus, na.rm = T),
+                                       congestionFees = sum(congestionFees, na.rm = T),
+                                       globalSurplus = sum(globalSurplus, na.rm = T)),
+                                by = setdiff(colnames(surplus_districts), c("area", cols_surplus))]
+    
     setnames(surplus_districts, "district", "area")
     surplus <- rbindlist(list(surplus, surplus_districts), use.names = T, fill = T)
     
