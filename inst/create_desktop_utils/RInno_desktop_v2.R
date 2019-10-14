@@ -2,7 +2,8 @@ require(RInno)
 
 Sys.setenv("TAR" = "internal")
 
-cran_pkgs <- c("dygraphs","shiny","plotly","htmltools","htmlwidgets","manipulateWidget",
+cran_pkgs <- c("jsonlite","remotes", "magrittr",
+               "dygraphs","shiny","plotly","htmltools","htmlwidgets","manipulateWidget",
                "leaflet","sp","rgeos","raster","webshot","data.table","methods","lubridate",
                "geojsonio","graphics","stats","leaflet.minicharts", "bit64", "plyr",
                "assertthat","rAmCharts","utils","openxlsx","shinydashboard","shinyWidgets", 
@@ -178,15 +179,13 @@ res_iss <- glue::glue('{res_iss}\nSource: "C:\\Program Files\\R\\R-3.6.1\\*"; De
                 
 # pas besoin                
 # res_iss <-  run_section(res_iss, R_flags = "/SILENT")
-  
-
-code_section
+# code_section
 
 R_versions <- list("3.6.1")
 acceptable_R_versions <- paste0(glue::glue("RVersions.Add('{R_versions}');"), 
                                 collapse = "\n  ")
 
-code_file <- paste0(readLines("inst/create_desktop/add_code.iss"), collapse = "\n")
+code_file <- paste0(readLines("create_desktop/add_code.iss"), collapse = "\n")
 res_iss <- glue::glue("{res_iss}\n  {code_file}\n  // Initialize the values of supported versions\n  RVersions := TStringList.Create; // Make a new TStringList object reference\n  // Add strings to the StringList object\n  {acceptable_R_versions}\n\nend;\n\n// Procedure called by InnoSetup when it is closing\nprocedure DeinitializeSetup();\nbegin\n  RVersions.Free;\nend;\n  ")
 
 writeLines(res_iss, file.path(app_dir, paste0(app_name, ".iss")))
