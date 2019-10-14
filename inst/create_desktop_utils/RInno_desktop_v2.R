@@ -43,17 +43,6 @@ publisher = "Datastorm/RTE"
 # file.remove(file.path(app_dir, "infobefore.txt"))
 
 # modification du launcher (temps de chargement du global...)
-# L87 avant # start electron
-# pb <- winProgressBar(title = "Loading application ...", label = "Initializing ...")
-# nb_sec <- 8
-# for (i in 1:nb_sec) {
-#   setWinProgressBar(pb, value = i / (nb_sec),
-#                     label = "Initializing ...")
-#   Sys.sleep(1)
-# }
-# close(pb)
-#
-# OU : 
 #
 # ready <- RCurl::url.exists("http://127.0.0.1:1984")
 # while(!ready){
@@ -69,9 +58,10 @@ publisher = "Datastorm/RTE"
 # et modification du launch_app.R
 # L87
 # R_path <- paste0(getwd(), "\\R-3.6.1\\bin\\R.exe")
-# system(sprintf(paste0(R_path, ' -e ".libPaths(c(\'%s\', .libPaths())); shiny::runApp(\'./\', port=1984)"'), applibpath), wait = FALSE)
+# system(sprintf(paste0(R_path, ' -e ".libPaths(c(\'%s\')); shiny::runApp(\'./\', port=1984)"'), applibpath), wait = FALSE)
 # 
-# 
+# et package_manger.R L 32 33
+# .libPaths(c(applibpath))
 
 # 2. build electron app ----
 
