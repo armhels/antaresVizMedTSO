@@ -112,27 +112,35 @@ observe({
               }
               
               if(!is.null(data$areas)){
-                data$areas[, c("Battery_storage_&_pumping", 
-                               "Battery_discharge_&_turbine",
-                               "Others_non-renewable", 
-                               "Hydro") := list(
-                                 ifelse(PSP < 0, PSP, 0),
-                                 ifelse(PSP > 0, PSP, 0),
-                                 `MIX. FUEL` + `MISC. DTG`,
-                                 `H. STOR` + `H. ROR`
-                               )]
+                if("PSP" %in% colnames(data$areas)){
+                  data$areas[, c("Battery_storage_&_pumping", 
+                                 "Battery_discharge_&_turbine") := list(
+                                   ifelse(PSP < 0, PSP, 0),
+                                   ifelse(PSP > 0, PSP, 0),
+                                 )]
+                }
+                if(all(c("MIX. FUEL", "MISC. DTG") %in% colnames(data$areas))){
+                  data$areas[, c("Others_non-renewable") := `MIX. FUEL` + `MISC. DTG`]
+                }      
+                if(all(c("H. STOR", "H. ROR") %in% colnames(data$areas))){
+                  data$areas[, c("Hydro") := `H. STOR` + `H. ROR`]
+                }     
               }
             } else if("antaresDataTable" %in% class(data)){
               if(nrow(data) > 0 && "area" %in% colnames(data)){
-                data[, c("Battery_storage_&_pumping", 
-                               "Battery_discharge_&_turbine",
-                               "Others_non-renewable", 
-                               "Hydro") := list(
-                                 ifelse(PSP < 0, PSP, 0),
-                                 ifelse(PSP > 0, PSP, 0),
-                                 `MIX. FUEL` + `MISC. DTG`,
-                                 `H. STOR` + `H. ROR`
-                               )]
+                if("PSP" %in% colnames(data)){
+                  data[, c("Battery_storage_&_pumping", 
+                                 "Battery_discharge_&_turbine") := list(
+                                   ifelse(PSP < 0, PSP, 0),
+                                   ifelse(PSP > 0, PSP, 0),
+                                 )]
+                }
+                if(all(c("MIX. FUEL", "MISC. DTG") %in% colnames(data))){
+                  data[, c("Others_non-renewable") := `MIX. FUEL` + `MISC. DTG`]
+                }      
+                if(all(c("H. STOR", "H. ROR") %in% colnames(data))){
+                  data[, c("Hydro") := `H. STOR` + `H. ROR`]
+                }
               }
             }
             
