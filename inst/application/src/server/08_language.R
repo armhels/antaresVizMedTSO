@@ -305,6 +305,9 @@ output$no_layout_2 <- renderText({
   antaresVizMedTSO:::.getLabelLanguage("Please set or import a map layout before", current_language$language)
 })
 
+output$no_layout_3 <- renderText({
+  antaresVizMedTSO:::.getLabelLanguage("Please set or import a map layout before", current_language$language)
+})
 
 output$title_download_layout <- renderText({
   paste0(antaresVizMedTSO:::.getLabelLanguage("Download Layout", current_language$language), " : ")

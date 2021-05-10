@@ -35,6 +35,7 @@ Imports:
     manipulateWidget (>= 0.10.0),
     leaflet (>= 1.1.0),
     sp,
+    rgdal,
     rgeos,
     raster,
     webshot,

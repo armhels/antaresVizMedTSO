@@ -1,3 +1,8 @@
+observe({
+  language <-  current_language$language
+  updateActionButton(session, 'edit_layout',  antaresVizMedTSO:::.getLabelLanguage("Edit layout", current_language$language))
+})
+
 # list of opts for set layout
 layout <- reactive({
   ind_keep_list_data <- ind_keep_list_data()
@@ -78,6 +83,14 @@ output$must_print_map <- reactive({
 })
 
 outputOptions(output, "must_print_map", suspendWhenHidden = FALSE)
+
+# edition du mapLayout
+ml_edit <- callModule(antaresVizMedTSO:::changeCoordsServer, "ml_edit", ml, 
+                      what = reactive("areas"), language = map_language, stopApp = FALSE)
+
+observe({
+  ml(ml_edit())
+})
 
 observe({
   ml <- ml()
@@ -180,6 +193,16 @@ observe({
   if(!is.null(input[['ml-done']])){
     if(input[['ml-done']] > 0){
       updateNavbarPage(session, inputId = "map_panel", selected = "<div id=\"label_tab_map_viz\" class=\"shiny-text-output\"></div>")
+      updateTabsetPanel(session, inputId = "tab_layout_view", selected = "Carte")
+    }
+  }
+})
+
+observe({
+  if(!is.null(input[['ml_edit-done']])){
+    if(input[['ml_edit-done']] > 0){
+      updateNavbarPage(session, inputId = "map_panel", selected = "<div id=\"label_tab_map_viz\" class=\"shiny-text-output\"></div>")
+      updateTabsetPanel(session, inputId = "tab_layout_view", selected = "Carte")
     }
   }
 })

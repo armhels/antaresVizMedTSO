@@ -20,37 +20,58 @@ tabPanel(textOutput("label_tab_map_menu"),
                               )
                      ),
                      tabPanel(textOutput("label_tab_layout_view"),
-                              fluidRow(
-                                column(12,
-                                       conditionalPanel(condition = "output.must_print_map",
-                                                        div(h3(textOutput("title_current_layout")), align = "center"),
-                                                        leafletDragPointsOutput("current_layout", height = "700px")
-                                       ),
-                                       conditionalPanel(condition = "output.must_print_map === false",
-                                                        h3(textOutput("no_layout_1"))
-                                       ),
-                                       hr(),
-                                       fluidRow(
-                                         column(6,
-                                                fluidRow(
-                                                  column(6, h4(textOutput("title_import_layout"))),
-                                                  column(6,   div(fileInput("import_layout", NULL, 
-                                                                            accept = c(".RDS", ".rds", ".Rds")
-                                                  ), align = "left"))
-                                                )
-                                         ),
-                                         column(6,
-                                                conditionalPanel(condition = "output.must_print_map",
-                                                                 fluidRow(
-                                                                   column(6, h4(textOutput("title_download_layout"))),
-                                                                   column(6,   div(downloadButton('download_layout', NULL), align = "left"))
-                                                                 )
-                                                )
-                                                
-                                         )
-                                       )
-                                )
+                              tabsetPanel(id = "tab_layout_view",
+                                          tabPanel("Carte", 
+                                                   fluidRow(
+                                                     column(12,
+                                                            conditionalPanel(condition = "output.must_print_map",
+                                                                             div(h3(textOutput("title_current_layout")), align = "center"),
+                                                                             leafletDragPointsOutput("current_layout", height = "700px")
+                                                            ),
+                                                            conditionalPanel(condition = "output.must_print_map === false",
+                                                                             h3(textOutput("no_layout_1"))
+                                                            ),
+                                                            hr(),
+                                                            fluidRow(
+                                                              column(6,
+                                                                     fluidRow(
+                                                                       column(6, h4(textOutput("title_import_layout"))),
+                                                                       column(6,   div(fileInput("import_layout", NULL, 
+                                                                                                 accept = c(".RDS", ".rds", ".Rds")
+                                                                       ), align = "left"))
+                                                                     )
+                                                              ),
+                                                              column(6,
+                                                                     conditionalPanel(condition = "output.must_print_map",
+                                                                                      fluidRow(
+                                                                                        column(6, h4(textOutput("title_download_layout"))),
+                                                                                        column(6,   div(downloadButton('download_layout', NULL), align = "left"))
+                                                                                      )
+                                                                     )
+                                                                     
+                                                              )
+                                                            )
+                                                     )
+                                                   )
+                                          ),
+                                          tabPanel("Edition",
+                                                   fluidRow(
+                                                     column(12,
+                                                            conditionalPanel(condition = "output.must_print_map",
+                                                                             antaresVizMedTSO:::changeCoordsUI("ml_edit")
+                                                                             
+                                                            ),
+                                                            conditionalPanel(condition = "output.must_print_map === false",
+                                                                             h3(textOutput("no_layout_3")), 
+                                                                             hr()
+                                                            )
+                                                            
+                                                     )
+                                                   )
+                                                   
+                                          )
                               )
+                              
                               
                      ),
                      tabPanel(textOutput("label_tab_map_viz"), 
