@@ -80,6 +80,7 @@ observe({
   }
 })
 
+
 # init opts after validation
 opts <- reactive({
   if(input$init_sim > 0){
@@ -176,19 +177,63 @@ observe({
                         choices = slt, selected = NULL)
       
       # removeVirtualAreas
+      updateCheckboxInput(session, "rmva_ctrl", antaresVizMedTSO:::.getLabelLanguage("enabled", current_language), FALSE)
+      
       updateSelectInput(session, "rmva_storageFlexibility", paste0(antaresVizMedTSO:::.getLabelLanguage("storageFlexibility", current_language), " : "), 
                         choices = opts$areaList, selected = NULL)
       updateSelectInput(session, "rmva_production", paste0(antaresVizMedTSO:::.getLabelLanguage("production", current_language), " : "),
                         choices = opts$areaList, selected = NULL)
       
       
-      # removeVirtualAreas
+      updateCheckboxInput(session, "rmva_reassignCosts", antaresVizMedTSO:::.getLabelLanguage("reassignCosts", current_language), FALSE)
+
+      updateCheckboxInput(session, "rmva_newCols", antaresVizMedTSO:::.getLabelLanguage("newCols", current_language), FALSE)
+           
+
       updateSelectInput(session, "rmva_storageFlexibility_h5", paste0(antaresVizMedTSO:::.getLabelLanguage("storageFlexibility", current_language), " : "), 
                         choices = opts$areaList, selected = NULL)
       updateSelectInput(session, "rmva_production_h5", paste0(antaresVizMedTSO:::.getLabelLanguage("production", current_language), " : "), 
                         choices = opts$areaList, selected = NULL)
       
+      # reset checkBox 
+      updateCheckboxInput(session, "read_misc", antaresVizMedTSO:::.getLabelLanguage("misc", current_language), FALSE)
+      updateCheckboxInput(session, "read_reserve", antaresVizMedTSO:::.getLabelLanguage("reserve", current_language), FALSE)
       
+      updateCheckboxInput(session, "read_thermalAvailabilities", 
+                          antaresVizMedTSO:::.getLabelLanguage("thermalAvailabilities", current_language), FALSE)
+      updateCheckboxInput(session, "read_linkCapacity", 
+                          antaresVizMedTSO:::.getLabelLanguage("linkCapacity", current_language), FALSE)
+      
+      
+      updateCheckboxInput(session, "read_hydroStorage", 
+                          antaresVizMedTSO:::.getLabelLanguage("hydroStorage", current_language), FALSE)
+      updateCheckboxInput(session, "read_mustRun", 
+                          antaresVizMedTSO:::.getLabelLanguage("mustRun", current_language), FALSE)
+      
+      updateCheckboxInput(session, "read_hydroStorageMaxPower", 
+                          antaresVizMedTSO:::.getLabelLanguage("hydroStorageMaxPower", current_language), FALSE)
+      updateCheckboxInput(session, "read_thermalModulation", 
+                          antaresVizMedTSO:::.getLabelLanguage("thermalModulation", current_language), FALSE)
+      
+      updateSelectInput(session, "read_timeStep", 
+                        paste0(antaresVizMedTSO:::.getLabelLanguage("timeStep", current_language), " :"), 
+                        choices = c("hourly", "daily", "weekly", "monthly", "annual"), selected = "hourly")
+      
+      if(!opts$parameters$general$`year-by-year`){
+        choices <- c("synthetic")
+        names(choices) <- sapply(choices, function(x){
+          antaresVizMedTSO:::.getLabelLanguage(x, current_language)
+        })
+        updateRadioButtons(session, "read_type_mcYears", paste0(antaresVizMedTSO:::.getLabelLanguage("mcYears selection", current_language), " : "),
+                           choices, selected = choices[1], inline = TRUE)
+      } else {
+        choices <- c("synthetic", "all", "custom")
+        names(choices) <- sapply(choices, function(x){
+          antaresVizMedTSO:::.getLabelLanguage(x, current_language)
+        })
+        updateRadioButtons(session, "read_type_mcYears", paste0(antaresVizMedTSO:::.getLabelLanguage("mcYears selection", current_language), " : "),
+                           choices, selected = choices[1], inline = TRUE)
+      }
     })
   }
 })
@@ -258,7 +303,7 @@ observe({
 
 observe({
   current_language <- current_language$language
-  opts <- opts()
+  opts <- isolate(opts())
   if(!is.null(current_language) & !is.null(opts)) {
     isolate({
       if(!opts$parameters$general$`year-by-year`){
