@@ -116,7 +116,7 @@ observe({
                   data$areas[, c("Battery_storage_&_pumping", 
                                  "Battery_discharge_&_turbine") := list(
                                    ifelse(PSP < 0, PSP, 0),
-                                   ifelse(PSP > 0, PSP, 0),
+                                   ifelse(PSP > 0, PSP, 0)
                                  )]
                 }
                 if(all(c("MIX. FUEL", "MISC. DTG") %in% colnames(data$areas))){
@@ -132,7 +132,7 @@ observe({
                   data[, c("Battery_storage_&_pumping", 
                                  "Battery_discharge_&_turbine") := list(
                                    ifelse(PSP < 0, PSP, 0),
-                                   ifelse(PSP > 0, PSP, 0),
+                                   ifelse(PSP > 0, PSP, 0)
                                  )]
                 }
                 if(all(c("MIX. FUEL", "MISC. DTG") %in% colnames(data))){
