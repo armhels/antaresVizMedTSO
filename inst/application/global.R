@@ -17,6 +17,8 @@ suppressWarnings({
       
       require(sp)
       
+      require(shinyFiles)
+      
     })
   })
 })

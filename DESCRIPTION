@@ -52,13 +52,14 @@ Imports:
     openxlsx,
     shinydashboard,
     shinyWidgets, 
+    shinyFiles,
     DT,
     colourpicker,
     ggplot2,
     ggrepel,
     ggforce,
     stringr
-RoxygenNote: 6.1.1
+RoxygenNote: 7.1.1
 Suggests: testthat,
     covr,
     rhdf5 (>= 2.20.2),

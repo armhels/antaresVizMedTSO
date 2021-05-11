@@ -36,9 +36,18 @@ tabPanel(textOutput("label_tab_map_menu"),
                                                               column(6,
                                                                      fluidRow(
                                                                        column(6, h4(textOutput("title_import_layout"))),
-                                                                       column(6,   div(fileInput("import_layout", NULL, 
-                                                                                                 accept = c(".RDS", ".rds", ".Rds")
-                                                                       ), align = "left"))
+                                                                       column(6,   
+                                                                              div(
+                                                                                # fileInput("import_layout", NULL, 
+                                                                                #           accept = c(".RDS", ".rds", ".Rds")),
+                                                                                shinyFilesButton("file_import_layout", 
+                                                                                                  NULL, 
+                                                                                                  NULL, 
+                                                                                                  icon = icon("upload"),
+                                                                                                  multiple = FALSE, viewtype = "detail"),
+                                                                              
+                                                                                align = "left")
+                                                                       )
                                                                      )
                                                               ),
                                                               column(6,

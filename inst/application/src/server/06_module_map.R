@@ -43,12 +43,27 @@ observe({
   }
 })
 
+volumes <- c(Home = fs::path_home(), "R Installation" = R.home(), getVolumes()())
+shinyFileChoose(input, "file_import_layout", roots = volumes, 
+                session = session, filetypes = c("RDS", "rds", "Rds"))
+
+
 observe({
-  ml_file <- input$import_layout
+  # ml_file <- input$import_layout
+  ml_file <- parseFilePaths(volumes, input$file_import_layout)
+  if("data.frame" %in% class(ml_file) && nrow(ml_file) == 0) ml_file <- NULL
   if (!is.null(ml_file)){
     tmp_ml <- try(readRDS(ml_file$datapath), silent = TRUE)
     if("mapLayout" %in% class(tmp_ml)){
       ml(tmp_ml)
+      # save path in default conf
+      conf <- tryCatch(yaml::read_yaml("default_conf.yml"), error = function(e) NULL)
+      if(!is.null(conf)){
+        conf$map_layout <- ml_file$datapath
+        tryCatch({
+          yaml::write_yaml(conf, file = "default_conf.yml")
+        }, error = function(e) NULL)
+      }
     } else {
       showModal(modalDialog(
         title = "Invalid map layout file",
@@ -89,7 +104,9 @@ ml_edit <- callModule(antaresVizMedTSO:::changeCoordsServer, "ml_edit", ml,
                       what = reactive("areas"), language = map_language, stopApp = FALSE)
 
 observe({
-  ml(ml_edit())
+  if(!is.null(ml_edit())){
+    ml(ml_edit())
+  }
 })
 
 observe({
@@ -189,6 +206,20 @@ output$download_layout <- downloadHandler(
 )
 
 # change page
+observe({
+  if(!is.null(ml())){
+    updateNavbarPage(session, inputId = "map_panel", selected = "<div id=\"label_tab_map_viz\" class=\"shiny-text-output\"></div>")
+    updateTabsetPanel(session, inputId = "tab_layout_view", selected = "Carte")
+  }
+})
+
+observe({
+  if(!is.null(ml())){
+    updateNavbarPage(session, inputId = "map_panel", selected = "<div id=\"label_tab_layout_view\" class=\"shiny-text-output\"></div>")
+    updateTabsetPanel(session, inputId = "tab_layout_view", selected = "Carte")
+  }
+})
+
 observe({
   if(!is.null(input[['ml-done']])){
     if(input[['ml-done']] > 0){

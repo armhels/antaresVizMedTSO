@@ -31,6 +31,15 @@ output$directory_message <- renderText({
 dir_files <- reactive({
   path <- readDirectoryInput(session, 'directory')
   if(!is.null(path)){
+    # save path in default conf
+    conf <- tryCatch(yaml::read_yaml("default_conf.yml"), error = function(e) NULL)
+    if(!is.null(conf)){
+      conf$study_dir <- path
+      tryCatch({
+        yaml::write_yaml(conf, file = "default_conf.yml")
+      }, error = function(e) NULL)
+    }
+
     files = list.files(path, full.names = T)
     data.frame(name = basename(files), file.info(files))
   } else {
