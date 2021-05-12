@@ -109,10 +109,24 @@ observe({
   }
 })
 
+list_params_map <- reactiveVal(NULL)
+
+observe({
+  # load params
+  file_params <- input$load_map_params
+  list_params <- tryCatch(readRDS(file_params$datapath), error = function(e) NULL)
+  list_params_map(list_params)
+})
+
+
 observe({
   ml <- ml()
   ind_keep_list_data <- ind_keep_list_data()
   language <- current_language$language
+  
+  # load params
+  list_params <- list_params_map()
+  
   isolate({
     if(input$update_module > 0){
       if(!is.null(ind_keep_list_data)){
@@ -147,17 +161,27 @@ observe({
             } else {
               .compare = NULL
             }
-            mod_plotMap <- plotMap(x = list_data_all$antaresDataList[ind_map], 
-                                   refStudy = refStudy,
-                                   mapLayout = ml, 
-                                   interactive = TRUE, .updateBtn = TRUE, 
-                                   .updateBtnInit = TRUE, compare = .compare,
-                                   language = language,
-                                   #export with webshot dont work with leaflet and mapLayout
-                                   .exportBtn = FALSE,
-                                   h5requestFiltering = list_data_all$params[ind_map],
-                                   xyCompare = "union", 
-                                   .runApp = FALSE)
+            
+            plotMap_args <- list(
+              x = list_data_all$antaresDataList[ind_map], 
+              mapLayout = ml, 
+              interactive = TRUE, 
+              .updateBtn = TRUE, 
+              .updateBtnInit = TRUE,
+              compare = .compare,
+              language = language, 
+              .exportBtn = TRUE, 
+              .exportType = "webshot",
+              h5requestFiltering = list_data_all$params[ind_map],
+              xyCompare = "union", 
+              .runApp = FALSE
+            )
+            
+            if(!is.null(list_params)){
+              plotMap_args <- c(plotMap_args, list_params)
+            }
+            
+            mod_plotMap <- do.call(plotMap, plotMap_args)
             
             if("MWController" %in% class(modules$plotMap)){
               modules$plotMap$clear()
@@ -174,6 +198,48 @@ observe({
     }
   })
 })
+
+# save map params
+output$save_map_params <- downloadHandler(
+  filename = function() {
+    paste0("plotMap_Inputs_", format(Sys.time(), format = "%Y%m%d_%H%M%s"), ".RDS")
+  },
+  content = function(file) {
+    
+    current_id_plotMap <- modules$id_plotMap
+    
+    list_params <- list(
+      colAreaVar = "none", 
+      sizeAreaVars = c(),
+      areaChartType = c("bar"),
+      uniqueScale = FALSE,
+      showLabels = FALSE,
+      popupAreaVars = c(),
+      labelAreaVar = "none",
+      colLinkVar = "none", 
+      sizeLinkVar = "none", 
+      popupLinkVars = c(),
+      type = c("detail"),
+      mcYear = "average",
+      typeSizeAreaVars = FALSE,
+      aliasSizeAreaVars = c(),
+      sizeMiniPlot = FALSE
+    )
+    
+    input_persit <- c("colAreaVar", "sizeAreaVars", "areaChartType", "uniqueScale", 
+                      "showLabels", "popupAreaVars", "labelAreaVar", "colLinkVar", 
+                      "sizeLinkVar", "popupLinkVars", "type", "mcYear", "typeSizeAreaVars", 
+                      "aliasSizeAreaVars", "dateRange", "sizeMiniPlot")
+    
+    for(ip in input_persit){
+      tmp <- isolate(input[[paste0(current_id_plotMap, "-shared_", ip)]])
+      if(!is.null(tmp)) list_params[[ip]] <- tmp
+    }
+    
+    saveRDS(list_params, file)
+  }
+)
+
 
 observe({
   modules$init_plotMap
@@ -236,4 +302,16 @@ observe({
       updateTabsetPanel(session, inputId = "tab_layout_view", selected = "Carte")
     }
   }
+})
+
+output$ui_get_set_map_params <- renderUI({
+  current_language <- current_language$language
+  fluidRow(
+    column(6, 
+           div(downloadButton("save_map_params", antaresVizMedTSO:::.getLabelLanguage("Download current plotMap configuration", current_language)), align = "center")
+    ),
+    column(6, 
+           div(fileInput("load_map_params", antaresVizMedTSO:::.getLabelLanguage("Import a plotMap configuration (.RDS)", current_language), accept = c(".RDS", ".rds", ".Rds")), align = "center")
+    )
+  )
 })

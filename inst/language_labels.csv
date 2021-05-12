@@ -171,3 +171,5 @@ Med-TSO Maps; Cartes Med-TSO;Med-TSO Maps
 Export;Exportation;Export
 Generate output file;Générer le fichier de sortie;Generate output file
 File automatically downloaded in default folder;Fichier téléchargé automatiquement dans le répertoire par défaut;File automatically downloaded in default folder
+Import a plotMap configuration (.RDS);Importer une configuration plotMap (.RDS);Import a plotMap configuration (.RDS)
+Download current plotMap configuration;Télécharger la configuration actuelle du plotMap;Download current plotMap configuration

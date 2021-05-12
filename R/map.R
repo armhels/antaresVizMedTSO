@@ -193,6 +193,16 @@ plotMap <- function(x,
   
   .check_languages(language)
   
+  # load params, so to english before....
+  colAreaVar <- .getEnglishColumnsLanguage(colAreaVar)
+  sizeAreaVars <- .getEnglishColumnsLanguage(sizeAreaVars)
+  popupAreaVars <- .getEnglishColumnsLanguage(popupAreaVars)
+  labelAreaVar <- .getEnglishColumnsLanguage(labelAreaVar)
+  colLinkVar <- .getEnglishColumnsLanguage(colLinkVar)
+  sizeLinkVar <- .getEnglishColumnsLanguage(sizeLinkVar)
+  popupLinkVars <- .getEnglishColumnsLanguage(popupLinkVars)
+  aliasSizeAreaVars <- .getEnglishColumnsLanguage(aliasSizeAreaVars)
+  
   if(language != "en"){
     colAreaVar <- .getColumnsLanguage(colAreaVar, language)
     sizeAreaVars <- .getColumnsLanguage(sizeAreaVars, language)
@@ -793,7 +803,7 @@ plotMap <- function(x,
         label = .getLabelLanguage("Color", language), 
         .display = !"colAreaVar" %in% hidden
       ),
-      typeSizeAreaVars = mwCheckbox(value = FALSE, 
+      typeSizeAreaVars = mwCheckbox(value = typeSizeAreaVars, 
                                     label = .getLabelLanguage("Size by alias", language), 
                                     .display = !"typeSizeAreaVars" %in% hidden),
       aliasSizeAreaVars = mwSelect(

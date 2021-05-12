@@ -174,6 +174,17 @@ language_columns <- language_columns[, eval(parse(text = eval_lg_colums)), by = 
 
 language_columns[, tmp_row := NULL]
 
+.getEnglishColumnsLanguage <- function(columns){
+  av_lang <- setdiff(colnames(language_columns), "en")
+  up_columns <- columns
+  for(lang in av_lang){
+      ind_match <- match(columns, language_columns[[lang]])
+      if (any(!is.na(ind_match))){
+        up_columns[which(!is.na(ind_match))] <- language_columns[["en"]][ind_match[!is.na(ind_match)]]
+      }
+  }
+  up_columns
+}
 
 .getColumnsLanguage <- function(columns, language = "en"){
   if (language %in% colnames(language_columns)){

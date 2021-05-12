@@ -87,8 +87,10 @@ tabPanel(textOutput("label_tab_map_menu"),
                               fluidRow(
                                 column(12,
                                        conditionalPanel(condition = "output.have_data",
-                                                        conditionalPanel(condition = "output.must_print_map", 
-                                                                         uiOutput("plotMap_ui")
+                                                        conditionalPanel(condition = "output.must_print_map",
+                                                                         uiOutput("plotMap_ui"),
+                                                                         hr(),
+                                                                         uiOutput("ui_get_set_map_params")
                                                         ), 
                                                         conditionalPanel(condition = "output.must_print_map === false", 
                                                                          h3(textOutput("no_layout_2"))
