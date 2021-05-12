@@ -126,6 +126,16 @@ observe({
                   data$areas[, c("Hydro") := `H. STOR` + `H. ROR`]
                 }     
               }
+              
+              # split FLOW LIN. en NEG et POS
+              if(!is.null(data$links)){
+                if("FLOW LIN." %in% colnames(data$links)){
+                  data$links[, c("FLOW NEG.", "FLOW POS.") := list(
+                                   ifelse(`FLOW LIN.` < 0, `FLOW LIN.`, 0),
+                                   ifelse(`FLOW LIN.` > 0, `FLOW LIN.`, 0)
+                                 )]
+                }
+              }
             } else if("antaresDataTable" %in% class(data)){
               if(nrow(data) > 0 && "area" %in% colnames(data)){
                 if("PSP" %in% colnames(data)){
@@ -140,6 +150,15 @@ observe({
                 }      
                 if(all(c("H. STOR", "H. ROR") %in% colnames(data))){
                   data[, c("Hydro") := `H. STOR` + `H. ROR`]
+                }
+              }
+              
+              if(nrow(link) > 0 && "area" %in% colnames(data)){
+                if("FLOW LIN." %in% colnames(data)){
+                  data[, c("FLOW NEG.", "FLOW POS.") := list(
+                    ifelse(`FLOW LIN.` < 0, `FLOW LIN.`, 0),
+                    ifelse(`FLOW LIN.` > 0, `FLOW LIN.`, 0)
+                  )]
                 }
               }
             }
