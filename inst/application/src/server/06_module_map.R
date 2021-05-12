@@ -315,3 +315,55 @@ output$ui_get_set_map_params <- renderUI({
     )
   )
 })
+
+
+##### map colors -----
+
+# Q / PB : usage in server mode with shared env...?
+info_colors_var_map <- reactiveValues(
+  colVars = {
+    colVars <- getColorsVars()
+    colVars[lan == "en"]
+  }
+)
+
+init_col_map <- reactiveVal(FALSE)
+
+output$set_color_vars <- renderUI({
+  language <- current_language$language
+  colVars <- info_colors_var_map$colVars
+  if(!is.null(colVars) && nrow(colVars) > 0){
+    lapply(1:nrow(colVars), function(x){
+      fluidRow(
+        column(width = 3, offset = 3,  
+               h5(.getColumnsLanguage(colVars$Column[x], language), style = "font-weight: bold;")
+        ),
+        column(width = 3,
+               colourInput(paste0("col_var_", x), 
+                           label = NULL,
+                           value  = colVars$colors[x])
+        )
+      )
+    })
+  }
+})
+
+observe({
+  
+  colVars <- isolate(info_colors_var_map$colVars)
+  if(!is.null(colVars) && nrow(colVars) > 0){
+    col <- sapply(1:nrow(colVars), function(i){
+      input[[paste0("col_var_", i)]]
+    })
+    
+    if(!is.list(col) && length(col) == nrow(colVars)){
+      rgb <- data.table(t(grDevices::col2rgb(col)))
+      rgb[, Column := colVars$Column]
+      rgb[, colors := col]
+      
+      # info_colors_var_map$colVars <- rgb
+      setColorsVars(rgb)
+    }
+
+  }
+})

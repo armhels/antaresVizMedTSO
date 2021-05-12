@@ -282,7 +282,7 @@
     if(is.null(options$areaChartColors))
     {
       varS <- names(optsArea$maxSize)
-      colorDef <- colorsVars$colors[match(varS, colorsVars$Column)]
+      colorDef <- pkgEnv$colorsVars$colors[match(varS, pkgEnv$colorsVars$Column)]
       defCol <- c("#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b",
                   "e377c2",  "#7f7f7f", "#bcbd22", "#17becf")
       nbNa <- sum(is.na(colorDef))

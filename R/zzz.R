@@ -186,6 +186,7 @@ language_columns[, tmp_row := NULL]
   up_columns
 }
 
+#' @export
 .getColumnsLanguage <- function(columns, language = "en"){
   if (language %in% colnames(language_columns)){
     ind_match <- match(columns, language_columns$en)
@@ -232,17 +233,32 @@ colorsVars <- fread(input = system.file("color.csv", package = "antaresVizMedTSO
 colorsVars <- unique(colorsVars, by = "Column")
 colorsVars$colors <- rgb(colorsVars$red, colorsVars$green, colorsVars$blue, maxColorValue = 255)
 
-# expand to fr name
-expand_language_columns <- expand_language_columns[get("en") %in% colorsVars$Column]
+#' @export
+setColorsVars <- function(colorsVars){
+  colorsVars$lan <- "en"
+  
+  # expand to fr name
+  expand_language_columns <- expand_language_columns[get("en") %in% colorsVars$Column]
+  
+  ind_match <- match(expand_language_columns$en, colorsVars$Column)
+  rev_ind_match <- match(colorsVars$Column, expand_language_columns$en)
+  
+  col_fr <- colorsVars[Column %in% expand_language_columns$en][, Column := expand_language_columns$fr[rev_ind_match[!is.na(rev_ind_match)]]]
+  col_fr$lan <- "fr"
+  
+  col_medtso <- colorsVars[Column %in% expand_language_columns$en][, Column := expand_language_columns$en_medtso[rev_ind_match[!is.na(rev_ind_match)]]]
+  col_medtso$lan <- "en_medtso"
+  
+  colorsVars <- unique(rbindlist(list(colorsVars, col_medtso, col_fr)), by = c("Column"))
+  pkgEnv$colorsVars <- colorsVars
+}
 
-ind_match <- match(expand_language_columns$en, colorsVars$Column)
-rev_ind_match <- match(colorsVars$Column, expand_language_columns$en)
+setColorsVars(colorsVars)
 
-col_fr <- colorsVars[Column %in% expand_language_columns$en][, Column := expand_language_columns$fr[rev_ind_match[!is.na(rev_ind_match)]]]
-colorsVars <- unique(rbindlist(list(colorsVars, col_fr)))
-
-col_medtso <- colorsVars[Column %in% expand_language_columns$en][, Column := expand_language_columns$en_medtso[rev_ind_match[!is.na(rev_ind_match)]]]
-colorsVars <- unique(rbindlist(list(colorsVars, col_medtso)))
+#' @export
+getColorsVars <- function(){
+  pkgEnv$colorsVars
+}
 
 .check_if_is_html_cont <- function(htmlWidget = NULL){
   if (!("htmlwidget" %in% class(htmlWidget) | "MWController" %in% class(htmlWidget))){

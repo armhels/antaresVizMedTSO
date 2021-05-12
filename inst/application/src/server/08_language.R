@@ -38,6 +38,10 @@ output$label_tab_map_menu <- renderText({
   antaresVizMedTSO:::.getLabelLanguage("plotMap", current_language$language)
 })
 
+output$label_tab_map_color <- renderText({
+  antaresVizMedTSO:::.getLabelLanguage("Colors", current_language$language)
+})
+
 output$label_tab_medtso_map_menu <- renderText({
   antaresVizMedTSO:::.getLabelLanguage("Med-TSO Maps", current_language$language)
 })

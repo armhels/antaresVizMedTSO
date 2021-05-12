@@ -236,9 +236,9 @@ plotMap <- function(x,
   xyCompare <- match.arg(xyCompare)
   
   tmp_colAreaVar <- gsub("(_std$)|(_min$)|(_max$)", "", colAreaVar)
-  if(tmp_colAreaVar != "none" & tmp_colAreaVar%in%colorsVars$Column & runScale)
+  if(tmp_colAreaVar != "none" & tmp_colAreaVar %in% pkgEnv$colorsVars$Column & runScale)
   {
-    raw <- colorsVars[Column == tmp_colAreaVar]
+    raw <- pkgEnv$colorsVars[Column == tmp_colAreaVar]
     options <- plotMapOptions(areaColorScaleOpts = colorScaleOptions(
       negCol = "#FF0000",
       # zeroCol = rgb(raw$red, raw$green, raw$blue,  maxColorValue = 255),
@@ -997,8 +997,8 @@ plotMap <- function(x,
             zeroCol = "#f7f96f",
             posCol = "#e50505")
           )
-        } else if(tmp_colAreaVar %in% colorsVars$Column & runScale){
-          raw <- colorsVars[Column == tmp_colAreaVar]
+        } else if(tmp_colAreaVar %in% pkgEnv$colorsVars$Column & runScale){
+          raw <- pkgEnv$colorsVars[Column == tmp_colAreaVar]
           plotMapOptions(areaColorScaleOpts = colorScaleOptions(
             negCol = "#FF0000",
             # zeroCol = rgb(raw$red, raw$green, raw$blue,  maxColorValue = 255),

@@ -101,6 +101,9 @@ tabPanel(textOutput("label_tab_map_menu"),
                                        )
                                 )
                               )
+                     ),
+                     tabPanel(textOutput("label_tab_map_color"),
+                              uiOutput("set_color_vars")
                      )
          )
 )
