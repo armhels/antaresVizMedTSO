@@ -153,7 +153,7 @@ observe({
                 }
               }
               
-              if(nrow(link) > 0 && "area" %in% colnames(data)){
+              if(nrow(data) > 0 && "link" %in% colnames(data)){
                 if("FLOW LIN." %in% colnames(data)){
                   data[, c("FLOW NEG.", "FLOW POS.") := list(
                     ifelse(`FLOW LIN.` < 0, `FLOW LIN.`, 0),
