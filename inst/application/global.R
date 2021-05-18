@@ -23,6 +23,7 @@ suppressWarnings({
   })
 })
 
+
 if(file.exists("default_conf.yml")){
   conf <- try(yaml::read_yaml("default_conf.yml"), silent = TRUE)
   study_dir <- conf$study_dir

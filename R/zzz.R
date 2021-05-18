@@ -34,7 +34,7 @@ globalVariables(
 .checkAttrs <- antaresProcessing:::.checkAttrs
 
 DEFAULT_CAT_COLORS <- c("#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd",
-                      "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf")
+                        "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf")
 
 # Private variables accessible only by functions from the package
 pkgEnv <- antaresRead:::pkgEnv
@@ -167,7 +167,7 @@ expand_language_columns <- copy(language_columns)
 language_columns[, tmp_row := 1:nrow(language_columns)]
 
 tmp_expr <- paste0(colnames(language_columns), " = c(", colnames(language_columns), ", paste0(", 
-       colnames(language_columns), ", c('_std', '_min', '_max')))")
+                   colnames(language_columns), ", c('_std', '_min', '_max')))")
 eval_lg_colums <- paste0("list(", paste(tmp_expr, collapse = ", "), ")")
 
 language_columns <- language_columns[, eval(parse(text = eval_lg_colums)), by = tmp_row]
@@ -178,10 +178,10 @@ language_columns[, tmp_row := NULL]
   av_lang <- setdiff(colnames(language_columns), "en")
   up_columns <- columns
   for(lang in av_lang){
-      ind_match <- match(columns, language_columns[[lang]])
-      if (any(!is.na(ind_match))){
-        up_columns[which(!is.na(ind_match))] <- language_columns[["en"]][ind_match[!is.na(ind_match)]]
-      }
+    ind_match <- match(columns, language_columns[[lang]])
+    if (any(!is.na(ind_match))){
+      up_columns[which(!is.na(ind_match))] <- language_columns[["en"]][ind_match[!is.na(ind_match)]]
+    }
   }
   up_columns
 }
@@ -289,7 +289,7 @@ getColorsVars <- function(){
       }
     }
   }
-
+  
   if (is.null(widgetsNumber)){
     stop("no widgetsNumber")
   }
