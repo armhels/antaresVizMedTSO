@@ -302,7 +302,7 @@ tsPlot <- function(x,
         timeId = timeId,
         time = .timeIdToDate(timeId, attr(x, "timeStep"), simOptions(x)), 
         value = 0)
-        ]
+      ]
       
       if ("cluster" %in% idCols) {
         dt$element <- paste(x$area, x$cluster, sep = " > ")
@@ -376,7 +376,7 @@ tsPlot <- function(x,
           label_variable2Axe <- variable2Axe
           variable2Axe <- uni_ele[grepl(paste(paste0("(", variable2Axe, ")"), collapse = "|"), uni_ele)]
         }
-
+        
         # BP 2017
         # if(length(main) > 0){
         #   mcYear <- ifelse(mcYear == "average", "moyen", mcYear)
@@ -388,7 +388,7 @@ tsPlot <- function(x,
         #     main <- paste0("Tirage ", mcYear)
         #   }
         # }
-      
+        
         f(
           dt, 
           timeStep = timeStep, 
@@ -479,8 +479,11 @@ tsPlot <- function(x,
   
   manipulateWidget({
     .tryCloseH5()
-
-    if(.id <= length(params$x)){
+    
+    # udpate for mw 0.11 & 0.10.1
+    if(!is.null(params)){
+      ind <- .id %% length(params$x)
+      if(ind == 0) ind <- length(params$x)
       
       if(length(mcYear) == 0){return(combineWidgets(.getLabelLanguage("Please select some mcYears", language)))}
       
@@ -488,9 +491,9 @@ tsPlot <- function(x,
       
       if(length(elements) == 0){return(combineWidgets(.getLabelLanguage("Please select some elements", language)))}
       
-      if(length(params[["x"]][[max(1,.id)]]) == 0){return(combineWidgets(.getLabelLanguage("No data", language)))}
+      if(length(params[["x"]][[ind]]) == 0){return(combineWidgets(.getLabelLanguage("No data", language)))}
       
-      if(is.null(params[["x"]][[max(1,.id)]][[table]])){
+      if(is.null(params[["x"]][[ind]][[table]])){
         return(combineWidgets(
           paste0("Table ", table, " ", .getLabelLanguage("not exists in this study", language))
         ))
@@ -502,12 +505,14 @@ tsPlot <- function(x,
         aggregate <- "none"
       }
       
-
-      widget <- params[["x"]][[max(1,.id)]][[table]]$plotFun(mcYear, .id, variable, variable2Axe, elements, type, typeConfInt, confInt, 
-                                                             dateRange, minValue, maxValue, aggregate, legend, 
-                                                             highlight, stepPlot, drawPoints, main)
-
+      
+      widget <- params[["x"]][[ind]][[table]]$plotFun(mcYear, .id, variable, variable2Axe, elements, type, 
+                                                      typeConfInt, confInt, 
+                                                      dateRange, minValue, maxValue, aggregate, legend, 
+                                                      highlight, stepPlot, drawPoints, main)
+      
       controlWidgetSize(widget, language)
+      
     } else {
       combineWidgets(.getLabelLanguage("No data for this selection", language))
     }

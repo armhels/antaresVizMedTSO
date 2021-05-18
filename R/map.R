@@ -368,7 +368,7 @@ plotMap <- function(x,
       linkList <- unique(x$links$link)
       mapLayout$links <- mapLayout$links[link %in% linkList]
     }
-
+    
     # Precompute synthetic results and set keys for fast filtering
     syntx <- synthesize(x) 
     
@@ -460,11 +460,11 @@ plotMap <- function(x,
         ## .initMap : return a leaflet Htmlwidget
         ## maybe we will need to do something if we have different mapLayout for different studies
         ## ??
-      # } else if(!isTRUE(all.equal(mapLayout, get("currentMapLayout", envir = env_plotFun)))){
-      #   print(" no initial 1")
-      #   print(group)
-      #   assign("currentMapLayout", mapLayout)
-      #   map <- .initMap(x, mapLayout, options, language = language) %>% syncWith(group)
+        # } else if(!isTRUE(all.equal(mapLayout, get("currentMapLayout", envir = env_plotFun)))){
+        #   print(" no initial 1")
+        #   print(group)
+        #   assign("currentMapLayout", mapLayout)
+        #   map <- .initMap(x, mapLayout, options, language = language) %>% syncWith(group)
       } else {
         # in some case, map doesn't existed yet....!
         if("output_1_zoom" %in% names(session$input)){
@@ -598,8 +598,11 @@ plotMap <- function(x,
     {
       if(!is.null(params))
       {
-        if(.id <= length(params$x)){
-          .tryCloseH5()
+        .tryCloseH5()
+        # udpate for mw 0.11 & 0.10.1
+        if(!is.null(params)){
+          ind <- .id %% length(params$x)
+          if(ind == 0) ind <- length(params$x)
           
           tmp_options <- optionsT
           if(is.null(tmp_options)){
@@ -611,7 +614,7 @@ plotMap <- function(x,
           } else {
             sizeAreaVars <- unique(do.call("c", map_alias[aliasSizeAreaVars]))
           }
-          widget <- params$x[[.id]]$plotFun(t = params$x[[.id]]$timeId,
+          widget <- params$x[[ind]]$plotFun(t = params$x[[ind]]$timeId,
                                             colAreaVar = colAreaVar,
                                             sizeAreaVars = sizeAreaVars,
                                             popupAreaVars = popupAreaVars,
@@ -631,14 +634,15 @@ plotMap <- function(x,
                                             sizeMiniPlot = sizeMiniPlot,
                                             options = tmp_options)
           
-
+          
           
           # controlWidgetSize(widget, language) # bug due to leaflet and widget
-
           widget
-        } else {
+          
+        }else {
           combineWidgets(.getLabelLanguage("No data for this selection", language))
         }
+        
       }else{
         combineWidgets()
       }
@@ -869,24 +873,24 @@ plotMap <- function(x,
       ),
       popupAreaVars = mwSelect(
         choices = 
-        {
-          if(length(params) > 0){
-            if (mcYear == "average") {
-              tmp <- c("none", as.character(.compareOperation(lapply(params$x, function(vv){
-                unique(vv$areaValColumnsSynt)
-              }), xyCompare))
-              )
-            }else{
-              tmp <- c("none", as.character(.compareOperation(lapply(params$x, function(vv){
-                unique(vv$areaValColumns)
-              }), xyCompare)))
+          {
+            if(length(params) > 0){
+              if (mcYear == "average") {
+                tmp <- c("none", as.character(.compareOperation(lapply(params$x, function(vv){
+                  unique(vv$areaValColumnsSynt)
+                }), xyCompare))
+                )
+              }else{
+                tmp <- c("none", as.character(.compareOperation(lapply(params$x, function(vv){
+                  unique(vv$areaValColumns)
+                }), xyCompare)))
+              }
+              names(tmp) <- c(.getLabelLanguage("none", language), tmp[-1])
+              tmp
+            } else {
+              NULL
             }
-            names(tmp) <- c(.getLabelLanguage("none", language), tmp[-1])
-            tmp
-          } else {
-            NULL
-          }
-        }, 
+          }, 
         value = {
           if(.initial) popupAreaVars
           else NULL
@@ -1052,7 +1056,7 @@ plotMap <- function(x,
 }
 
 .availableMapAlias <- function(alias, areaNumValColumns){
-
+  
   keep_alias <- sapply(alias, function(x){
     all(x %in% areaNumValColumns)
   })

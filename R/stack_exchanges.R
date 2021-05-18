@@ -121,7 +121,7 @@ exchangesStack <- function(x, area = NULL, mcYear = "average",
     h5requestFiltering = h5requestFiltering,
     compareOptions = compareOpts
   )
-
+  
   listParamsCheck <- .check_params_A_get_cor_val(listParamsCheck)
   x <- listParamsCheck$x
   compare <- listParamsCheck$compare
@@ -288,11 +288,11 @@ exchangesStack <- function(x, area = NULL, mcYear = "average",
     )
     
     params <- .getParamsNoInt(x = x, 
-                             refStudy = refStudy, 
-                             listParamH5NoInt = listParamH5NoInt, 
-                             compare = compare, 
-                             compareOptions = compareOptions, 
-                             processFun = processFun)
+                              refStudy = refStudy, 
+                              listParamH5NoInt = listParamH5NoInt, 
+                              compare = compare, 
+                              compareOptions = compareOptions, 
+                              processFun = processFun)
     
     L_w <- lapply(seq_along(params$x), function(i){
       myData <- params$x[[i]]
@@ -319,8 +319,12 @@ exchangesStack <- function(x, area = NULL, mcYear = "average",
   manipulateWidget(
     {
       .tryCloseH5()
-      if (.id <= length(params$x)){
-        widget <- params$x[[max(1, .id)]]$plotFun(.id, area, dateRange, unit, mcYear, legend, stepPlot, drawPoints, main)
+      
+      # udpate for mw 0.11 & 0.10.1
+      if(!is.null(params)){
+        ind <- .id %% length(params$x)
+        if(ind == 0) ind <- length(params$x)
+        widget <- params$x[[ind]]$plotFun(.id, area, dateRange, unit, mcYear, legend, stepPlot, drawPoints, main)
         controlWidgetSize(widget, language)
       } else {
         combineWidgets(.getLabelLanguage("No data for this selection", language))
@@ -397,7 +401,7 @@ exchangesStack <- function(x, area = NULL, mcYear = "average",
         areas <- NULL
         links <- NULL
       }
-
+      
       # h5requestFilteringTp <- paramsH5$h5requestFilter
       # if (!is.null(sharerequest))
       # {
@@ -411,7 +415,7 @@ exchangesStack <- function(x, area = NULL, mcYear = "average",
       #     }
       #   }
       # }
-
+      
       
       # TODO next version get only what we need 
       # if (!is.null(area)){

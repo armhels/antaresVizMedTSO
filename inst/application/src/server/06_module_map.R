@@ -142,24 +142,32 @@ observe({
             input_data$data[grepl("^plotMap", input_id), input_id := paste0(id_plotMap, "-shared_", input)]
             
             output[["plotMap_ui"]] <- renderUI({
-              mwModuleUI(id = id_plotMap, height = "800px")
+              if(packageVersion("manipulateWidget") < "0.11"){
+                mwModuleUI(id = id_plotMap, height = "800px")
+              } else {
+                mwModuleUI(id = id_plotMap, height = "800px", updateBtn = TRUE)
+              }
             })
             
-            .compare <- input$sel_compare_plotMap
-            if(input$sel_compare_mcyear){
-              .compare <- unique(c(.compare, "mcYear"))
-            }
-            
-            if(length(.compare) > 0){
-              list_compare <- vector("list", length(.compare))
-              names(list_compare) <- .compare
-              # set main with study names
-              # if(length(ind_map) != 1){
-              #   list_compare$main <- names(list_data_all$antaresDataList[ind_map])
-              # }
-              .compare <- list_compare
+            if(packageVersion("manipulateWidget") < "0.11"){
+              .compare <- input$sel_compare_plotMap
+              if(input$sel_compare_mcyear){
+                .compare <- unique(c(.compare, "mcYear"))
+              }
+              
+              if(length(.compare) > 0){
+                list_compare <- vector("list", length(.compare))
+                names(list_compare) <- .compare
+                # set main with study names
+                # if(length(ind_map) != 1){
+                #   list_compare$main <- names(list_data_all$antaresDataList[ind_map])
+                # }
+                .compare <- list_compare
+              } else {
+                .compare = NULL
+              }
             } else {
-              .compare = NULL
+              .compare <- NULL
             }
             
             plotMap_args <- list(
@@ -167,7 +175,6 @@ observe({
               mapLayout = ml, 
               interactive = TRUE, 
               .updateBtn = TRUE, 
-              .updateBtnInit = TRUE,
               compare = .compare,
               language = language, 
               .exportBtn = TRUE, 
@@ -177,11 +184,15 @@ observe({
               .runApp = FALSE
             )
             
+            if(packageVersion("manipulateWidget") < "0.11"){
+              plotMap_args$.updateBtnInit <- TRUE
+            }
+            
             if(!is.null(list_params)){
               plotMap_args <- c(plotMap_args, list_params)
             }
             
-            mod_plotMap <- do.call(plotMap, plotMap_args)
+            mod_plotMap <- do.call(antaresVizMedTSO::plotMap, plotMap_args)
             
             if("MWController" %in% class(modules$plotMap)){
               modules$plotMap$clear()
@@ -364,6 +375,6 @@ observe({
       # info_colors_var_map$colVars <- rgb
       setColorsVars(rgb)
     }
-
+    
   }
 })

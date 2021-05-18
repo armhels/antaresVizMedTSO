@@ -233,7 +233,7 @@ prodStack <- function(x,
   
   #we can hide these values
   prodStackValHidden <- c("H5request", "timeSteph5", "tables", "mcYearH5", "mcYear", "main", "dateRange", 
-                               "stack", "unit", "areas", "legend", "stepPlot", "drawPoints")
+                          "stack", "unit", "areas", "legend", "stepPlot", "drawPoints")
   prodStackValCompare <- c("mcYear", "main", "unit", "areas", "legend", "stack", "stepPlot", "drawPoints")
   
   listParamsCheck <- list(
@@ -261,7 +261,7 @@ prodStack <- function(x,
   
   init_areas <- areas
   init_dateRange <- dateRange
-
+  
   processFun <- function(x) {
     
     .check_x_antaresData(x)
@@ -420,15 +420,21 @@ prodStack <- function(x,
   manipulateWidget(
     {
       .tryCloseH5()
-      if (.id <= length(params$x)){
-        widget <- params$x[[max(1, .id)]]$plotWithLegend(.id, areas, main,
-                                                        unit, stack, dateRange,
-                                                        mcYear, legend,
-                                                        stepPlot, drawPoints)
+
+      # udpate for mw 0.11 & 0.10.1
+      if(!is.null(params)){
+        ind <- .id %% length(params$x)
+        if(ind == 0) ind <- length(params$x)
+        widget <- params$x[[ind]]$plotWithLegend(.id, areas, main,
+                                                 unit, stack, dateRange,
+                                                 mcYear, legend,
+                                                 stepPlot, drawPoints)
         controlWidgetSize(widget, language)
       } else {
         return (combineWidgets(.getLabelLanguage("No data for this selection", language)))
       }
+      
+      
     },
     x = mwSharedValue({x}),
     x_in = mwSharedValue({
@@ -496,24 +502,36 @@ prodStack <- function(x,
     ),
     
     sharerequest = mwSharedValue({
+      tmp_tables <- tables
+      if(is.null(tmp_tables) | (!is.null(tmp_tables) && is.function(tmp_tables))){
+        tmp_tables <- paramsH5[["tabl"]][paramsH5[["tabl"]] %in% c("areas", "districts")][1]
+      }
+      
+      tmp_timeSteph5 <- timeSteph5
+      if(is.null(tmp_timeSteph5)){
+        tmp_timeSteph5 <- paramsH5$timeStepS[1]
+      }
+      
       if (length(meanYearH5) > 0){
         if (meanYearH5){
-          list(timeSteph5_l = timeSteph5, mcYearh_l = NULL, tables_l = tables)
+          list(timeSteph5_l = tmp_timeSteph5, mcYearh_l = NULL, tables_l = tmp_tables)
         } else {
-          list(timeSteph5_l = timeSteph5, mcYearh_l = mcYearH5, tables_l = tables)
+          list(timeSteph5_l = tmp_timeSteph5, mcYearh_l = mcYearH5, tables_l = tmp_tables)
         }
       } else {
-        list(timeSteph5_l = timeSteph5, mcYearh_l = mcYearH5, tables_l = tables)
+        list(timeSteph5_l = tmp_timeSteph5, mcYearh_l = mcYearH5, tables_l = tmp_tables)
       }
     }),
     
     x_tranform = mwSharedValue({
-      
+
       h5requestFilteringTp <- paramsH5$h5requestFilter
+
       if (!is.null(sharerequest))
       {
         for (i in 1:length(h5requestFilteringTp))
         {
+          
           if (sharerequest$tables == "areas"){
             h5requestFilteringTp[[i]]$districts = NULL
           }
@@ -720,10 +738,10 @@ prodStack <- function(x,
   }
   
   p <- .plotStack(dt, timeStep, simOptions(x), colors, lines, lineColors, lineWidth, legendId,
-             groupId,
-             main = main, ylab = sprintf("Production (%s)", unit), 
-             width = width, height = height, dateRange = dateRange, stepPlot = stepPlot, 
-             drawPoints = drawPoints, language = language, type = type)
+                  groupId,
+                  main = main, ylab = sprintf("Production (%s)", unit), 
+                  width = width, height = height, dateRange = dateRange, stepPlot = stepPlot, 
+                  drawPoints = drawPoints, language = language, type = type)
   p
 }
 
