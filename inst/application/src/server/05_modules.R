@@ -24,7 +24,7 @@ observe({
             if(packageVersion("manipulateWidget") < "0.11"){
               mwModuleUI(id = id_prodStack, height = "800px")
             } else {
-              mwModuleUI(id = id_prodStack, height = "800px", updateBtn = TRUE)
+              mwModuleUI(id = id_prodStack, height = 800, updateBtn = TRUE)
             }
           })
           
@@ -99,7 +99,7 @@ observe({
             if(packageVersion("manipulateWidget") < "0.11"){
               mwModuleUI(id = id_ts, height = "800px")
             } else {
-              mwModuleUI(id = id_ts, height = "800px", updateBtn = TRUE)
+              mwModuleUI(id = id_ts, height = 800, updateBtn = TRUE)
             }
           })
           
@@ -175,7 +175,7 @@ observe({
             if(packageVersion("manipulateWidget") < "0.11"){
               mwModuleUI(id = id_exchangesStack, height = "800px")
             } else {
-              mwModuleUI(id = id_exchangesStack, height = "800px", updateBtn = TRUE)
+              mwModuleUI(id = id_exchangesStack, height = 800, updateBtn = TRUE)
             }
           })
           

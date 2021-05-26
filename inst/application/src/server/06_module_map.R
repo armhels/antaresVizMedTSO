@@ -145,7 +145,7 @@ observe({
               if(packageVersion("manipulateWidget") < "0.11"){
                 mwModuleUI(id = id_plotMap, height = "800px")
               } else {
-                mwModuleUI(id = id_plotMap, height = "800px", updateBtn = TRUE)
+                mwModuleUI(id = id_plotMap, height = 800, updateBtn = TRUE)
               }
             })
             
@@ -189,6 +189,9 @@ observe({
             }
             
             if(!is.null(list_params)){
+              # if(packageVersion("manipulateWidget") >= "0.11"){
+              #   plotMap_args$compare <- NULL
+              # }
               plotMap_args <- c(plotMap_args, list_params)
             }
             
@@ -242,10 +245,54 @@ output$save_map_params <- downloadHandler(
                       "sizeLinkVar", "popupLinkVars", "type", "mcYear", "typeSizeAreaVars", 
                       "aliasSizeAreaVars", "dateRange", "sizeMiniPlot")
     
+    # list_compare <- list()
+    n_inputs <- names(isolate(input))
+    is_compare <- isolate(input[[paste0(current_id_plotMap, "-inputarea-compare-compare")]])
+    if(length(is_compare) == 0) is_compare <- FALSE
     for(ip in input_persit){
-      tmp <- isolate(input[[paste0(current_id_plotMap, "-shared_", ip)]])
-      if(!is.null(tmp)) list_params[[ip]] <- tmp
+      if(packageVersion("manipulateWidget") < "0.11"){
+        tmp <- isolate(input[[paste0(current_id_plotMap, "-shared_", ip)]])
+        if(!is.null(tmp)) list_params[[ip]] <- tmp
+      } else {
+        #   n_grp <- sort(n_inputs[grepl(paste0("(", current_id_plotMap, "-inputarea-output_)([[:digit:]]+)(_", ip, ")$"), n_inputs)])
+        #   if(is_compare && length(n_grp) > 0){
+        #     m <- regexpr("(output_)([[:digit:]]+)", n_grp)
+        #     max_char <- max(as.numeric(gsub("output_", "", regmatches(n_grp, m))))
+        #     
+        #     n_grp <- paste0(current_id_plotMap, "-inputarea-output_", 1:max_char, "_", ip)
+        #     val <- lapply(n_grp, function(x){
+        #       tmp <- isolate(input[[x]])
+        #       if(is.null(tmp)) tmp <- NA
+        #       tmp
+        #     })
+        #     list_compare[[ip]] <- unname(val)
+        #   } else {
+        #     tmp <- isolate(input[[paste0(current_id_plotMap, "-inputarea-shared_", ip)]])
+        #     if(!is.null(tmp)){
+        #       list_params[[ip]] <- tmp
+        #     }
+        #   }
+        # }
+        
+        if(is_compare){
+          showModal(
+            modalDialog(
+              title = "Warning",
+              "It's at moment not possible to save comparison parameters",
+              easyClose = TRUE
+            )
+          )
+        }
+        tmp <- isolate(input[[paste0(current_id_plotMap, "-inputarea-shared_", ip)]])
+        if(!is.null(tmp)){
+          list_params[[ip]] <- tmp
+        }
+      }
     }
+    
+    # if(length(list_compare) > 0){
+    #   list_params$compare <- list_compare
+    # }
     
     saveRDS(list_params, file)
   }

@@ -3,7 +3,7 @@ tabPanel(textOutput("label_tab_tsPlot"),
            column(12,
                   conditionalPanel(condition = "output.have_data",
                                    conditionalPanel(condition = "output.have_data_areas",
-                                                    br(), br(),
+                                                    # br(), br(),
                                                     uiOutput("plotts_ui")
                                    ),
                                    conditionalPanel(condition = "output.have_data_areas === false",
