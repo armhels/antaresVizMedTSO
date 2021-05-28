@@ -3,8 +3,20 @@ tabPanel(textOutput("label_tab_medtso_map_menu"),
                      tabPanel(textOutput("label_tab_import_data_2"),
                               h3(textOutput("title_import_data_3")),
                               fluidRow(
-                                column(5, 
-                                       directoryInput('directory_medtso_maps', label = '', value = study_dir)
+                                # column(5, 
+                                #        directoryInput('directory_medtso_maps', label = '', value = study_dir)
+                                # ), 
+                                column(1, 
+                                       div(
+                                         shinyDirButton(id = "directory_medtso_maps", label = "", title = "", icon = icon("folder")), 
+                                         style = "margin-top:17px", align = "center"
+                                       )
+                                ), 
+                                column(4, 
+                                       div(
+                                         verbatimTextOutput("print_directory_medtso_maps"), 
+                                         style = "margin-top:15px", align = "left"
+                                       )
                                 ), 
                                 conditionalPanel(condition = "output.ctrl_is_antares_study_medtso_maps", 
                                                  column(1, 

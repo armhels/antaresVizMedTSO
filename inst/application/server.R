@@ -1,5 +1,8 @@
 function(input, output, session) {
 
+  # shiny files
+  volumes <- c(getVolumes()(), Home = fs::path_home())
+  
   output$is_manipulate_new_version <- reactive({
     packageVersion("manipulateWidget") >= "0.11"
   })

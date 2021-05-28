@@ -2,34 +2,70 @@
 # set / read data
 #----------------
 
-# observe directory 
-observeEvent(
-  ignoreNULL = TRUE,
-  eventExpr = {
-    input$directory
-  },
-  handlerExpr = {
-    if (input$directory > 0) {
-      # condition prevents handler execution on initial app launch
-      path = choose.dir(default = readDirectoryInput(session, 'directory'))
-      updateDirectoryInput(session, 'directory', value = path)
+shinyDirChoose(input, "directory", roots = volumes, 
+               session = session)
+
+rv_directory <- reactiveVal(study_dir)
+
+observe({
+  if (!is.null(input$directory) && !is.integer(input$directory)) {
+    rv_directory(as.character(shinyFiles::parseDirPath(volumes, input$directory)))
+  }
+})
+
+output$print_directory <- renderPrint({
+  rv_directory()
+})
+
+observe({
+  val <- rv_directory()
+  if(!is.null(val) && val != ""){
+    if(!isTRUE(all.equal(isolate(rv_directory_medtso_maps()), val))){
+      rv_directory_medtso_maps(val)
+    }
+    if(!isTRUE(all.equal(isolate(rv_directory_format_output()), val))){
+      rv_directory_format_output(val)
     }
   }
-)
+})
+# # observe directory 
+# observeEvent(
+#   ignoreNULL = TRUE,
+#   eventExpr = {
+#     input$directory
+#   },
+#   handlerExpr = {
+#     if (input$directory > 0) {
+#       # condition prevents handler execution on initial app launch
+#       path = choose.dir(default = readDirectoryInput(session, 'directory'))
+#       updateDirectoryInput(session, 'directory', value = path)
+#     }
+#   }
+# )
+
+# output$directory_message <- renderText({
+#   if(length(input$directory) > 0){
+#     if(input$directory == 0){
+#       antaresVizMedTSO:::.getLabelLanguage("Please first choose a folder with antares output", current_language$language)
+#     } else {
+#       antaresVizMedTSO:::.getLabelLanguage("No antares output found in directory", current_language$language)
+#     }
+#   }
+# })
+
 
 output$directory_message <- renderText({
-  if(length(input$directory) > 0){
-    if(input$directory == 0){
+    if(!is.null(input$directory) || is.integer(input$directory)){
       antaresVizMedTSO:::.getLabelLanguage("Please first choose a folder with antares output", current_language$language)
     } else {
       antaresVizMedTSO:::.getLabelLanguage("No antares output found in directory", current_language$language)
     }
-  }
 })
 
 # list files in directory
 dir_files <- reactive({
-  path <- readDirectoryInput(session, 'directory')
+  # path <- readDirectoryInput(session, 'directory')
+  path <- rv_directory()
   if(!is.null(path)){
     # save path in default conf
     conf <- tryCatch(yaml::read_yaml("default_conf.yml"), error = function(e) NULL)
@@ -39,7 +75,7 @@ dir_files <- reactive({
         yaml::write_yaml(conf, file = "default_conf.yml")
       }, error = function(e) NULL)
     }
-
+    
     files = list.files(path, full.names = T)
     data.frame(name = basename(files), file.info(files))
   } else {
@@ -72,10 +108,12 @@ observe({
   if(is_antares_results$is_h5 | is_antares_results$is_study){
     isolate({
       if(is_antares_results$is_study){
-        files = list.files(paste0(readDirectoryInput(session, 'directory'), "/output"), full.names = T)
+        # files = list.files(paste0(readDirectoryInput(session, 'directory'), "/output"), full.names = T)
+        files = list.files(file.path(rv_directory(), "output"), full.names = T)
       } 
       if(is_antares_results$is_h5){
-        files = list.files(readDirectoryInput(session, 'directory'), pattern = ".h5$", full.names = T)
+        # files = list.files(readDirectoryInput(session, 'directory'), pattern = ".h5$", full.names = T)
+        files = list.files(file.path(rv_directory()), full.names = T)
       } 
       if(length(files) > 0){
         files <- data.frame(name = basename(files), file.info(files))
@@ -86,6 +124,18 @@ observe({
       }
       updateSelectInput(session, "study_path", "", choices = choices)
     })
+  }
+})
+
+observe({
+  val <- input$study_path
+  if(!is.null(val) && val != ""){
+    if(!isTRUE(all.equal(isolate(input$study_path_medtso_maps), val))){
+      updateSelectInput(session, "study_path_medtso_maps", selected =  val)
+    }
+    if(!isTRUE(all.equal(isolate(input$study_path_format_output), val))){
+      updateSelectInput(session, "study_path_format_output", selected =  val)
+    }
   }
 })
 
@@ -195,10 +245,10 @@ observe({
       
       
       updateCheckboxInput(session, "rmva_reassignCosts", antaresVizMedTSO:::.getLabelLanguage("reassignCosts", current_language), FALSE)
-
+      
       updateCheckboxInput(session, "rmva_newCols", antaresVizMedTSO:::.getLabelLanguage("newCols", current_language), FALSE)
-           
-
+      
+      
       updateSelectInput(session, "rmva_storageFlexibility_h5", paste0(antaresVizMedTSO:::.getLabelLanguage("storageFlexibility", current_language), " : "), 
                         choices = opts$areaList, selected = NULL)
       updateSelectInput(session, "rmva_production_h5", paste0(antaresVizMedTSO:::.getLabelLanguage("production", current_language), " : "), 

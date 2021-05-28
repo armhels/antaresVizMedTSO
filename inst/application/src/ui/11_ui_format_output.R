@@ -3,9 +3,21 @@ tabPanel(textOutput("label_tab_format_output"),
                      tabPanel(textOutput("label_tab_import_data_3"),
                               h3(textOutput("title_import_data_4")),
                               fluidRow(
-                                column(5, 
-                                       directoryInput('directory_format_output', label = '', 
-                                                      value = study_dir)
+                                # column(5, 
+                                #        directoryInput('directory_format_output', label = '',
+                                #                       value = study_dir)
+                                # ), 
+                                column(1, 
+                                       div(
+                                         shinyDirButton(id = "directory_format_output", label = "", title = "", icon = icon("folder")), 
+                                         style = "margin-top:17px", align = "center"
+                                       )
+                                ), 
+                                column(4, 
+                                       div(
+                                         verbatimTextOutput("print_directory_format_output"), 
+                                         style = "margin-top:15px", align = "left"
+                                       )
                                 ), 
                                 conditionalPanel(condition = "output.ctrl_is_antares_study_format_output", 
                                                  column(1, 

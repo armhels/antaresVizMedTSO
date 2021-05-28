@@ -28,11 +28,9 @@ if(file.exists("default_conf.yml")){
   conf <- try(yaml::read_yaml("default_conf.yml"), silent = TRUE)
   study_dir <- conf$study_dir
   map_layout <- conf$map_layout
-  if(is.null(study_dir)) study_dir <- ""
-  if(is.null(map_layout)) map_layout <- ""
 } else {
-  map_layout <- ""
-  study_dir <- ""
+  map_layout <- NULL
+  study_dir <- NULL
 }
 
 defaut_map_layout <- NULL
@@ -44,7 +42,7 @@ if(!is.null(map_layout) && file.exists(map_layout)){
 }
 
 # choose a directory
-source("src/scripts/directoryInput.R", encoding = "UTF-8")
+# source("src/scripts/directoryInput.R", encoding = "UTF-8")
 source("src/scripts/subsetDataTable.R", encoding = "UTF-8")
 source("src/scripts/utils_medtso_maps.R", encoding = "UTF-8")
 source("src/scripts/utils_format_output.R", encoding = "UTF-8")

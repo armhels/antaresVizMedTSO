@@ -1,34 +1,80 @@
 # read data parameters ----
 
-# observe directory 
-observeEvent(
-  ignoreNULL = TRUE,
-  eventExpr = {
-    input$directory_format_output
-  },
-  handlerExpr = {
-    if (input$directory_format_output > 0) {
-      # condition prevents handler execution on initial app launch
-      path = choose.dir(default = readDirectoryInput(session, 'directory_format_output'))
-      updateDirectoryInput(session, 'directory_format_output', value = path)
-    }
-  }
-)
+shinyDirChoose(input, "directory_format_output", roots = volumes, 
+               session = session)
 
-output$directory_message_format_output <- renderText({
-  if(length(input$directory_format_output) > 0){
-    if(input$directory_format_output == 0){
-      antaresVizMedTSO:::.getLabelLanguage("Please first choose a folder with antares output", current_language$language)
-    } else {
-      antaresVizMedTSO:::.getLabelLanguage("No antares output found in directory", current_language$language)
+rv_directory_format_output <- reactiveVal(study_dir)
+
+observe({
+  if (!is.null(input$directory_format_output) && !is.integer(input$directory_format_output)) {
+    rv_directory_format_output(as.character(shinyFiles::parseDirPath(volumes, input$directory_format_output)))
+  }
+})
+
+output$print_directory_format_output <- renderPrint({
+  rv_directory_format_output()
+})
+
+observe({
+  val <- rv_directory_format_output()
+  if(!is.null(val) && val != ""){
+    if(!isTRUE(all.equal(isolate(rv_directory()), val))){
+      rv_directory(val)
+    }
+    if(!isTRUE(all.equal(isolate(rv_directory_medtso_maps()), val))){
+      rv_directory_medtso_maps(val)
     }
   }
 })
 
+# # observe directory 
+# observeEvent(
+#   ignoreNULL = TRUE,
+#   eventExpr = {
+#     input$directory_format_output
+#   },
+#   handlerExpr = {
+#     if (input$directory_format_output > 0) {
+#       # condition prevents handler execution on initial app launch
+#       path = choose.dir(default = readDirectoryInput(session, 'directory_format_output'))
+#       updateDirectoryInput(session, 'directory_format_output', value = path)
+#     }
+#   }
+# )
+
+# output$directory_message_format_output <- renderText({
+#   if(length(input$directory_format_output) > 0){
+#     if(input$directory_format_output == 0){
+#       antaresVizMedTSO:::.getLabelLanguage("Please first choose a folder with antares output", current_language$language)
+#     } else {
+#       antaresVizMedTSO:::.getLabelLanguage("No antares output found in directory", current_language$language)
+#     }
+#   }
+# })
+
+output$directory_message_format_output <- renderText({
+  if(!is.null(input$directory_format_output) || is.integer(input$directory_format_output)){
+    antaresVizMedTSO:::.getLabelLanguage("Please first choose a folder with antares output", current_language$language)
+  } else {
+    antaresVizMedTSO:::.getLabelLanguage("No antares output found in directory", current_language$language)
+  }
+})
+
+
 # list files in directory
 dir_files_format_output <- reactive({
-  path <- readDirectoryInput(session, 'directory_format_output')
+  # path <- readDirectoryInput(session, 'directory_format_output')
+  path <- rv_directory_format_output()
   if(!is.null(path)){
+    # save path in default conf
+    conf <- tryCatch(yaml::read_yaml("default_conf.yml"), error = function(e) NULL)
+    if(!is.null(conf)){
+      conf$study_dir <- path
+      tryCatch({
+        yaml::write_yaml(conf, file = "default_conf.yml")
+      }, error = function(e) NULL)
+    }
+    
     files = list.files(path, full.names = T)
     data.frame(name = basename(files), file.info(files))
   } else {
@@ -56,10 +102,12 @@ observe({
   if(is_antares_results$is_h5 | is_antares_results$is_study){
     isolate({
       if(is_antares_results$is_study){
-        files = list.files(paste0(readDirectoryInput(session, 'directory_format_output'), "/output"), full.names = T)
+        # files = list.files(paste0(readDirectoryInput(session, 'directory_format_output'), "/output"), full.names = T)
+        files = list.files(file.path(rv_directory_format_output(), "output"), full.names = T)
       } 
       if(is_antares_results$is_h5){
-        files = list.files(readDirectoryInput(session, 'directory_format_output'), pattern = ".h5$", full.names = T)
+        # files = list.files(readDirectoryInput(session, 'directory_format_output'), pattern = ".h5$", full.names = T)
+        files = list.files(file.path(rv_directory_format_output()), full.names = T)
       } 
       if(length(files) > 0){
         files <- data.frame(name = basename(files), file.info(files))
@@ -70,6 +118,18 @@ observe({
       }
       updateSelectInput(session, "study_path_format_output", "", choices = choices)
     })
+  }
+})
+
+observe({
+  val <- input$study_path_format_output
+  if(!is.null(val) && val != ""){
+    if(!isTRUE(all.equal(isolate(input$study_path), val))){
+      updateSelectInput(session, "study_path", selected =  val)
+    }
+    if(!isTRUE(all.equal(isolate(input$study_path_medtso_maps), val))){
+      updateSelectInput(session, "study_path_medtso_maps", selected =  val)
+    }
   }
 })
 

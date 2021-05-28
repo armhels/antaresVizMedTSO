@@ -43,7 +43,6 @@ observe({
   }
 })
 
-volumes <- c(Home = fs::path_home(), "R Installation" = R.home(), getVolumes()())
 shinyFileChoose(input, "file_import_layout", roots = volumes, 
                 session = session, filetypes = c("RDS", "rds", "Rds"))
 
