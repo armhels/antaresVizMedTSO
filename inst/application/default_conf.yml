@@ -1,7 +1,8 @@
 study_dir: C:/Users/bthie/Desktop/antares-test-study
-map_layout: C:/Users/bthie/Downloads/mapLayout-2021-05-11.RDS
+map_layout: C:/Users/bthie/Downloads/mapLayout-2021-05-11-miss.RDS
 load_map_params: C:/Users/bthie/Downloads/plotMap_Inputs_20210512_11531620813185.RDS
-file_sel_import: C:/Users/bthie/Desktop/Antares/readAntares_selection_Full perimeter_v2.xlsx
+file_sel_import: C:/Users/bthie/Desktop/Bug_Antares/readAntares_selection_Full_Jan
+  2020.xlsx
 file_sel_import_medtso_maps: C:/Users/bthie/Desktop/Antares/readAntares_selection_Full
   perimeter_v2.xlsx
 file_sel_medtso_map: C:/Users/bthie/Desktop/Antares/readAntares_selection_Full perimeter_v2.xlsx
@@ -9,3 +10,4 @@ file_sel_import_format_output: C:/Users/bthie/Desktop/Antares/readAntares_select
   perimeter_v2.xlsx
 file_sel_format_output: C:/Users/bthie/Desktop/Antares/readAntares_selection_Full
   perimeter_v2.xlsx
+load_map_colors: C:/Users/bthie/Downloads/plotMap_Colors_20210531_17531622476392.RDS
