@@ -216,6 +216,7 @@ observe({
               .compare <- NULL
             }
             
+            test_data_map <<- list_data_all$antaresDataList[ind_map]
             plotMap_args <- list(
               x = list_data_all$antaresDataList[ind_map], 
               mapLayout = ml, 

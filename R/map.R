@@ -367,6 +367,26 @@ plotMap <- function(x,
       }
       linkList <- unique(x$links$link)
       mapLayout$links <- mapLayout$links[link %in% linkList]
+      
+      # add missing ?
+      all_layout <- antaresRead::readLayout(simOptions(x))
+      all_link_layout <- all_layout$links
+      all_link_layout <- all_link_layout[link %in% linkList]
+      
+      miss_link <- all_link_layout[link %in% linkList & !link %in% mapLayout$links$link]
+      if(nrow(miss_link) > 0){
+        
+        miss_link <- miss_link[, list(link, to, from)]
+        
+        miss_link <- merge(miss_link, mapLayout$coords[, list(from = area, x0 = x, y0 = y)], all.x = T, by = "from")
+        miss_link <- merge(miss_link, mapLayout$coords[, list(to = area, x1 = x, y1 = y)], all.x = T, by = "to")
+        
+        miss_link <- miss_link[!is.na(x0) & !is.na(x1)]
+        
+        if(nrow(miss_link) > 0){
+          mapLayout$links <- data.table::rbindlist(list(mapLayout$links, miss_link), use.names = T)
+        }
+      }
     }
     
     # Precompute synthetic results and set keys for fast filtering
