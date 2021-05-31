@@ -450,38 +450,58 @@ output$ui_get_set_map_params <- renderUI({
 
 ##### map colors -----
 
-# Q / PB : usage in server mode with shared env...?
-info_colors_var_map <- reactiveValues(
-  colVars = {
-    colVars <- getColorsVars()
-    colVars[lan == "en"]
-  }
-)
-
-init_col_map <- reactiveVal(FALSE)
-
+update_colors <- reactiveVal(0)
 output$set_color_vars <- renderUI({
+  update_colors()
   language <- current_language$language
-  colVars <- info_colors_var_map$colVars
+  colVars <- getColorsVars()
+  colVars <- colVars[lan == "en"]
   if(!is.null(colVars) && nrow(colVars) > 0){
-    lapply(1:nrow(colVars), function(x){
-      fluidRow(
-        column(width = 3, offset = 3,  
-               h5(.getColumnsLanguage(colVars$Column[x], language), style = "font-weight: bold;")
-        ),
-        column(width = 3,
-               colourInput(paste0("col_var_", x), 
-                           label = NULL,
-                           value  = colVars$colors[x])
+    n <- nrow(colVars)
+    middle <- round(n / 2)
+    lapply(1:middle, function(x){
+      second <- x + middle
+      if(second <= n){
+        fluidRow(
+          column(width = 3,  
+                 h5(.getColumnsLanguage(colVars$Column[x], language), style = "font-weight: bold;")
+          ),
+          column(width = 3,
+                 colourInput(paste0("col_var_", x), 
+                             label = NULL,
+                             value  = colVars$colors[x])
+          ),
+          column(width = 3,  
+                 h5(.getColumnsLanguage(colVars$Column[second], language), style = "font-weight: bold;")
+          ),
+          column(width = 3,
+                 colourInput(paste0("col_var_", second), 
+                             label = NULL,
+                             value  = colVars$colors[second])
+          ),
         )
-      )
+      } else {
+        fluidRow(
+          column(width = 3,  
+                 h5(.getColumnsLanguage(colVars$Column[x], language), style = "font-weight: bold;")
+          ),
+          column(width = 3,
+                 colourInput(paste0("col_var_", x), 
+                             label = NULL,
+                             value  = colVars$colors[x])
+          )
+        )
+      }
+
     })
   }
 })
 
 observe({
   
-  colVars <- isolate(info_colors_var_map$colVars)
+  colVars <- getColorsVars()
+  colVars <- colVars[lan == "en"]
+  
   if(!is.null(colVars) && nrow(colVars) > 0){
     col <- sapply(1:nrow(colVars), function(i){
       input[[paste0("col_var_", i)]]
@@ -495,6 +515,96 @@ observe({
       # info_colors_var_map$colVars <- rgb
       setColorsVars(rgb)
     }
-    
   }
 })
+
+output$ui_get_set_map_colors <- renderUI({
+  current_language <- current_language$language
+  fluidRow(
+    column(6, 
+           div(downloadButton("save_map_colors", antaresVizMedTSO:::.getLabelLanguage("Download current color settings", current_language)), align = "center")
+    ),
+    column(6, 
+           # div(
+           #   fileInput("load_map_colors", antaresVizMedTSO:::.getLabelLanguage("Import color settings (.RDS)", current_language), 
+           #             accept = c(".RDS", ".rds", ".Rds")), 
+           #   align = "center"
+           # )
+           div(
+             shinyFilesButton("load_map_colors", 
+                              label = antaresVizMedTSO:::.getLabelLanguage("Import color settings (.RDS)", current_language), 
+                              title= NULL, 
+                              icon = icon("upload"),
+                              multiple = FALSE, viewtype = "detail"),
+             align = "center"
+           )
+    )
+  )
+})
+
+
+shinyFileChoose(input, "load_map_colors", 
+                roots = volumes, 
+                session = session, 
+                filetypes = c("RDS", "rds", "Rds"), 
+                defaultRoot = {
+                  if(!is.null(load_map_colors) && load_map_colors != "" && paste0(strsplit(load_map_colors, "/")[[1]][1], "/") %in% names(volumes)){
+                    paste0(strsplit(load_map_colors, "/")[[1]][1], "/")
+                  } else {
+                    NULL
+                  }
+                },
+                defaultPath = {
+                  if(!is.null(load_map_colors) && load_map_colors != "" && paste0(strsplit(load_map_colors, "/")[[1]][1], "/") %in% names(volumes)){
+                    paste0(strsplit(load_map_colors, "/")[[1]][-1], collapse = "/")
+                  } else {
+                    NULL
+                  }
+                })
+
+observe({
+  # load params
+  # file_params <- input$load_map_colors
+  file_params <- shinyFiles::parseFilePaths(volumes, input$load_map_colors)
+  if("data.frame" %in% class(file_params) && nrow(file_params) == 0) file_params <- NULL
+  if(length(file_params) > 0){
+    conf <- tryCatch(yaml::read_yaml("default_conf.yml"), error = function(e) NULL)
+    if(!is.null(conf)){
+      conf$load_map_colors <- file_params$datapath
+      tryCatch({
+        yaml::write_yaml(conf, file = "default_conf.yml")
+      }, error = function(e) NULL)
+    }
+    list_params <- tryCatch(readRDS(file_params$datapath), error = function(e) NULL)
+    setColorsVars(list_params)
+    update_colors(isolate(update_colors()) + 1)
+  }
+})
+
+
+# save map params
+output$save_map_colors <- downloadHandler(
+  filename = function() {
+    paste0("plotMap_Colors_", format(Sys.time(), format = "%Y%m%d_%H%M%s"), ".RDS")
+  },
+  content = function(file) {
+
+    colVars <- getColorsVars()
+    colVars <- colVars[lan == "en"]
+    
+    if(!is.null(colVars) && nrow(colVars) > 0){
+      col <- sapply(1:nrow(colVars), function(i){
+        input[[paste0("col_var_", i)]]
+      })
+      
+      if(!is.list(col) && length(col) == nrow(colVars)){
+        rgb <- data.table(t(grDevices::col2rgb(col)))
+        rgb[, Column := colVars$Column]
+        rgb[, colors := col]
+      }
+    } else {
+      rgb <- NULL
+    }
+    saveRDS(rgb, file)
+  }
+)

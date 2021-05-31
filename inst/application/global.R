@@ -29,6 +29,7 @@ if(file.exists("default_conf.yml")){
   study_dir <- gsub("\\", "/", conf$study_dir, fixed = T)
   map_layout <- gsub("\\", "/", conf$map_layout, fixed = T)
   load_map_params <- gsub("\\", "/", conf$load_map_params, fixed = T)
+  load_map_colors <- gsub("\\", "/", conf$load_map_colors, fixed = T)
   file_sel_import <- gsub("\\", "/", conf$file_sel_import, fixed = T)
   file_sel_import_medtso_maps <- gsub("\\", "/", conf$file_sel_import_medtso_maps, fixed = T)
   file_sel_medtso_map <- gsub("\\", "/", conf$file_sel_medtso_map, fixed = T)
@@ -37,7 +38,8 @@ if(file.exists("default_conf.yml")){
   
   if(length(study_dir) == 0) study_dir <- ""
   if(length(map_layout) == 0) map_layout <- ""
-  if(length(load_map_params) == 0) map_params <- ""
+  if(length(load_map_params) == 0) load_map_params <- ""
+  if(length(load_map_colors) == 0) load_map_colors <- ""
   if(length(file_sel_import) == 0) file_sel_import <- ""
   if(length(file_sel_import_medtso_maps) == 0) file_sel_import_medtso_map <- ""
   if(length(file_sel_medtso_map) == 0) file_sel_medtso_map <- ""
@@ -47,6 +49,7 @@ if(file.exists("default_conf.yml")){
 } else {
   map_layout <- ""
   load_map_params <- ""
+  load_map_colors <- ""
   study_dir <- ""
   file_sel_import <- ""
   file_sel_import_medtso_maps <- ""
@@ -61,6 +64,11 @@ if(!is.null(map_layout) && file.exists(map_layout)){
   if("mapLayout" %in% class(tmp_ml)){
     defaut_map_layout <- tmp_ml
   }
+}
+
+if(!is.null(load_map_colors) && file.exists(load_map_colors)){
+  tmp_col <- try(readRDS(load_map_colors), silent = TRUE)
+  setColorsVars(tmp_col)
 }
 
 # choose a directory
