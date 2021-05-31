@@ -255,6 +255,22 @@ changeCoordsServer <- function(input, output, session,
       if("mapLayout" %in% class(layout())){
         isolate({current_state$state <- 3 })
         coords <- copy(layout()$all_coords[, list(area, x, y, color)])
+        # check new area to set (x, y as NA)
+        ind_na <- which(is.na(coords$x))
+        if(length(ind_na) > 0){
+          areas_na <- coords$area[ind_na]
+          # set in antartic
+          
+          coords[ind_na, c("x", "y") := list(runif(length(ind_na), min = 51, max = 113), runif(length(ind_na), min = -36, max = -17))]
+          showModal(
+            modalDialog(
+              title = "Important message !",
+              paste0("Some areas in data are missing from the current map layout. They were placed Between South Africa & Autralia. So you can edti/move them if needed from the map editor mayout panel. (",
+                     paste(areas_na, collapse = ", "), ")"),
+              easyClose = TRUE
+            )
+          )
+        }
         info <- coords$area
         links <- copy(layout()$links)
       }else if (what() == "areas") {
@@ -317,7 +333,7 @@ changeCoordsServer <- function(input, output, session,
         cex[pt] <- 2
         par (mar = rep(0.1, 4))
         graphics::plot.default(points$oldLon, points$oldLat, bty = "n", xaxt = "n", yaxt = "n",
-             xlab = "", ylab = "", main = "", col = col, asp = 1, pch = 19, cex = cex)
+                               xlab = "", ylab = "", main = "", col = col, asp = 1, pch = 19, cex = cex)
       }
     })
   }

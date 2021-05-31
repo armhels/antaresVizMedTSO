@@ -87,6 +87,20 @@ function(input, output, session) {
           # with areas
           ind_areas <- intersect(which(list_data_all$have_areas), ind_all)
           
+          # all areas in data
+          if(length(ind_areas) > 0){
+            all_areas <- unique(do.call("c", lapply(ind_areas, function(x){
+              data <- list_data_all$antaresDataList[[x]]
+              if("antaresDataTable" %in% class(data)){
+                unique(as.character(data$area))            
+              } else  if("antaresDataList" %in% class(data)){
+                unique(as.character(data$areas$area))
+              }
+            })))
+          } else {
+            all_areas <- NULL
+          }
+          
           # with links
           ind_links <- intersect(which(list_data_all$have_links), ind_all)
           
@@ -112,7 +126,8 @@ function(input, output, session) {
           list(ind_all = ind_all, 
                ind_areas = validAreas, 
                ind_links = validLinks,
-               refStudy = refStudy)
+               refStudy = refStudy, 
+               all_areas = all_areas)
         } else {
           NULL
         }

@@ -27,6 +27,7 @@ layout <- reactive({
 })
 
 ml <- reactiveVal(defaut_map_layout)
+ml_to_edit <- reactiveVal(NULL)
 
 # module for set and save layout
 map_language <- reactive({
@@ -114,8 +115,22 @@ output$must_print_map <- reactive({
 
 outputOptions(output, "must_print_map", suspendWhenHidden = FALSE)
 
+observe({
+  tmp_ml <- ml()
+  all_areas <- ind_keep_list_data()$all_areas
+    if(!is.null(tmp_ml)){
+      if(!is.null(all_areas) && length(all_areas > 0)){
+        if(!all(all_areas %in% tmp_ml$all_coords$area)){
+          miss_area <- data.table(area = setdiff(all_areas, tmp_ml$all_coords$area), x = NA, y = NA, color = "#DA3713")
+          tmp_ml$all_coords <- data.table::rbindlist(list(tmp_ml$all_coords, miss_area), use.names = T, fill = T)
+        }
+      }
+      ml_to_edit(tmp_ml)
+    }
+})
+
 # edition du mapLayout
-ml_edit <- callModule(antaresVizMedTSO:::changeCoordsServer, "ml_edit", ml, 
+ml_edit <- callModule(antaresVizMedTSO:::changeCoordsServer, "ml_edit", ml_to_edit, 
                       what = reactive("areas"), language = map_language, stopApp = FALSE)
 
 observe({
@@ -161,7 +176,7 @@ observe({
     list_params <- tryCatch(readRDS(file_params$datapath), error = function(e) NULL)
     list_params_map(list_params)
   }
-
+  
 })
 
 
@@ -216,7 +231,6 @@ observe({
               .compare <- NULL
             }
             
-            test_data_map <<- list_data_all$antaresDataList[ind_map]
             plotMap_args <- list(
               x = list_data_all$antaresDataList[ind_map], 
               mapLayout = ml, 
