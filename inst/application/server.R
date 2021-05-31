@@ -1,7 +1,19 @@
 function(input, output, session) {
 
   # shiny files
-  volumes <- c(getVolumes()(), Home = fs::path_home())
+  volumes <- {
+    vol <- getVolumes()()
+    # names(vol) <- gsub("/$", "", vol)
+    names(vol) <- vol
+    
+    if(!is.null(study_dir) && study_dir != ""){
+      study_path <- strsplit(study_dir, "/")[[1]]
+      study_path <- paste0(study_path[-length(study_path)], collapse = "/")
+      c(Home = fs::path_home(), vol, Antares = study_path)
+    } else {
+      c(Home = fs::path_home(), vol)
+    }
+  }
   
   output$is_manipulate_new_version <- reactive({
     packageVersion("manipulateWidget") >= "0.11"

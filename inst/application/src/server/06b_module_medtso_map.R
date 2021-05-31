@@ -1,7 +1,23 @@
 # read data parameters ----
 
-shinyDirChoose(input, "directory_medtso_maps", roots = volumes, 
-               session = session)
+shinyDirChoose(input, "directory_medtso_maps", 
+               roots = volumes, 
+               session = session, 
+               defaultRoot = {
+                 if(!is.null(study_dir) && study_dir != ""){
+                   study_path <- strsplit(study_dir, "/")[[1]]
+                   study_path <- paste0(study_path[-length(study_path)], collapse = "/")
+                   if(study_path %in% volumes){
+                     "Antares"
+                   } else if (paste0(strsplit(study_dir, "/")[[1]][1], "/") %in% names(volumes)){
+                     paste0(strsplit(study_dir, "/")[[1]][1], "/")
+                   } else {
+                     NULL
+                   }
+                 } else {
+                   NULL
+                 }
+               })
 
 rv_directory_medtso_maps <- reactiveVal(study_dir)
 
@@ -230,8 +246,16 @@ output$ui_sel_file_import_medtso_maps <- renderUI({
   input$init_sim # clear if change simulation
   fluidRow(
     column(6, 
-           div(fileInput("file_sel_import_medtso_maps", antaresVizMedTSO:::.getLabelLanguage("Import a selection file (.xlsx)", current_language),
-                         accept = c("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")), align = "center")
+           # div(fileInput("file_sel_import_medtso_maps", antaresVizMedTSO:::.getLabelLanguage("Import a selection file (.xlsx)", current_language),
+           #               accept = c("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")), align = "center")
+           
+           div(
+             shinyFilesButton("file_sel_import_medtso_maps", 
+                              label = antaresVizMedTSO:::.getLabelLanguage("Import a selection file (.xlsx)", current_language), 
+                              title= NULL, 
+                              icon = icon("upload"),
+                              multiple = FALSE, viewtype = "detail"),
+             align = "center", style = "margin-top:20px")
     ), 
     column(6, 
            div(br(),
@@ -245,13 +269,42 @@ output$ui_sel_file_import_medtso_maps <- renderUI({
 })
 
 
+shinyFileChoose(input, "file_sel_import_medtso_maps", 
+                roots = volumes, 
+                session = session, 
+                filetypes = c("XLS", "xls", "xlsx", "XLSX"), 
+                defaultRoot = {
+                  if(!is.null(file_sel_import_medtso_maps) && file_sel_import_medtso_maps != "" && paste0(strsplit(file_sel_import_medtso_maps, "/")[[1]][1], "/") %in% names(volumes)){
+                    paste0(strsplit(file_sel_import_medtso_maps, "/")[[1]][1], "/")
+                  } else {
+                    NULL
+                  }
+                },
+                defaultPath = {
+                  if(!is.null(file_sel_import_medtso_maps) && file_sel_import_medtso_maps != "" && paste0(strsplit(file_sel_import_medtso_maps, "/")[[1]][1], "/") %in% names(volumes)){
+                    paste0(strsplit(file_sel_import_medtso_maps, "/")[[1]][-1], collapse = "/")
+                  } else {
+                    NULL
+                  }
+                })
+
 # sélection à partir d'un fichier
 observe({
-  file_sel <- input$file_sel_import_medtso_maps
-  
+  # file_sel <- input$file_sel_import_medtso_maps
+  file_sel <- shinyFiles::parseFilePaths(volumes, input$file_sel_import_medtso_maps)
+  if("data.frame" %in% class(file_sel) && nrow(file_sel) == 0) file_sel <- NULL
   isolate({
     current_language <- current_language$language
     if (!is.null(file_sel)){
+      # save path in default conf
+      conf <- tryCatch(yaml::read_yaml("default_conf.yml"), error = function(e) NULL)
+      if(!is.null(conf)){
+        conf$file_sel_import_medtso_maps <- file_sel$datapath
+        tryCatch({
+          yaml::write_yaml(conf, file = "default_conf.yml")
+        }, error = function(e) NULL)
+      }
+      
       list_warning <- list() 
       withCallingHandlers({
         list_sel <- tryCatch({ 
@@ -683,8 +736,16 @@ output$ui_file_sel_medtso_map <- renderUI({
   current_language <- current_language$language
   fluidRow(
     column(width = 6, 
-           div(fileInput("file_sel_medtso_map", antaresVizMedTSO:::.getLabelLanguage("Import a selection file (.xlsx)", current_language),
-                         accept = c("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")), align = "center")
+           # div(fileInput("file_sel_medtso_map", antaresVizMedTSO:::.getLabelLanguage("Import a selection file (.xlsx)", current_language),
+           #               accept = c("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")), align = "center")
+           
+           div(
+             shinyFilesButton("file_sel_medtso_map", 
+                              label = antaresVizMedTSO:::.getLabelLanguage("Import a selection file (.xlsx)", current_language), 
+                              title= NULL, 
+                              icon = icon("upload"),
+                              multiple = FALSE, viewtype = "detail"),
+             align = "center", style = "margin-top:20px")
     ),
     column(6, 
            div( br(),
@@ -697,12 +758,39 @@ output$ui_file_sel_medtso_map <- renderUI({
   )
 })
 
+shinyFileChoose(input, "file_sel_medtso_map", 
+                roots = volumes, 
+                session = session, 
+                filetypes = c("XLS", "xls", "xlsx", "XLSX"), 
+                defaultRoot = {
+                  if(!is.null(file_sel_medtso_map) && file_sel_medtso_map != "" && paste0(strsplit(file_sel_medtso_map, "/")[[1]][1], "/") %in% names(volumes)){
+                    paste0(strsplit(file_sel_medtso_map, "/")[[1]][1], "/")
+                  } else {
+                    NULL
+                  }
+                },
+                defaultPath = {
+                  if(!is.null(file_sel_medtso_map) && file_sel_medtso_map != "" && paste0(strsplit(file_sel_medtso_map, "/")[[1]][1], "/") %in% names(volumes)){
+                    paste0(strsplit(file_sel_medtso_map, "/")[[1]][-1], collapse = "/")
+                  } else {
+                    NULL
+                  }
+                })
 observe({
-  file_sel <- input$file_sel_medtso_map
-  
+  # file_sel <- input$file_sel_medtso_map
+  file_sel <- shinyFiles::parseFilePaths(volumes, input$file_sel_medtso_map)
+  if("data.frame" %in% class(file_sel) && nrow(file_sel) == 0) file_sel <- NULL
   isolate({
     current_language <- current_language$language
     if (!is.null(file_sel)){
+      # save path in default conf
+      conf <- tryCatch(yaml::read_yaml("default_conf.yml"), error = function(e) NULL)
+      if(!is.null(conf)){
+        conf$file_sel_medtso_map <- file_sel$datapath
+        tryCatch({
+          yaml::write_yaml(conf, file = "default_conf.yml")
+        }, error = function(e) NULL)
+      }
       list_warning <- list() 
       withCallingHandlers({
         list_sel <- tryCatch({ 

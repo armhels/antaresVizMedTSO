@@ -88,7 +88,7 @@ tabPanel(textOutput("label_tab_format_output"),
                                                         
                                                         hr(),
                                                         uiOutput("ui_sel_file_import_format_output"),
-                                                        
+                                                        hr(),
                                                         div(actionButton("import_data_format_output", "Validate & import data", icon = icon("upload")), align = "center")
                                                  )
                                                )
@@ -100,6 +100,7 @@ tabPanel(textOutput("label_tab_format_output"),
                               conditionalPanel(condition = "output.have_study_format_output && input.import_data_format_output > 0",
                                                br(),
                                                uiOutput("ui_file_sel_format_output"),
+                                               hr(),
                                                fluidRow(
                                                  column(6, 
                                                         div(h4("Annual"), align = "center"),

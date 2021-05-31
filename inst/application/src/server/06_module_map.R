@@ -43,13 +43,29 @@ observe({
   }
 })
 
-shinyFileChoose(input, "file_import_layout", roots = volumes, 
-                session = session, filetypes = c("RDS", "rds", "Rds"))
+shinyFileChoose(input, "file_import_layout", 
+                roots = volumes, 
+                session = session, 
+                filetypes = c("RDS", "rds", "Rds"), 
+                defaultRoot = {
+                  if(!is.null(map_layout) && map_layout != "" && paste0(strsplit(map_layout, "/")[[1]][1], "/") %in% names(volumes)){
+                    paste0(strsplit(map_layout, "/")[[1]][1], "/")
+                  } else {
+                    NULL
+                  }
+                },
+                defaultPath = {
+                  if(!is.null(map_layout) && map_layout != "" && paste0(strsplit(map_layout, "/")[[1]][1], "/") %in% names(volumes)){
+                    paste0(strsplit(map_layout, "/")[[1]][-1], collapse = "/")
+                  } else {
+                    NULL
+                  }
+                })
 
 
 observe({
   # ml_file <- input$import_layout
-  ml_file <- parseFilePaths(volumes, input$file_import_layout)
+  ml_file <- shinyFiles::parseFilePaths(volumes, input$file_import_layout)
   if("data.frame" %in% class(ml_file) && nrow(ml_file) == 0) ml_file <- NULL
   if (!is.null(ml_file)){
     tmp_ml <- try(readRDS(ml_file$datapath), silent = TRUE)
@@ -110,11 +126,42 @@ observe({
 
 list_params_map <- reactiveVal(NULL)
 
+shinyFileChoose(input, "load_map_params", 
+                roots = volumes, 
+                session = session, 
+                filetypes = c("RDS", "rds", "Rds"), 
+                defaultRoot = {
+                  if(!is.null(load_map_params) && load_map_params != "" && paste0(strsplit(load_map_params, "/")[[1]][1], "/") %in% names(volumes)){
+                    paste0(strsplit(load_map_params, "/")[[1]][1], "/")
+                  } else {
+                    NULL
+                  }
+                },
+                defaultPath = {
+                  if(!is.null(load_map_params) && load_map_params != "" && paste0(strsplit(load_map_params, "/")[[1]][1], "/") %in% names(volumes)){
+                    paste0(strsplit(load_map_params, "/")[[1]][-1], collapse = "/")
+                  } else {
+                    NULL
+                  }
+                })
+
 observe({
   # load params
-  file_params <- input$load_map_params
-  list_params <- tryCatch(readRDS(file_params$datapath), error = function(e) NULL)
-  list_params_map(list_params)
+  # file_params <- input$load_map_params
+  file_params <- shinyFiles::parseFilePaths(volumes, input$load_map_params)
+  if("data.frame" %in% class(file_params) && nrow(file_params) == 0) file_params <- NULL
+  if(length(file_params) > 0){
+    conf <- tryCatch(yaml::read_yaml("default_conf.yml"), error = function(e) NULL)
+    if(!is.null(conf)){
+      conf$load_map_params <- file_params$datapath
+      tryCatch({
+        yaml::write_yaml(conf, file = "default_conf.yml")
+      }, error = function(e) NULL)
+    }
+    list_params <- tryCatch(readRDS(file_params$datapath), error = function(e) NULL)
+    list_params_map(list_params)
+  }
+
 })
 
 
@@ -368,7 +415,19 @@ output$ui_get_set_map_params <- renderUI({
            div(downloadButton("save_map_params", antaresVizMedTSO:::.getLabelLanguage("Download current plotMap configuration", current_language)), align = "center")
     ),
     column(6, 
-           div(fileInput("load_map_params", antaresVizMedTSO:::.getLabelLanguage("Import a plotMap configuration (.RDS)", current_language), accept = c(".RDS", ".rds", ".Rds")), align = "center")
+           # div(
+           #   fileInput("load_map_params", antaresVizMedTSO:::.getLabelLanguage("Import a plotMap configuration (.RDS)", current_language), 
+           #             accept = c(".RDS", ".rds", ".Rds")), 
+           #   align = "center"
+           # )
+           div(
+             shinyFilesButton("load_map_params", 
+                              label = antaresVizMedTSO:::.getLabelLanguage("Import a plotMap configuration (.RDS)", current_language), 
+                              title= NULL, 
+                              icon = icon("upload"),
+                              multiple = FALSE, viewtype = "detail"),
+             align = "center"
+           )
     )
   )
 })

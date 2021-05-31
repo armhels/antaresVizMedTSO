@@ -41,11 +41,11 @@ tabPanel(textOutput("label_tab_map_menu"),
                                                                                 # fileInput("import_layout", NULL, 
                                                                                 #           accept = c(".RDS", ".rds", ".Rds")),
                                                                                 shinyFilesButton("file_import_layout", 
-                                                                                                  NULL, 
-                                                                                                  NULL, 
-                                                                                                  icon = icon("upload"),
-                                                                                                  multiple = FALSE, viewtype = "detail"),
-                                                                              
+                                                                                                 label = NULL, 
+                                                                                                 title= NULL, 
+                                                                                                 icon = icon("upload"),
+                                                                                                 multiple = FALSE, viewtype = "detail"),
+                                                                                
                                                                                 align = "left")
                                                                        )
                                                                      )

@@ -26,11 +26,33 @@ suppressWarnings({
 
 if(file.exists("default_conf.yml")){
   conf <- try(yaml::read_yaml("default_conf.yml"), silent = TRUE)
-  study_dir <- conf$study_dir
-  map_layout <- conf$map_layout
+  study_dir <- gsub("\\", "/", conf$study_dir, fixed = T)
+  map_layout <- gsub("\\", "/", conf$map_layout, fixed = T)
+  load_map_params <- gsub("\\", "/", conf$load_map_params, fixed = T)
+  file_sel_import <- gsub("\\", "/", conf$file_sel_import, fixed = T)
+  file_sel_import_medtso_maps <- gsub("\\", "/", conf$file_sel_import_medtso_maps, fixed = T)
+  file_sel_medtso_map <- gsub("\\", "/", conf$file_sel_medtso_map, fixed = T)
+  file_sel_import_format_output <- gsub("\\", "/", conf$file_sel_import_format_output, fixed = T)
+  file_sel_format_output <- gsub("\\", "/", conf$file_sel_format_output, fixed = T)
+  
+  if(length(study_dir) == 0) study_dir <- ""
+  if(length(map_layout) == 0) map_layout <- ""
+  if(length(load_map_params) == 0) map_params <- ""
+  if(length(file_sel_import) == 0) file_sel_import <- ""
+  if(length(file_sel_import_medtso_maps) == 0) file_sel_import_medtso_map <- ""
+  if(length(file_sel_medtso_map) == 0) file_sel_medtso_map <- ""
+  if(length(file_sel_import_format_output) == 0) file_sel_import_format_output <- ""
+  if(length(file_sel_format_output) == 0) file_sel_format_output <- ""
+  
 } else {
-  map_layout <- NULL
-  study_dir <- NULL
+  map_layout <- ""
+  load_map_params <- ""
+  study_dir <- ""
+  file_sel_import <- ""
+  file_sel_import_medtso_maps <- ""
+  file_sel_medtso_map <- ""
+  file_sel_import_format_output <- ""
+  file_sel_format_output <- ""
 }
 
 defaut_map_layout <- NULL

@@ -85,7 +85,7 @@ tabPanel(textOutput("label_tab_medtso_map_menu"),
                                                         
                                                         hr(),
                                                         uiOutput("ui_sel_file_import_medtso_maps"),
-                                                        
+                                                        hr(),
                                                         div(actionButton("import_data_medtso_maps", "Validate & import data", icon = icon("upload")), align = "center")
                                                  )
                                                )
@@ -97,7 +97,7 @@ tabPanel(textOutput("label_tab_medtso_map_menu"),
                               conditionalPanel(condition = "output.have_data_map_tso",
                                                br(),
                                                uiOutput("ui_file_sel_medtso_map"),
-                                               
+                                               hr(),
                                                fluidRow(
                                                  column(4, includeMarkdown("src/inputs_medtso_maps.md")),
                                                  column(8, tabsetPanel(
