@@ -57,7 +57,7 @@ shinyFileChoose(input, "file_import_layout",
                 },
                 defaultPath = {
                   if(!is.null(map_layout) && map_layout != "" && paste0(strsplit(map_layout, "/")[[1]][1], "/") %in% names(volumes)){
-                    if(dir.exists(map_layout)){
+                    if(file.exists(map_layout)){
                       paste0(strsplit(map_layout, "/")[[1]][-1], collapse = "/")
                     } else {
                       NULL
@@ -158,7 +158,7 @@ shinyFileChoose(input, "load_map_params",
                 },
                 defaultPath = {
                   if(!is.null(load_map_params) && load_map_params != "" && paste0(strsplit(load_map_params, "/")[[1]][1], "/") %in% names(volumes)){
-                    if(dir.exists(load_map_params)){
+                    if(file.exists(load_map_params)){
                       paste0(strsplit(load_map_params, "/")[[1]][-1], collapse = "/")
                     } else {
                       NULL
@@ -564,7 +564,7 @@ shinyFileChoose(input, "load_map_colors",
                 },
                 defaultPath = {
                   if(!is.null(load_map_colors) && load_map_colors != "" && paste0(strsplit(load_map_colors, "/")[[1]][1], "/") %in% names(volumes)){
-                    if(dir.exists(load_map_colors)){
+                    if(file.exists(load_map_colors)){
                       paste0(strsplit(load_map_colors, "/")[[1]][-1], collapse = "/")
                     } else {
                       NULL

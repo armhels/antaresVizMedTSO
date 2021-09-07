@@ -347,7 +347,7 @@ shinyFileChoose(input, "file_sel_format_output",
                 },
                 defaultPath = {
                   if(!is.null(file_sel_format_output) && file_sel_format_output != "" && paste0(strsplit(file_sel_format_output, "/")[[1]][1], "/") %in% names(volumes)){
-                    if(dir.exists(file_sel_format_output)){
+                    if(file.exists(file_sel_format_output)){
                       paste0(strsplit(file_sel_format_output, "/")[[1]][-1], collapse = "/")
                     } else {
                       NULL
@@ -440,7 +440,7 @@ shinyFileChoose(input, "file_sel_import_format_output",
                 },
                 defaultPath = {
                   if(!is.null(file_sel_import_format_output) && file_sel_import_format_output != "" && paste0(strsplit(file_sel_import_format_output, "/")[[1]][1], "/") %in% names(volumes)){
-                    if(dir.exists(file_sel_import_format_output)){
+                    if(file.exists(file_sel_import_format_output)){
                       paste0(strsplit(file_sel_import_format_output, "/")[[1]][-1], collapse = "/")
                     } else {
                       NULL

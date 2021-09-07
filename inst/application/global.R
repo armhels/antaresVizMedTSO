@@ -23,29 +23,25 @@ suppressWarnings({
   })
 })
 
+check_conf_file <- function(x){
+  tmp <- gsub("\\", "/", x, fixed = T)
+  if(length(x) == 0) x <- ""
+  if(!file.exists(x)) x <- ""
+  x
+}
 
 if(file.exists("default_conf.yml")){
   conf <- try(yaml::read_yaml("default_conf.yml"), silent = TRUE)
-  study_dir <- gsub("\\", "/", conf$study_dir, fixed = T)
-  map_layout <- gsub("\\", "/", conf$map_layout, fixed = T)
-  load_map_params <- gsub("\\", "/", conf$load_map_params, fixed = T)
-  load_map_colors <- gsub("\\", "/", conf$load_map_colors, fixed = T)
-  file_sel_import <- gsub("\\", "/", conf$file_sel_import, fixed = T)
-  file_sel_import_medtso_maps <- gsub("\\", "/", conf$file_sel_import_medtso_maps, fixed = T)
-  file_sel_medtso_map <- gsub("\\", "/", conf$file_sel_medtso_map, fixed = T)
-  file_sel_import_format_output <- gsub("\\", "/", conf$file_sel_import_format_output, fixed = T)
-  file_sel_format_output <- gsub("\\", "/", conf$file_sel_format_output, fixed = T)
   
-  if(length(study_dir) == 0) study_dir <- ""
-  if(length(map_layout) == 0) map_layout <- ""
-  if(length(load_map_params) == 0) load_map_params <- ""
-  if(length(load_map_colors) == 0) load_map_colors <- ""
-  if(length(file_sel_import) == 0) file_sel_import <- ""
-  if(length(file_sel_import_medtso_maps) == 0) file_sel_import_medtso_map <- ""
-  if(length(file_sel_medtso_map) == 0) file_sel_medtso_map <- ""
-  if(length(file_sel_import_format_output) == 0) file_sel_import_format_output <- ""
-  if(length(file_sel_format_output) == 0) file_sel_format_output <- ""
-  
+  study_dir <- check_conf_file(conf$study_dir)
+  map_layout <- check_conf_file(conf$map_layout)
+  load_map_params <- check_conf_file(conf$load_map_params)
+  load_map_colors <- check_conf_file(conf$load_map_colors)
+  file_sel_import <- check_conf_file(conf$file_sel_import)
+  file_sel_import_medtso_maps <- check_conf_file(conf$file_sel_import_medtso_maps)
+  file_sel_medtso_map <- check_conf_file(conf$file_sel_medtso_map)
+  file_sel_import_format_output <- check_conf_file(conf$file_sel_import_format_output)
+  file_sel_format_output <- check_conf_file(conf$file_sel_format_output)
 } else {
   map_layout <- ""
   load_map_params <- ""
