@@ -424,7 +424,11 @@ shinyFileChoose(input, "file_sel",
                 },
                 defaultPath = {
                   if(!is.null(file_sel_import) && file_sel_import != "" && paste0(strsplit(file_sel_import, "/")[[1]][1], "/") %in% names(volumes)){
-                    paste0(strsplit(file_sel_import, "/")[[1]][-1], collapse = "/")
+                    if(dir.exists(file_sel_import)){
+                      paste0(strsplit(file_sel_import, "/")[[1]][-1], collapse = "/")
+                    } else {
+                      NULL
+                    }
                   } else {
                     NULL
                   }

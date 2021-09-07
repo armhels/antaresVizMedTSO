@@ -282,7 +282,11 @@ shinyFileChoose(input, "file_sel_import_medtso_maps",
                 },
                 defaultPath = {
                   if(!is.null(file_sel_import_medtso_maps) && file_sel_import_medtso_maps != "" && paste0(strsplit(file_sel_import_medtso_maps, "/")[[1]][1], "/") %in% names(volumes)){
-                    paste0(strsplit(file_sel_import_medtso_maps, "/")[[1]][-1], collapse = "/")
+                    if(dir.exists(file_sel_import_medtso_maps)){
+                      paste0(strsplit(file_sel_import_medtso_maps, "/")[[1]][-1], collapse = "/")
+                    } else {
+                      NULL
+                    }
                   } else {
                     NULL
                   }
@@ -771,7 +775,11 @@ shinyFileChoose(input, "file_sel_medtso_map",
                 },
                 defaultPath = {
                   if(!is.null(file_sel_medtso_map) && file_sel_medtso_map != "" && paste0(strsplit(file_sel_medtso_map, "/")[[1]][1], "/") %in% names(volumes)){
-                    paste0(strsplit(file_sel_medtso_map, "/")[[1]][-1], collapse = "/")
+                    if(dir.exists(file_sel_medtso_map)){
+                      paste0(strsplit(file_sel_medtso_map, "/")[[1]][-1], collapse = "/")
+                    } else {
+                      NULL
+                    }
                   } else {
                     NULL
                   }

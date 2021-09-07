@@ -57,7 +57,11 @@ shinyFileChoose(input, "file_import_layout",
                 },
                 defaultPath = {
                   if(!is.null(map_layout) && map_layout != "" && paste0(strsplit(map_layout, "/")[[1]][1], "/") %in% names(volumes)){
-                    paste0(strsplit(map_layout, "/")[[1]][-1], collapse = "/")
+                    if(dir.exists(map_layout)){
+                      paste0(strsplit(map_layout, "/")[[1]][-1], collapse = "/")
+                    } else {
+                      NULL
+                    }
                   } else {
                     NULL
                   }
@@ -118,15 +122,15 @@ outputOptions(output, "must_print_map", suspendWhenHidden = FALSE)
 observe({
   tmp_ml <- ml()
   all_areas <- ind_keep_list_data()$all_areas
-    if(!is.null(tmp_ml)){
-      if(!is.null(all_areas) && length(all_areas > 0)){
-        if(!all(all_areas %in% tmp_ml$all_coords$area)){
-          miss_area <- data.table(area = setdiff(all_areas, tmp_ml$all_coords$area), x = NA, y = NA, color = "#DA3713")
-          tmp_ml$all_coords <- data.table::rbindlist(list(tmp_ml$all_coords, miss_area), use.names = T, fill = T)
-        }
+  if(!is.null(tmp_ml)){
+    if(!is.null(all_areas) && length(all_areas > 0)){
+      if(!all(all_areas %in% tmp_ml$all_coords$area)){
+        miss_area <- data.table(area = setdiff(all_areas, tmp_ml$all_coords$area), x = NA, y = NA, color = "#DA3713")
+        tmp_ml$all_coords <- data.table::rbindlist(list(tmp_ml$all_coords, miss_area), use.names = T, fill = T)
       }
-      ml_to_edit(tmp_ml)
     }
+    ml_to_edit(tmp_ml)
+  }
 })
 
 # edition du mapLayout
@@ -154,7 +158,11 @@ shinyFileChoose(input, "load_map_params",
                 },
                 defaultPath = {
                   if(!is.null(load_map_params) && load_map_params != "" && paste0(strsplit(load_map_params, "/")[[1]][1], "/") %in% names(volumes)){
-                    paste0(strsplit(load_map_params, "/")[[1]][-1], collapse = "/")
+                    if(dir.exists(load_map_params)){
+                      paste0(strsplit(load_map_params, "/")[[1]][-1], collapse = "/")
+                    } else {
+                      NULL
+                    }
                   } else {
                     NULL
                   }
@@ -492,7 +500,7 @@ output$set_color_vars <- renderUI({
           )
         )
       }
-
+      
     })
   }
 })
@@ -556,7 +564,11 @@ shinyFileChoose(input, "load_map_colors",
                 },
                 defaultPath = {
                   if(!is.null(load_map_colors) && load_map_colors != "" && paste0(strsplit(load_map_colors, "/")[[1]][1], "/") %in% names(volumes)){
-                    paste0(strsplit(load_map_colors, "/")[[1]][-1], collapse = "/")
+                    if(dir.exists(load_map_colors)){
+                      paste0(strsplit(load_map_colors, "/")[[1]][-1], collapse = "/")
+                    } else {
+                      NULL
+                    }
                   } else {
                     NULL
                   }
@@ -588,7 +600,7 @@ output$save_map_colors <- downloadHandler(
     paste0("plotMap_Colors_", format(Sys.time(), format = "%Y%m%d_%H%M%s"), ".RDS")
   },
   content = function(file) {
-
+    
     colVars <- getColorsVars()
     colVars <- colVars[lan == "en"]
     

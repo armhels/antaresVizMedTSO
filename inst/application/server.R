@@ -6,7 +6,7 @@ function(input, output, session) {
     # names(vol) <- gsub("/$", "", vol)
     names(vol) <- vol
     
-    if(!is.null(study_dir) && study_dir != ""){
+    if(!is.null(study_dir) && study_dir != "" && dir.exists(study_dir)){
       study_path <- strsplit(study_dir, "/")[[1]]
       study_path <- paste0(study_path[-length(study_path)], collapse = "/")
       c(Home = fs::path_home(), vol, Antares = study_path)
