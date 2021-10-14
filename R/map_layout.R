@@ -265,7 +265,7 @@ changeCoordsServer <- function(input, output, session,
           showModal(
             modalDialog(
               title = "Important message !",
-              paste0("Some areas in data are missing from the current map layout. They were placed Between South Africa & Autralia. So you can edti/move them if needed from the map editor mayout panel. (",
+              paste0("Some areas in data are missing from the current map layout. They were placed Between South Africa & Autralia. So you can edit/move them if needed from the map editor mayout panel. (",
                      paste(areas_na, collapse = ", "), ")"),
               easyClose = TRUE
             )
@@ -277,10 +277,12 @@ changeCoordsServer <- function(input, output, session,
         coords <- copy(layout()$areas)
         info <- coords$area
         links <- copy(layout()$links)
+        if(is.null(links)) links <- data.table()
       } else {
         coords <- copy(layout()$districts)
         info <- coords$district
         links <- copy(layout()$districtLinks)
+        if(is.null(links)) links <- data.table()
       }
       
       links$x0 <- as.numeric(links$x0)
@@ -449,6 +451,11 @@ changeCoordsServer <- function(input, output, session,
                                 proj4string = sp::CRS("+proj=longlat +datum=WGS84 +no_defs"))
     
     
+    # special with only one area...
+    if(nrow(data()$coords) == 1){
+      coords <- coords[1, ]
+    } 
+    
     map <- current_map()
     
     if (!is.null(map)) {
@@ -474,9 +481,17 @@ changeCoordsServer <- function(input, output, session,
     if (what() == "areas") {
       final_links[final_coords, `:=`(x0 = x, y0 = y), on = c(from = "area")]
       final_links[final_coords, `:=`(x1 = x, y1 = y), on = c(to = "area")]
+      if(!is.null(final_links) && nrow(final_links) > 0){
+        final_links[final_coords, `:=`(x0 = x, y0 = y), on = c(from = "area")]
+        final_links[final_coords, `:=`(x1 = x, y1 = y), on = c(to = "area")]
+      }
     } else {
       final_links[final_coords, `:=`(x0 = x, y0 = y), on = c(fromDistrict = "district")]
       final_links[final_coords, `:=`(x1 = x, y1 = y), on = c(toDistrict = "district")]
+      if(!is.null(final_links) && nrow(final_links) > 0){
+        final_links[final_coords, `:=`(x0 = x, y0 = y), on = c(from = "area")]
+        final_links[final_coords, `:=`(x1 = x, y1 = y), on = c(to = "area")]
+      }
     }
     
     if (!is.null(map)) {
