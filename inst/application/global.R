@@ -42,6 +42,7 @@ if(file.exists("default_conf.yml")){
   file_sel_medtso_map <- check_conf_file(conf$file_sel_medtso_map)
   file_sel_import_format_output <- check_conf_file(conf$file_sel_import_format_output)
   file_sel_format_output <- check_conf_file(conf$file_sel_format_output)
+  file_sel_template_format_output <- check_conf_file(conf$file_sel_template_format_output)
 } else {
   map_layout <- ""
   load_map_params <- ""
@@ -52,8 +53,10 @@ if(file.exists("default_conf.yml")){
   file_sel_medtso_map <- ""
   file_sel_import_format_output <- ""
   file_sel_format_output <- ""
+  file_sel_template_format_output - ""
 }
 
+if(file_sel_template_format_output == "") file_sel_template_format_output <- "www/Annual_OutputFile_Template_R.xlsx"
 defaut_map_layout <- NULL
 if(!is.null(map_layout) && file.exists(map_layout)){
   tmp_ml <- try(readRDS(map_layout), silent = TRUE)
@@ -172,3 +175,46 @@ setAlias("Total generation", "Total generation", c("areas", "NUCLEAR",
 
 # detect if running in electron (pas trouve mieux...)
 is_electron <- dir.exists("nativefier-app")
+
+storage_vars = c("PSP", "PSP_Closed", "BATT", "DSR", "EV", "P2G", "H2")
+
+rm_storage_input <- c("rmva_storageFlexibility", "rmva_PSP_Closed", "rmva_BATT", "rmva_DSR", "rmva_EV", "rmva_P2G", "rmva_H2")
+n <- 3
+rm_storage_input_import_final <- rm_storage_input
+for(i in 2:n){
+  rm_storage_input_import_final <- c(rm_storage_input_import_final, paste0(rm_storage_input, "_", i))
+}
+
+rm_storage_input_import_format_final <- paste0(rm_storage_input, "_format_output")
+for(i in 2:n){
+  rm_storage_input_import_format_final <- c(rm_storage_input_import_format_final, paste0(rm_storage_input, "_format_output_", i))
+}
+
+rm_storage_input_import_map_final <- paste0(rm_storage_input, "_medtso_maps")
+for(i in 2:n){
+  rm_storage_input_import_map_final <- c(rm_storage_input_import_map_final, paste0(rm_storage_input, "_medtso_maps_", i))
+}
+
+build_storage_list <- function(...){
+  l <- list(...)
+  if(length(l) == 0) return(NULL)
+  ind_keep <- sapply(l, function(x){
+    !isTRUE(all.equal(x, NULL)) & !isTRUE(all.equal(x, ""))
+  })
+  l <- l[ind_keep]
+  if(length(l) == 0) return(NULL)
+  lapply(l, function(x) tolower(x))
+}
+
+build_production_list <- function(...){
+  l <- list(...)
+  if(length(l) == 0) return(NULL)
+  ind_keep <- sapply(l, function(x){
+    !isTRUE(all.equal(x, NULL)) & !isTRUE(all.equal(x, ""))
+  })
+  if(length(ind_keep) > 0){
+    l[ind_keep] <- lapply(l[ind_keep], function(x) tolower(x))
+  }
+  l
+  
+}

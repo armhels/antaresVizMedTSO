@@ -5,12 +5,16 @@ MRG. PRICE;Prix_marginal;Marginal_price
 CO2 EMIS.;Emissions_CO2;CO2_emissions
 BALANCE;Echanges;Balance
 ROW BAL.;Balance_autres_pays;RoW_Balance
-PSP;Pompage_turbinage;Pumping_Storage_Plant
 MISC. NDG;Autres_renouvelables;Other_renewables
 LOAD;Consommation;Demand
 H. ROR;Hydraulique_fil;Hydro_ROR
 WIND;Eolien;Wind
+WIND OFFSHORE;eolien offshore;Wind_Offshore
+WIND ONSHORE;eolien onshore;Wind_Onshore
 SOLAR;Solaire;Solar
+SOLAR CONCRT.;solaire à concentration;Solar_Concrt
+SOLAR PV;solaire PV;Solar_PV
+SOLAR ROOFT;solaire toiture;Solar_Rooft
 NUCLEAR;Nucleaire;Nuclear
 LIGNITE;Lignite;Lignite
 COAL;Charbon;Coal
@@ -18,6 +22,9 @@ GAS;Gaz;Gas
 OIL;Fioul;Oil
 MIX. FUEL;Thermique_mixte;Mix_Fuel
 MISC. DTG;Thermique_autre;Other_Fuel
+MISC. DTG 2;thermique_autre 2;Other_Fuel_2
+MISC. DTG 3;thermique_autre 3;Other_Fuel_3
+MISC. DTG 4;thermique_autre 4;Other_Fuel_4
 H. STOR;Hydraulique_lac;Hydro_reservoir
 UNSP. ENRG;Energie_non_distribuee;Unsupplied_energy
 SPIL. ENRG;Deversement;Dumped_energy
@@ -29,8 +36,8 @@ MAX MRG;Marge_maximum;Maximum_margin
 NP COST ;Cout_demarrage;Starting_cost
 NODU;Unite_demarre;Nb_unit_commitment
 FLOW LIN.;Flux;Flow
-FLOW NEG.;Flux_negatif;Flow_(neg)
-FLOW POS.;Flux_positif;Flow_(pos)
+FLOW_NEG;Flux_negatif;Flow_(neg)
+FLOW_POS;Flux_positif;Flow_(pos)
 UCAP LIN.;Flux_absolu;Flow_(abs)
 FLOW QUAD.;Flux_quadratique;Flow_(quad)
 CONG. FEE (ALG.);Cout_congestion;Congestion_fee
@@ -71,8 +78,31 @@ hydraulicStor;Hydraulique_lac;hydraulicStor
 totalProduction;Production Totale;totalProduction
 netLoad;Consommation nette;netLoad
 thermalAvailability;Marge disponible;thermalAvailability
-Battery_storage_&_pumping;Stockage_batterie_&_pompage;Battery_storage_&_pumping
-Battery_discharge_&_turbine;Decharge_batterie_&_turbine;Battery_discharge_&_turbine
 Others_non-renewable;Autres_non-renouvelables;Others_non-renewable
 Hydro;Hydroelectricite;Hydro_generation
 Total generation;Production totale;Total generation
+RENW. 1;RENW. 1;RENW. 1
+RENW. 2;RENW. 2;RENW. 2
+RENW. 3;RENW. 3;RENW. 3
+RENW. 4;RENW. 4;RENW. 4
+PSP;STEP avec apport (bilan net);Pump Storage - Open Loop (net)
+PSP_POS;STEP avec apport (turbine);Pump Storage - Open Loop (turbine)
+PSP_NEG;STEP avec apport (pompe);Pump Storage - Open Loop (pump)
+PSP_closed;STEP sans apport (bilan net);Pump Storage - Closed Loop (net)
+PSP_closed_POS;STEP sans apport (turbine);Pump Storage - Closed Loop (turbine)
+PSP_closed_NEG;STEP sans apport (pompe);Pump Storage - Closed Loop (pump)
+BATT;Stockage par batterie (bilan net);Battery Storage (net)
+BATT_POS;Stockage par batterie (décharge);Battery Storage discharge
+BATT_NEG;Stockage par batterie (charge);Battery Storage charge
+DSR;Effacement de consommation (bilan net);Demand Side Response (net)
+DSR_POS;DSR_POS;DSR_POS
+DSR_NEG;DSR_NEG;DSR_NEG
+EV;Véhicule électrique (consommation nette);Electric Vehicle (net)
+EV_POS;Véhicule électrique (V2G);Electric Vehicle (V2G)
+EV_NEG;Véhicule électrique (G2V);Electric Vehicle (G2V)
+P2G;Power to Gas;Power to Gas
+P2G_POS;Power to Gas (production électricité);Power to Gas (generation)
+P2G_NEG;Power to Gas (demande);Power to Gas (load)
+H2;Power to Hydrogen;Power to Hydrogen
+H2_POS;Pile à combustible à Hydrogène;Fuel Cell Hydrogen
+H2_NEG;Power to Hydrogen (consommation electrolyse);Power to Hydrogen (Electrolizer load)

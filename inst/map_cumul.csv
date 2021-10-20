@@ -44,7 +44,7 @@ NP COST;sum;1000000;2
 NODU;mean;1;1
 storageCapacity;max;1;0
 pumpingCapacity;max;1;0
-Battery_storage_&_pumping;sum;1000000;2
-Battery_discharge_&_turbine;sum;1000000;2
+PSP_NEG;sum;1000000;2
+PSP_POS;sum;1000000;2
 Others_non-renewable;sum;1000000;2
 Hydro;sum;1000000;2

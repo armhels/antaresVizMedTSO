@@ -30,7 +30,7 @@ observe({
                   title = "Error Writing h5",
                   easyClose = TRUE,
                   footer = NULL,
-                  paste("Please update input. Error : ", e, sep = "\n")
+                  paste("Please update input. Error : ", e$message, sep = "\n")
                 ))
                 list()
               })}, 
@@ -39,7 +39,7 @@ observe({
                 title = "Warning Writing h5",
                 easyClose = TRUE,
                 footer = NULL,
-                w
+                w$message
               ))
             }
           )

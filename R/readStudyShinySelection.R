@@ -12,7 +12,7 @@
 # input_path <- "C:\\Users\\Datastorm\\Documents\\git\\antaresVizMedTSO\\inst\\application\\www\\readAntares_selection.xlsx"
 readStudyShinySelection <- function(input_path){
   
-  sel <- list(areas = "", links = "", clusters = "", districts = "", 
+  sel <- list(areas = "", links = "", clusters = "", clustersRes = "", districts = "", 
               "misc" = FALSE, "thermalAvailability" = FALSE, "hydroStorage" = FALSE, 
               "hydroStorageMaxPower" = FALSE, "reserve" = FALSE, 
               "linkCapacity" = FALSE, "mustRun" = FALSE, "thermalModulation" = FALSE, 
@@ -23,86 +23,116 @@ readStudyShinySelection <- function(input_path){
     stop("Le fichier '", input_path, "' est introuvable")
   }
   
-  # areas
-  sel_areas <- suppressWarnings(tryCatch(openxlsx::read.xlsx(input_path, sheet = "Areas", check.names = FALSE, colNames = FALSE),
-                                         error = function(e) {
-                                           stop("Error reading sheet 'Areas' : ", e)
-                                         }))
   
-  if(!is.null(sel_areas) && nrow(sel_areas) > 0){
-    sel$areas <- tolower(as.character(sel_areas[, 1]))
+  # areas
+  if("Areas" %in% openxlsx::getSheetNames(input_path)){
+    sel_areas <- suppressWarnings(tryCatch(openxlsx::read.xlsx(input_path, sheet = "Areas", 
+                                                               check.names = FALSE, colNames = FALSE),
+                                           error = function(e) {
+                                             stop("Error reading sheet 'Areas' : ", e)
+                                           }))
+    
+    if(!is.null(sel_areas) && nrow(sel_areas) > 0){
+      sel$areas <- tolower(as.character(sel_areas[, 1]))
+    }
   }
   
   # links
-  sel_links <-  suppressWarnings(tryCatch(openxlsx::read.xlsx(input_path, sheet = "Links", check.names = FALSE, colNames = FALSE),
-                                          error = function(e) {
-                                            stop("Error reading sheet 'Links' : ", e)
-                                          }))
-  
-  if(!is.null(sel_links) && nrow(sel_links) > 0){
-    sel$links <- tolower(as.character(sel_links[, 1]))
+  if("Links" %in% openxlsx::getSheetNames(input_path)){
+    sel_links <-  suppressWarnings(tryCatch(openxlsx::read.xlsx(input_path, sheet = "Links", 
+                                                                check.names = FALSE, colNames = FALSE),
+                                            error = function(e) {
+                                              stop("Error reading sheet 'Links' : ", e)
+                                            }))
+    
+    if(!is.null(sel_links) && nrow(sel_links) > 0){
+      sel$links <- tolower(as.character(sel_links[, 1]))
+    }
   }
   
   # clusters
-  sel_clusters <-  suppressWarnings(tryCatch(openxlsx::read.xlsx(input_path, sheet = "Clusters", check.names = FALSE, colNames = FALSE),
-                                             error = function(e) {
-                                               stop("Error reading sheet 'Clusters' : ", e)
-                                             }))
-  
-  if(!is.null(sel_clusters) && nrow(sel_clusters) > 0){
-    sel$clusters <- tolower(as.character(sel_clusters[, 1]))
+  if("Clusters" %in% openxlsx::getSheetNames(input_path)){
+    sel_clusters <-  suppressWarnings(tryCatch(openxlsx::read.xlsx(input_path, sheet = "Clusters", 
+                                                                   check.names = FALSE, colNames = FALSE),
+                                               error = function(e) {
+                                                 stop("Error reading sheet 'Clusters' : ", e)
+                                               }))
+    
+    if(!is.null(sel_clusters) && nrow(sel_clusters) > 0){
+      sel$clusters <- tolower(as.character(sel_clusters[, 1]))
+    }
   }
   
-  # districts
-  sel_districts <-  suppressWarnings(tryCatch(openxlsx::read.xlsx(input_path, sheet = "Districts", check.names = FALSE, colNames = FALSE),
-                                              error = function(e) {
-                                                stop("Error reading sheet 'Districts' : ", e)
-                                              }))
+  # clustersRes
+  if("ClustersRes" %in% openxlsx::getSheetNames(input_path)){
+    sel_clusters_res <-  suppressWarnings(tryCatch(openxlsx::read.xlsx(input_path, sheet = "ClustersRes", 
+                                                                       check.names = FALSE, colNames = FALSE),
+                                                   error = function(e) {
+                                                     stop("Error reading sheet 'ClustersRes' : ", e)
+                                                   }))
+    
+    if(!is.null(sel_clusters_res) && nrow(sel_clusters_res) > 0){
+      sel$clustersRes <- tolower(as.character(sel_clusters_res[, 1]))
+    }
+  }
   
-  if(!is.null(sel_districts) && nrow(sel_districts) > 0){
-    sel$districts <- tolower(as.character(sel_districts[, 1]))
+  
+  # districts
+  if("Districts" %in% openxlsx::getSheetNames(input_path)){
+    sel_districts <-  suppressWarnings(tryCatch(openxlsx::read.xlsx(input_path, sheet = "Districts", 
+                                                                    check.names = FALSE, colNames = FALSE),
+                                                error = function(e) {
+                                                  stop("Error reading sheet 'Districts' : ", e)
+                                                }))
+    
+    if(!is.null(sel_districts) && nrow(sel_districts) > 0){
+      sel$districts <- tolower(as.character(sel_districts[, 1]))
+    }
   }
   
   # readAntares parameters
-  sel_params <-  suppressWarnings(tryCatch(openxlsx::read.xlsx(input_path, sheet = "readAntares", check.names = FALSE, colNames = TRUE),
-                                           error = function(e) {
-                                             stop("Error reading sheet 'readAntares' : ", e)
-                                           }))
-  
-  if(!is.null(sel_params) && nrow(sel_params) > 0){
+  if("readAntares" %in% openxlsx::getSheetNames(input_path)){
+    sel_params <-  suppressWarnings(tryCatch(openxlsx::read.xlsx(input_path, sheet = "readAntares", 
+                                                                 check.names = FALSE, colNames = TRUE),
+                                             error = function(e) {
+                                               stop("Error reading sheet 'readAntares' : ", e)
+                                             }))
     
-    sel_params[[1]] <- gsub("^([[:space:]]*) | ([[:space:]]*)$", "", sel_params[[1]])
-    sel_params[[2]] <- gsub("^([[:space:]]*) | ([[:space:]]*)$", "", sel_params[[2]])
-    
-    sel_params[[1]] <- na.locf0(sel_params[[1]])
-    
-    for(var in c("misc", "thermalAvailability", "hydroStorage", "hydroStorageMaxPower", "reserve", 
-                 "linkCapacity", "mustRun", "thermalModulation", "reassignCost", "newCols", "removeVirtualAreas")){
-      if(var %in% sel_params[[1]]){
-        sel[[var]] <- as.logical(as.numeric(as.character(sel_params[sel_params[[1]] %in% var, 2])))
+    if(!is.null(sel_params) && nrow(sel_params) > 0){
+      
+      sel_params[[1]] <- gsub("^([[:space:]]*) | ([[:space:]]*)$", "", sel_params[[1]])
+      sel_params[[2]] <- gsub("^([[:space:]]*) | ([[:space:]]*)$", "", sel_params[[2]])
+      
+      sel_params[[1]] <- na.locf0(sel_params[[1]])
+      
+      for(var in c("misc", "thermalAvailability", "hydroStorage", "hydroStorageMaxPower", "reserve", 
+                   "linkCapacity", "mustRun", "thermalModulation", "reassignCost", "newCols", "removeVirtualAreas")){
+        if(var %in% sel_params[[1]]){
+          sel[[var]] <- as.logical(as.numeric(as.character(sel_params[sel_params[[1]] %in% var, 2])))
+        }
       }
-    }
-    
-    if("timeStep" %in% sel_params[[1]]){
-      ts <- tolower(as.character(sel_params[sel_params[[1]] %in% "timeStep", 2]))
-      stopifnot(ts %in% c("hourly", "daily", "weekly", "monthly", "annual"))
-      sel$timeStep <- ts
-    }
-    
-    if("mcYears" %in% sel_params[[1]] && !is.na(sel_params[sel_params[[1]] %in% "mcYears", 2])){
-      tmp <- as.character(sel_params[sel_params[[1]] %in% "mcYears", 2])
-      tmp <- gsub("^([[:space:]]*) | ([[:space:]]*)$", "", unlist(strsplit(tmp, ";")))
-      mcy <- suppressWarnings(as.numeric(tmp))
-      if(!any(is.na(mcy))) sel$mcYears <- mcy
-    }
-    
-    for(var in c("select", "storageFlexibility", "production")){
-      tmp <- as.character(sel_params[sel_params[[1]] %in% var, 2])
-      tmp[tolower(tmp) %in% c("na", "empty", "", "null")] <- NA
-      tmp <- tmp[!is.na(tmp)]
-      if(length(tmp) > 0){
-        if(var %in% c("storageFlexibility", "production")) tmp <- tolower(tmp)
-        sel[[var]] <- tmp
+      
+      if("timeStep" %in% sel_params[[1]]){
+        ts <- tolower(as.character(sel_params[sel_params[[1]] %in% "timeStep", 2]))
+        stopifnot(ts %in% c("hourly", "daily", "weekly", "monthly", "annual"))
+        sel$timeStep <- ts
+      }
+      
+      if("mcYears" %in% sel_params[[1]] && !is.na(sel_params[sel_params[[1]] %in% "mcYears", 2])){
+        tmp <- as.character(sel_params[sel_params[[1]] %in% "mcYears", 2])
+        tmp <- gsub("^([[:space:]]*) | ([[:space:]]*)$", "", unlist(strsplit(tmp, ";")))
+        mcy <- suppressWarnings(as.numeric(tmp))
+        if(!any(is.na(mcy))) sel$mcYears <- mcy
+      }
+      
+      for(var in c("select", "storageFlexibility", "production")){
+        tmp <- as.character(sel_params[sel_params[[1]] %in% var, 2])
+        tmp[tolower(tmp) %in% c("na", "empty", "", "null")] <- NA
+        tmp <- tmp[!is.na(tmp)]
+        if(length(tmp) > 0){
+          if(var %in% c("storageFlexibility", "production")) tmp <- tolower(tmp)
+          sel[[var]] <- tmp
+        }
       }
     }
   }
@@ -150,6 +180,7 @@ writeStudyShinySelection <- function(val, output_path){
   addWorksheet(wb, "Areas")
   addWorksheet(wb, "Links")
   addWorksheet(wb, "Clusters")
+  addWorksheet(wb, "ClustersRes")
   addWorksheet(wb, "Districts")
   addWorksheet(wb, "readAntares")
   
@@ -169,11 +200,15 @@ writeStudyShinySelection <- function(val, output_path){
               colNames = FALSE, rowNames = FALSE)
   }
   
-  if(!is.null(val$clusters)){
-    writeData(wb, sheet = "Clusters", data.frame(val$clusters), 
+  if(!is.null(val[["clusters"]])){
+    writeData(wb, sheet = "Clusters", data.frame(val[["clusters"]]), 
               colNames = FALSE, rowNames = FALSE)
   }
   
+  if(!is.null(val[["clustersRes"]])){
+    writeData(wb, sheet = "ClustersRes", data.frame(val[["clustersRes"]]), 
+              colNames = FALSE, rowNames = FALSE)
+  }
   antares_read_params <- do.call("rbind.data.frame", 
                                  lapply(c("misc", "thermalAvailability", "hydroStorage", 
                                           "hydroStorageMaxPower", "reserve", "linkCapacity", 

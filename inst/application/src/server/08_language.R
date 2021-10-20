@@ -118,7 +118,7 @@ observe({
   updateSelectInput(session,"sel_compare_exchangesStack", label =   paste0(antaresVizMedTSO:::.getLabelLanguage("Exchanges", current_language$language), " : "))
   updateSelectInput(session,"sel_compare_tsPlot", label =   paste0(antaresVizMedTSO:::.getLabelLanguage("Time Series", current_language$language), " : "))
   updateSelectInput(session,"sel_compare_plotMap", label =   paste0(antaresVizMedTSO:::.getLabelLanguage("Map", current_language$language), " : "))
-
+  
   # data selection
   length_data <- isolate({list_data_all$antaresDataList})
   for(i in 1:length(length_data)){
@@ -132,7 +132,7 @@ observe({
                         label = antaresVizMedTSO:::.getLabelLanguage("Choose this study as a reference", current_language$language))
     
   }
-
+  
   cur_timeStep <- isolate({input$read_timeStep})
   choices_ts <- c("hourly", "daily", "weekly", "monthly", "annual")
   names(choices_ts) <- sapply(choices_ts, function(x){
@@ -149,6 +149,18 @@ observe({
   
   # Remove virtual Areas
   updateCheckboxInput(session, "rmva_ctrl", antaresVizMedTSO:::.getLabelLanguage("enabled", current_language$language))
+  updateCheckboxInput(session, "rmva_ctrl_step_2", paste0(
+    antaresVizMedTSO:::.getLabelLanguage("Remove virtual Areas", current_language$language), 
+    " : ", 
+    antaresVizMedTSO:::.getLabelLanguage("step", current_language$language), 
+    " 2")
+  )
+  updateCheckboxInput(session, "rmva_ctrl_step_3", paste0(
+    antaresVizMedTSO:::.getLabelLanguage("Remove virtual Areas", current_language$language), 
+    " : ", 
+    antaresVizMedTSO:::.getLabelLanguage("step", current_language$language), 
+    " 3")
+  )
   updateCheckboxInput(session, "rmva_ctrl_medtso_maps", antaresVizMedTSO:::.getLabelLanguage("enabled", current_language$language))
   updateCheckboxInput(session, "rmva_ctrl_format_output", antaresVizMedTSO:::.getLabelLanguage("enabled", current_language$language))
   

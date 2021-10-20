@@ -160,7 +160,7 @@ opts_format_output_tmp <- reactive({
           title = "Error setting file",
           easyClose = TRUE,
           footer = NULL,
-          paste("Directory/file is not an Antares study : ", e, sep = "\n")
+          paste("Directory/file is not an Antares study : ", e$message, sep = "\n")
         ))
         NULL
       })
@@ -233,13 +233,31 @@ observe({
       updateSelectInput(session, "read_mcYears_format_output", paste0(antaresVizMedTSO:::.getLabelLanguage("mcYears", current_language), " : "), 
                         choices = mcy, selected = mcy)
       
+
       # removeVirtualAreas
-      updateCheckboxInput(session, "rmva_ctrl_format_output", antaresVizMedTSO:::.getLabelLanguage("Remove virtual Areas", current_language), FALSE)
+      updateCheckboxInput(session, "rmva_ctrl_format_output", antaresVizMedTSO:::.getLabelLanguage("enabled", current_language), FALSE)
+      updateCheckboxInput(session, "rmva_ctrl_format_output_step_2", value = FALSE)
+      updateCheckboxInput(session, "rmva_ctrl_format_output_step_3", value = FALSE)
       
-      updateSelectInput(session, "rmva_storageFlexibility_format_output", paste0(antaresVizMedTSO:::.getLabelLanguage("storageFlexibility", current_language), " : "), 
-                        choices = opts$areaList, selected = NULL)
+      for(ii in rm_storage_input_import_format_final){
+        updateSelectInput(session, ii, choices = opts$areaList, selected = NULL)
+      }
+      
       updateSelectInput(session, "rmva_production_format_output", paste0(antaresVizMedTSO:::.getLabelLanguage("production", current_language), " : "),
                         choices = opts$areaList, selected = NULL)
+      updateSelectInput(session, "rmva_production_format_output_2", paste0(antaresVizMedTSO:::.getLabelLanguage("production", current_language), " : "),
+                        choices = opts$areaList, selected = NULL)
+      updateSelectInput(session, "rmva_production_format_output_3", paste0(antaresVizMedTSO:::.getLabelLanguage("production", current_language), " : "),
+                        choices = opts$areaList, selected = NULL)
+      
+      updateCheckboxInput(session, "rmva_reassignCosts_format_output", antaresVizMedTSO:::.getLabelLanguage("reassignCosts", current_language), FALSE)
+      updateCheckboxInput(session, "rmva_newCols_format_output", antaresVizMedTSO:::.getLabelLanguage("newCols", current_language), FALSE)
+      
+      updateCheckboxInput(session, "rmva_reassignCosts_format_output_2", antaresVizMedTSO:::.getLabelLanguage("reassignCosts", current_language), FALSE)
+      updateCheckboxInput(session, "rmva_newCols_format_output_2", antaresVizMedTSO:::.getLabelLanguage("newCols", current_language), FALSE)
+      
+      updateCheckboxInput(session, "rmva_reassignCosts_format_output_3", antaresVizMedTSO:::.getLabelLanguage("reassignCosts", current_language), FALSE)
+      updateCheckboxInput(session, "rmva_newCols_format_output_3", antaresVizMedTSO:::.getLabelLanguage("newCols", current_language), FALSE)
       
     })
   }
@@ -304,6 +322,78 @@ output$ui_sel_file_import_format_output <- renderUI({
            )
     )
   )
+})
+
+output$ui_file_sel_template_format_output <- renderUI({
+  current_language <- current_language$language
+  input$init_sim # clear if change simulation
+  fluidRow(
+    column(8, offset = 2, 
+           div(
+             tags$br(),
+             shinyFilesButton("file_sel_template_format_output", 
+                              label = antaresVizMedTSO:::.getLabelLanguage("Import a template output file (.xlsx)", current_language), 
+                              title= NULL, 
+                              icon = icon("upload"),
+                              multiple = FALSE, viewtype = "detail"), align = "center"),
+           
+           tags$br(),
+           div(
+             tags$a(href = "Annual_OutputFile_Template_R.xlsx", 
+                    antaresVizMedTSO:::.getLabelLanguage("Download template output file example", current_language), 
+                    class="btn btn-default", download = "Annual_OutputFile_Template_R.xlsx"), align = "center"
+           )
+           
+    )
+  )
+})
+
+shinyFileChoose(input, "file_sel_template_format_output", 
+                roots = volumes, 
+                session = session, 
+                filetypes = c("XLS", "xls", "xlsx", "XLSX"), 
+                defaultRoot = {
+                  if(!is.null(file_sel_template_format_output) && file_sel_template_format_output != "" && paste0(strsplit(file_sel_template_format_output, "/")[[1]][1], "/") %in% names(volumes)){
+                    paste0(strsplit(file_sel_template_format_output, "/")[[1]][1], "/")
+                  } else {
+                    NULL
+                  }
+                },
+                defaultPath = {
+                  if(!is.null(file_sel_template_format_output) && file_sel_template_format_output != "" && paste0(strsplit(file_sel_template_format_output, "/")[[1]][1], "/") %in% names(volumes)){
+                    if(file.exists(file_sel_template_format_output)){
+                      paste0(strsplit(file_sel_template_format_output, "/")[[1]][-1], collapse = "/")
+                    } else {
+                      NULL
+                    }
+                  } else {
+                    NULL
+                  }
+                })
+
+template_annual_rv <- reactiveVal(file_sel_template_format_output)
+
+output$show_template_annual <- renderText({
+  paste0("Template : ", template_annual_rv())
+})
+
+observe({
+  file_sel <- shinyFiles::parseFilePaths(volumes, input$file_sel_template_format_output)
+  if("data.frame" %in% class(file_sel) && nrow(file_sel) == 0) file_sel <- NULL
+  isolate({
+    current_language <- current_language$language
+    if (!is.null(file_sel)){
+      # save path in default conf
+      conf <- tryCatch(yaml::read_yaml("default_conf.yml"), error = function(e) NULL)
+      if(!is.null(conf)){
+        conf$file_sel_template_format_output <- file_sel$datapath
+        tryCatch({
+          yaml::write_yaml(conf, file = "default_conf.yml")
+        }, error = function(e) NULL)
+      }
+      template_annual_rv(file_sel$datapath)
+    }
+  })
 })
 
 
@@ -380,7 +470,7 @@ observe({
               title = antaresVizMedTSO:::.getLabelLanguage("Error reading selection file", current_language),
               easyClose = TRUE,
               footer = NULL,
-              e
+              e$message
             ))
             NULL
           })}, 
@@ -389,7 +479,7 @@ observe({
             title = antaresVizMedTSO:::.getLabelLanguage("Warning reading selection file", current_language),
             easyClose = TRUE,
             footer = NULL,
-            w
+            w$message
           ))
         })
       
@@ -474,7 +564,7 @@ observe({
               title = antaresVizMedTSO:::.getLabelLanguage("Error reading selection file", current_language),
               easyClose = TRUE,
               footer = NULL,
-              e
+              e$message
             ))
             NULL
           })}, 
@@ -483,7 +573,7 @@ observe({
             title = antaresVizMedTSO:::.getLabelLanguage("Warning reading selection file", current_language),
             easyClose = TRUE,
             footer = NULL,
-            w
+            w$message
           ))
         })
       
@@ -518,13 +608,75 @@ observe({
   }
 })
 
+rm_output_params <- reactiveValues()
+
+observe({
+  if(input$import_data_format_output > 0){
+    isolate({
+      rm_output_params$removeVirtualAreas = list(
+        input$rmva_ctrl_format_output, 
+        input$rmva_ctrl_format_output_step_2, 
+        input$rmva_ctrl_format_output_step_3
+      )
+      
+      rm_output_params$storageFlexibility = list(
+        build_storage_list(
+          PSP = input$rmva_storageFlexibility_format_output,
+          PSP_Closed = input$rmva_PSP_Closed_format_output,
+          BATT = input$rmva_BATT_format_output,
+          DSR = input$rmva_DSR_format_output, 
+          EV = input$rmva_EV_format_output, 
+          P2G = input$rmva_P2G_format_output, 
+          H2 = input$rmva_H2_format_output
+        ),
+        build_storage_list(
+          PSP = input$rmva_storageFlexibility_format_output_2,
+          PSP_Closed = input$rmva_PSP_Closed_format_output_2,
+          BATT = input$rmva_BATT_format_output_2,
+          DSR = input$rmva_DSR_format_output_2, 
+          EV = input$rmva_EV_format_output_2, 
+          P2G = input$rmva_P2G_format_output_2, 
+          H2 = input$rmva_H2_format_output_2
+        ),
+        build_storage_list(
+          PSP = input$rmva_storageFlexibility_format_output_3,
+          PSP_Closed = input$rmva_PSP_Closed_format_output_3,
+          BATT = input$rmva_BATT_format_output_3,
+          DSR = input$rmva_DSR_format_output_3, 
+          EV = input$rmva_EV_format_output_3, 
+          P2G = input$rmva_P2G_format_output_3, 
+          H2 = input$rmva_H2_format_output_3
+        )
+      ) 
+      
+      rm_output_params$production = build_production_list(
+        input$rmva_production_format_output,
+        input$rmva_production_format_output_2,
+        input$rmva_production_format_output_3
+      )
+      
+      rm_output_params$reassignCosts = list(
+        input$rmva_reassignCosts_format_output,
+        input$rmva_reassignCosts_format_output_2, 
+        input$rmva_reassignCosts_format_output_3
+      )
+      
+      rm_output_params$newCols = list(
+        input$rmva_newCols_format_output,
+        input$rmva_newCols_format_output_2,
+        input$rmva_newCols_format_output_3
+      )
+    })
+  }
+})
+
 # import data ----
 output$export_annual_format_output <- downloadHandler(
   filename = function() {
     paste('Annual_OutputFile_', format(Sys.time(), format = "%Y%d%m_%H%M%S"), '.zip', sep='')
   },
   content = function(con) {
-  
+    
     # importation des donnees
     if(!is.null(opts_format_output())){
       
@@ -568,18 +720,20 @@ output$export_annual_format_output <- downloadHandler(
                                      areas_districts_selections = input$read_areas_y_format_output,
                                      links_selections = input$read_links_y_format_output, 
                                      mcYears = mcy, 
-                                     removeVirtualAreas = input$rmva_ctrl_format_output,
-                                     storageFlexibility = input$rmva_storageFlexibility_format_output, 
-                                     production = input$rmva_production_format_output,
-                                     reassignCosts = input$rmva_reassignCosts_format_output, 
-                                     newCols = input$rmva_newCols_format_output)
+                                     removeVirtualAreas = rm_output_params$removeVirtualAreas,
+                                     storageFlexibility = rm_output_params$storageFlexibility, 
+                                     production = rm_output_params$production,
+                                     reassignCosts = rm_output_params$reassignCosts,
+                                     newCols = rm_output_params$newCols, 
+                                     storage_vars = storage_vars
+            )
           },
           error = function(e){
             showModal(modalDialog(
               title = "Error reading data",
               easyClose = TRUE,
               footer = NULL,
-              paste("Please update input. Error : ", e, sep = "\n")
+              paste("Please update input. Error : ", e$message, sep = "\n")
             ))
             NULL
           })}, 
@@ -588,12 +742,13 @@ output$export_annual_format_output <- downloadHandler(
           }
         )
         
+        # browser()
         if(length(list_warning) > 0 & !is.null(data)){
           showModal(modalDialog(
             title = "Warning reading data",
             easyClose = TRUE,
             footer = NULL,
-            HTML(paste0(list_warning, collapse  = "<br><br>"))
+            HTML(paste0(unique(list_warning), collapse  = "<br><br>"))
           ))
         }
         
@@ -604,13 +759,10 @@ output$export_annual_format_output <- downloadHandler(
         } else {
           data <- NULL
         }
-
+        
         if(!is.null(data)){
           
           progress$set(message = 'Annual Output', detail = 'Formatting data...')
-          
-          vars <- system.file("application/data/excel_templates/variablesAnnualOutputLong.csv", package = "antaresVizMedTSO")
-          vars <- data.table::fread(vars)
           
           sim_name <- unlist(strsplit(opts_format_output()$simPath, "/"))
           sim_name <- sim_name[length(sim_name)]
@@ -627,23 +779,28 @@ output$export_annual_format_output <- downloadHandler(
           
           options(scipen = 10000, digits = 1)
           
-          list_warning <- list()           
+          list_warning <- list()
+          
+          template <- template_annual_rv()
+          
           data <- withCallingHandlers({
             tryCatch({
+              
               formatAnnualOutputs(data_areas_dist_clust = data$data_areas_dist_clust,
                                   data_areas_dist_clustH = data$data_areas_dist_clustH,
                                   dataForSurplus = data$dataForSurplus,
                                   data_areas_districts = data$data_areas_districts,
                                   links_selections = data$links_selections,
                                   areas_districts_selections = data$areas_districts_selections,
-                                  vars = vars, opts = data$opts, data_intro = data_intro)
+                                  opts = data$opts, data_intro = data_intro, 
+                                  template = template)
             },
             error = function(e){
               showModal(modalDialog(
                 title = "Error formatting data",
                 easyClose = TRUE,
                 footer = NULL,
-                e
+                e$message
               ))
               NULL
             })},
@@ -657,13 +814,13 @@ output$export_annual_format_output <- downloadHandler(
               title = "Warning formatting data",
               easyClose = TRUE,
               footer = NULL,
-              HTML(paste0(list_warning, collapse  = "<br><br>"))
+              HTML(paste0(unique(list_warning), collapse  = "<br><br>"))
             ))
           }
           progress$set(value = 0.7)
           
           if(!is.null(data)){
-            infile_name <- system.file("application/data/excel_templates/Annual_OutputFile_Template__R.xlsx", package = "antaresVizMedTSO")
+            
             options(scipen = 10000, digits = 1)
             
             progress$set(message = 'Annual Output', detail = 'Writting data...')
@@ -671,15 +828,16 @@ output$export_annual_format_output <- downloadHandler(
             list_warning <- list() 
             data <- withCallingHandlers({
               tryCatch({
-                exportAnnualOutputs(infile_name = infile_name, outfile_name = tmp_file,
-                                    annual_outputs = data, data_intro = data_intro)
+                exportAnnualOutputs(infile_name = template, 
+                                    outfile_name = tmp_file,
+                                    annual_outputs = data)
               },
               error = function(e){
                 showModal(modalDialog(
                   title = "Error writing data",
                   easyClose = TRUE,
                   footer = NULL,
-                  e
+                  e$message
                 ))
                 list()
               })}, 
@@ -693,7 +851,7 @@ output$export_annual_format_output <- downloadHandler(
                 title = "Warning writing data",
                 easyClose = TRUE,
                 footer = NULL,
-                HTML(paste0(list_warning, collapse  = "<br><br>"))
+                HTML(paste0(unique(list_warning), collapse  = "<br><br>"))
               ))
             }
           }
@@ -728,7 +886,7 @@ output$export_annual_format_output <- downloadHandler(
           "No able to write any file"
         ))
       }
-
+      
     }
   }
 )
@@ -772,18 +930,19 @@ output$export_hourly_format_output <- downloadHandler(
                                      areas_districts_selections = input$read_areas_h_format_output,
                                      links_selections = input$read_links_h_format_output, 
                                      mcYears = mcYears, 
-                                     removeVirtualAreas = input$rmva_ctrl_format_output,
-                                     storageFlexibility = input$rmva_storageFlexibility_format_output, 
-                                     production = input$rmva_production_format_output,
-                                     reassignCosts = input$rmva_reassignCosts_format_output, 
-                                     newCols = input$rmva_newCols_format_output)
+                                     removeVirtualAreas = rm_output_params$removeVirtualAreas,
+                                     storageFlexibility = rm_output_params$storageFlexibility, 
+                                     production = rm_output_params$production,
+                                     reassignCosts = rm_output_params$reassignCosts,
+                                     newCols = rm_output_params$newCols, 
+                                     storage_vars = storage_vars)
           },
           error = function(e){
             showModal(modalDialog(
               title = "Error reading data",
               easyClose = TRUE,
               footer = NULL,
-              paste("Please update input. Error : ", e, sep = "\n")
+              paste("Please update input. Error : ", e$message, sep = "\n")
             ))
             NULL
           })}, 
@@ -797,7 +956,7 @@ output$export_hourly_format_output <- downloadHandler(
             title = "Warning reading data",
             easyClose = TRUE,
             footer = NULL,
-            HTML(paste0(list_warning, collapse  = "<br><br>"))
+            HTML(paste0(unique(list_warning), collapse  = "<br><br>"))
           ))
         }
         
@@ -850,7 +1009,7 @@ output$export_hourly_format_output <- downloadHandler(
               title = "Error formatting data",
               easyClose = TRUE,
               footer = NULL,
-              e
+              e$message
             ))
             NULL
           })},
@@ -864,7 +1023,7 @@ output$export_hourly_format_output <- downloadHandler(
             title = "Warning formatting data",
             easyClose = TRUE,
             footer = NULL,
-            HTML(paste0(list_warning, collapse  = "<br><br>"))
+            HTML(paste0(unique(list_warning), collapse  = "<br><br>"))
           ))
         }
         progress$set(value = 0.7)
@@ -888,7 +1047,7 @@ output$export_hourly_format_output <- downloadHandler(
                 title = "Error writing data",
                 easyClose = TRUE,
                 footer = NULL,
-                e
+                e$message
               ))
               list()
             })}, 
@@ -901,7 +1060,7 @@ output$export_hourly_format_output <- downloadHandler(
               title = "Warning writing data",
               easyClose = TRUE,
               footer = NULL,
-              HTML(paste0(list_warning, collapse  = "<br><br>"))
+              HTML(paste0(unique(list_warning), collapse  = "<br><br>"))
             ))
           }
         }

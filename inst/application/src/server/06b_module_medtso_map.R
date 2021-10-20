@@ -159,7 +159,7 @@ opts_medtso_maps <- reactive({
           title = "Error setting file",
           easyClose = TRUE,
           footer = NULL,
-          paste("Directory/file is not an Antares study : ", e, sep = "\n")
+          paste("Directory/file is not an Antares study : ", e$message, sep = "\n")
         ))
         NULL
       })
@@ -229,13 +229,29 @@ observe({
                         choices = mcy, selected = mcy[1])
       
       # removeVirtualAreas
+      updateCheckboxInput(session, "rmva_ctrl_medtso_maps", antaresVizMedTSO:::.getLabelLanguage("enabled", current_language), FALSE)
+      updateCheckboxInput(session, "rmva_ctrl_medtso_maps_step_2", value = FALSE)
+      updateCheckboxInput(session, "rmva_ctrl_medtso_maps_step_3", value = FALSE)
       
-      updateCheckboxInput(session, "rmva_ctrl_medtso_maps", antaresVizMedTSO:::.getLabelLanguage("Remove virtual Areas", current_language), FALSE)
+      for(ii in rm_storage_input_import_map_final){
+        updateSelectInput(session, ii, choices = opts$areaList, selected = NULL)
+      }
       
-      updateSelectInput(session, "rmva_storageFlexibility_medtso_maps", paste0(antaresVizMedTSO:::.getLabelLanguage("storageFlexibility", current_language), " : "), 
-                        choices = opts$areaList, selected = NULL)
       updateSelectInput(session, "rmva_production_medtso_maps", paste0(antaresVizMedTSO:::.getLabelLanguage("production", current_language), " : "),
                         choices = opts$areaList, selected = NULL)
+      updateSelectInput(session, "rmva_production_medtso_maps_2", paste0(antaresVizMedTSO:::.getLabelLanguage("production", current_language), " : "),
+                        choices = opts$areaList, selected = NULL)
+      updateSelectInput(session, "rmva_production_medtso_maps_3", paste0(antaresVizMedTSO:::.getLabelLanguage("production", current_language), " : "),
+                        choices = opts$areaList, selected = NULL)
+      
+      updateCheckboxInput(session, "rmva_reassignCosts_medtso_maps", antaresVizMedTSO:::.getLabelLanguage("reassignCosts", current_language), FALSE)
+      updateCheckboxInput(session, "rmva_newCols_medtso_maps", antaresVizMedTSO:::.getLabelLanguage("newCols", current_language), FALSE)
+      
+      updateCheckboxInput(session, "rmva_reassignCosts_medtso_maps_2", antaresVizMedTSO:::.getLabelLanguage("reassignCosts", current_language), FALSE)
+      updateCheckboxInput(session, "rmva_newCols_medtso_maps_2", antaresVizMedTSO:::.getLabelLanguage("newCols", current_language), FALSE)
+      
+      updateCheckboxInput(session, "rmva_reassignCosts_medtso_maps_3", antaresVizMedTSO:::.getLabelLanguage("reassignCosts", current_language), FALSE)
+      updateCheckboxInput(session, "rmva_newCols_medtso_maps_3", antaresVizMedTSO:::.getLabelLanguage("newCols", current_language), FALSE)
       
     })
   }
@@ -318,7 +334,7 @@ observe({
               title = antaresVizMedTSO:::.getLabelLanguage("Error reading selection file", current_language),
               easyClose = TRUE,
               footer = NULL,
-              e
+              e$message
             ))
             NULL
           })}, 
@@ -331,7 +347,7 @@ observe({
           title = "Warning reading selection file",
           easyClose = TRUE,
           footer = NULL,
-          HTML(paste0(list_warning, collapse  = "<br><br>"))
+          HTML(paste0(unique(list_warning), collapse  = "<br><br>"))
         ))
       }
       
@@ -385,18 +401,63 @@ data_map <- reactive({
               get_data_map(opts = opts_medtso_maps(), areas = input$read_areas_medtso_maps, 
                            links = input$read_links_medtso_maps, 
                            mcYears = mcYears, 
-                           removeVirtualAreas = input$rmva_ctrl_medtso_maps,
-                           storageFlexibility = input$rmva_storageFlexibility_medtso_maps, 
-                           production = input$rmva_production_medtso_maps,
-                           reassignCosts = input$rmva_reassignCosts_medtso_maps, 
-                           newCols = input$rmva_newCols_medtso_maps)
+                           removeVirtualAreas = list(
+                             input$rmva_ctrl_medtso_maps, 
+                             input$rmva_ctrl_medtso_maps_step_2, 
+                             input$rmva_ctrl_medtso_maps_step_3
+                           ),
+                           storageFlexibility = list(
+                             build_storage_list(
+                               PSP = input$rmva_storageFlexibility_medtso_maps,
+                               PSP_Closed = input$rmva_PSP_Closed_medtso_maps,
+                               BATT = input$rmva_BATT_medtso_maps,
+                               DSR = input$rmva_DSR_medtso_maps, 
+                               EV = input$rmva_EV_medtso_maps, 
+                               P2G = input$rmva_P2G_medtso_maps, 
+                               H2 = input$rmva_H2_medtso_maps
+                             ),
+                             build_storage_list(
+                               PSP = input$rmva_storageFlexibility_medtso_maps_2,
+                               PSP_Closed = input$rmva_PSP_Closed_medtso_maps_2,
+                               BATT = input$rmva_BATT_medtso_maps_2,
+                               DSR = input$rmva_DSR_medtso_maps_2, 
+                               EV = input$rmva_EV_medtso_maps_2, 
+                               P2G = input$rmva_P2G_medtso_maps_2, 
+                               H2 = input$rmva_H2_medtso_maps_2
+                             ),
+                             build_storage_list(
+                               PSP = input$rmva_storageFlexibility_medtso_maps_3,
+                               PSP_Closed = input$rmva_PSP_Closed_medtso_maps_3,
+                               BATT = input$rmva_BATT_medtso_maps_3,
+                               DSR = input$rmva_DSR_medtso_maps_3, 
+                               EV = input$rmva_EV_medtso_maps_3, 
+                               P2G = input$rmva_P2G_medtso_maps_3, 
+                               H2 = input$rmva_H2_medtso_maps_3
+                             )
+                           ),
+                           production = build_production_list(
+                             input$rmva_production_medtso_maps,
+                             input$rmva_production_medtso_maps_2,
+                             input$rmva_production_medtso_maps_3
+                           ),
+                           reassignCosts = list(
+                             input$rmva_reassignCosts_medtso_maps,
+                             input$rmva_reassignCosts_medtso_maps_2, 
+                             input$rmva_reassignCosts_medtso_maps_3
+                           ),
+                           newCols = list(
+                             input$rmva_newCols_medtso_maps,
+                             input$rmva_newCols_medtso_maps_2,
+                             input$rmva_newCols_medtso_maps_3
+                           )
+                           )
             },
             error = function(e){
               showModal(modalDialog(
                 title = "Error reading data",
                 easyClose = TRUE,
                 footer = NULL,
-                paste("Please update input. Error : ", e, sep = "\n")
+                paste("Please update input. Error : ", e$message, sep = "\n")
               ))
               list()
             })}, 
@@ -405,12 +466,13 @@ data_map <- reactive({
             }
           )
           
+          # browser()
           if(length(list_warning) > 0  & !is.null(data) && length(data) > 0){
             showModal(modalDialog(
               title = "Warning reading data",
               easyClose = TRUE,
               footer = NULL,
-              HTML(paste0(list_warning, collapse  = "<br><br>"))
+              HTML(paste0(unique(list_warning), collapse  = "<br><br>"))
             ))
           }
           
@@ -808,7 +870,7 @@ observe({
               title = antaresVizMedTSO:::.getLabelLanguage("Error reading selection file", current_language),
               easyClose = TRUE,
               footer = NULL,
-              e
+              e$message
             ))
             NULL
           })}, 
@@ -821,7 +883,7 @@ observe({
           title = "Warning reading selection file",
           easyClose = TRUE,
           footer = NULL,
-          HTML(paste0(list_warning, collapse  = "<br><br>"))
+          HTML(paste0(unique(list_warning), collapse  = "<br><br>"))
         ))
       }
       

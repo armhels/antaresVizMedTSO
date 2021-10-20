@@ -12,30 +12,50 @@ get_data_map <- function(opts, areas = NULL, links = NULL, mcYears = 1,
                          storageFlexibility = NULL, production = NULL,
                          reassignCosts = FALSE, newCols = TRUE, rowBal = TRUE){
   
-  if(length(storageFlexibility) > 0) storageFlexibility <- tolower(storageFlexibility)
-  if(length(production) > 0) production <- tolower(production)
+  any_removeVirtualAreas <- FALSE
+  check <- lapply(removeVirtualAreas, function(x) if(!is.null(x) && length(x) == 1 && x) {any_removeVirtualAreas <<- TRUE})
+
   if(length(areas) > 0) areas <- tolower(areas)
   if(length(links) > 0) links <- tolower(links)
   
   if(!is.null(areas)){
-    if(!removeVirtualAreas){
-      data_areas <- readAntares(areas = areas, links = links, 
-                                timeStep = "annual", select = NULL, mcYears = mcYears)
+    if(!any_removeVirtualAreas){
+      data_areas <- readAntares(
+        areas = areas, 
+        links = links, 
+        timeStep = "annual", 
+        select = NULL, 
+        mcYears = mcYears
+      )
     } else {
-      data_areas <- readAntares(areas = "all", 
-                            links = "all",
-                            timeStep = "annual", 
-                            select = NULL, 
-                            mcYears = mcYears)
+      data_areas <- readAntares(
+        areas = "all", 
+        links = "all",
+        timeStep = "annual", 
+        select = NULL, 
+        mcYears = mcYears
+      )
       
-      data_areas <- suppressWarnings({removeVirtualAreas(data_areas, storageFlexibility = storageFlexibility, production = production,
-                                                     reassignCosts = reassignCosts, newCols = newCols, rowBal = rowBal)})
+      for(ii in 1:length(removeVirtualAreas)){
+        if(!is.null(removeVirtualAreas[[ii]]) && length(removeVirtualAreas[[ii]]) == 1 && removeVirtualAreas[[ii]]){
+          data_areas <- suppressWarnings({
+            removeVirtualAreas(
+              data_areas, 
+              storageFlexibility = storageFlexibility[[ii]], 
+              production = production[[ii]],
+              reassignCosts = reassignCosts[[ii]], 
+              newCols = newCols[[ii]], 
+              rowBal = rowBal
+            )
+          })
+        }
+      }
       
       sel_areas <- areas
       if(!"all" %in% sel_areas) data_areas$areas <- data_areas$areas[area %in% sel_areas, ]
       data_areas$links <- NULL
     }
-
+    
     data_areas <- data_areas$areas
     gc()
     
@@ -46,32 +66,15 @@ get_data_map <- function(opts, areas = NULL, links = NULL, mcYears = 1,
   
   if(!is.null(links)){
     
-    data_links_h <- readAntares(areas = NULL, links = links, timeStep = "hourly", 
-                                select = NULL, mcYears = mcYears, linkCapacity = TRUE)
-    
-    # removeVirtualAreas not impact link data
-    # if(!removeVirtualAreas){
-    # data_links_h <- readAntares(areas = areas, links = links, timeStep = "hourly", 
-    #                             select = NULL, mcYears = 1, linkCapacity = TRUE)
-    # } else {
-    #   
-    #   data_links_h <- readAntares(areas = "all", 
-    #                             links = "all",
-    #                             timeStep = "hourly", 
-    #                             select = NULL, 
-    #                             mcYears = mcYears, linkCapacity = TRUE)
-    #   
-    #   data_links_h <- suppressWarnings({removeVirtualAreas(data_links_h, storageFlexibility = storageFlexibility, production = production,
-    #                                                      reassignCosts = reassignCosts, newCols = newCols, rowBal = rowBal)})
-    #   sel_links <- links
-    #   data_links_h$areas <- NULL
-    #   data_links_h$links <- data_links_h$links[link %in% sel_links, ]
-    #   gc(reset = T)
-    # }
-    # 
-    # data_links_h <- data_links_h$links
-    # gc()
-    
+    data_links_h <- readAntares(
+      areas = NULL, 
+      links = links, 
+      timeStep = "hourly", 
+      select = NULL, 
+      mcYears = mcYears, 
+      linkCapacity = TRUE
+    )
+
     data_links <- data_links_h[, list(
       value_ab_center = round(sum(`FLOW LIN.`[`FLOW LIN.` > 0]) / 1000, 0),
       value_ba_center = round(abs(sum(`FLOW LIN.`[`FLOW LIN.` < 0])) / 1000, 0),
@@ -102,14 +105,14 @@ get_data_map <- function(opts, areas = NULL, links = NULL, mcYears = 1,
     data_links_arrows <- data.table(link = character(0))
     data_links <- data.table(link = character(0))
   }
-
+  
   if(nrow(data_areas) > 0 | nrow(data_links) > 0 | nrow(data_links_arrows) > 0){
     list(areas = data_areas, links = list(centers = data_links, 
                                           arrows = data_links_arrows))
   } else {
     NULL
   }
-
+  
 }
 
 init_map_sp <- function(
@@ -310,7 +313,7 @@ add_pie <- function(base_ggmap, ref_map, data_pos, data_pie,
     data_pie <- melt(data_pie, id.vars = id_col, measure.vars = pie_col)
     
     data_pie[, value := as.numeric(value)]
-
+    
     for(id in draw_id){
       df <- data_pie[get(id_col) %in% id, ]
       
@@ -435,9 +438,9 @@ readMEDTsoMapInput <- function(input_path){
   
   # inputs
   sel_inputs <-  suppressWarnings(tryCatch(openxlsx::read.xlsx(input_path, sheet = "Graphical Parameters", check.names = FALSE, colNames = TRUE),
-                                          error = function(e) {
-                                            stop("Error reading sheet 'Graphical Parameters' : ", e)
-                                          }))
+                                           error = function(e) {
+                                             stop("Error reading sheet 'Graphical Parameters' : ", e)
+                                           }))
   
   if(!is.null(sel_inputs) && nrow(sel_inputs) > 0){
     stopifnot(all(c("type",	"id",	"label",	"value") %in% colnames(sel_inputs)))
@@ -502,7 +505,7 @@ writeMEDTsoMapInput <- function(areas, links, inputs, output_path){
   
   openxlsx::writeData(wb, sheet = "Graphical Parameters", data.frame(default_link), 
                       colNames = TRUE, rowNames = FALSE)
-   
+  
   ## Save workbook
   openxlsx::saveWorkbook(wb, output_path, overwrite = TRUE)
   

@@ -167,7 +167,7 @@ opts <- reactive({
           title = "Error setting file",
           easyClose = TRUE,
           footer = NULL,
-          paste("Directory/file is not an Antares study : ", e, sep = "\n")
+          paste("Directory/file is not an Antares study : ", e$message, sep = "\n")
         ))
         NULL
       })
@@ -223,21 +223,31 @@ observe({
     isolate({
       # areas
       areas <- c("all", opts$areaList)
+      if(isTRUE(all.equal(c("all"), areas))) areas <- c("", "all")
       updateSelectInput(session, "read_areas", paste0(antaresVizMedTSO:::.getLabelLanguage("Areas", current_language), " : "), 
                         choices = areas, selected = areas[1])
       
       # links
       links <- c("all", opts$linkList)
+      if(isTRUE(all.equal(c("all"), links))) links <- c("", "all")
       updateSelectInput(session, "read_links", paste0(antaresVizMedTSO:::.getLabelLanguage("Links", current_language), " : "), 
                         choices = links, selected = links[1])
       
       # clusters
       clusters <- c("all", opts$areasWithClusters)
+      if(isTRUE(all.equal(c("all"), clusters))) clusters <- c("", "all")
       updateSelectInput(session, "read_clusters", paste0(antaresVizMedTSO:::.getLabelLanguage("Clusters", current_language), " : "), 
                         choices = clusters, selected = clusters[1])
       
+      # clustersRes
+      clustersRes <- c("all", opts$areasWithResClusters)
+      if(isTRUE(all.equal(c("all"), clustersRes))) clustersRes <- c("", "all")
+      updateSelectInput(session, "read_clusters_res", paste0(antaresViz:::.getLabelLanguage("ClustersRes", current_language), " : "), 
+                        choices = clustersRes, selected = clustersRes[1])
+      
       # districts
       districts <- c("all", opts$districtList)
+      if(isTRUE(all.equal(c("all"), districts))) districts <- c("", "all")
       updateSelectInput(session, "read_districts", paste0(antaresVizMedTSO:::.getLabelLanguage("Districts", current_language), " : "), 
                         choices = districts, selected = districts[1])
       
@@ -253,20 +263,30 @@ observe({
       
       # removeVirtualAreas
       updateCheckboxInput(session, "rmva_ctrl", antaresVizMedTSO:::.getLabelLanguage("enabled", current_language), FALSE)
+      updateCheckboxInput(session, "rmva_ctrl_step_2", value = FALSE)
+      updateCheckboxInput(session, "rmva_ctrl_step_3", value = FALSE)
       
-      updateSelectInput(session, "rmva_storageFlexibility", paste0(antaresVizMedTSO:::.getLabelLanguage("storageFlexibility", current_language), " : "), 
-                        choices = opts$areaList, selected = NULL)
+      for(ii in rm_storage_input_import_final){
+        updateSelectInput(session, ii, choices = opts$areaList, selected = NULL)
+      }
+      
       updateSelectInput(session, "rmva_production", paste0(antaresVizMedTSO:::.getLabelLanguage("production", current_language), " : "),
                         choices = opts$areaList, selected = NULL)
-      
+      updateSelectInput(session, "rmva_production_2", paste0(antaresVizMedTSO:::.getLabelLanguage("production", current_language), " : "),
+                        choices = opts$areaList, selected = NULL)
+      updateSelectInput(session, "rmva_production_3", paste0(antaresVizMedTSO:::.getLabelLanguage("production", current_language), " : "),
+                        choices = opts$areaList, selected = NULL)
       
       updateCheckboxInput(session, "rmva_reassignCosts", antaresVizMedTSO:::.getLabelLanguage("reassignCosts", current_language), FALSE)
-      
       updateCheckboxInput(session, "rmva_newCols", antaresVizMedTSO:::.getLabelLanguage("newCols", current_language), FALSE)
       
+      updateCheckboxInput(session, "rmva_reassignCosts_2", antaresVizMedTSO:::.getLabelLanguage("reassignCosts", current_language), FALSE)
+      updateCheckboxInput(session, "rmva_newCols_2", antaresVizMedTSO:::.getLabelLanguage("newCols", current_language), FALSE)
       
-      updateSelectInput(session, "rmva_storageFlexibility_h5", paste0(antaresVizMedTSO:::.getLabelLanguage("storageFlexibility", current_language), " : "), 
-                        choices = opts$areaList, selected = NULL)
+      updateCheckboxInput(session, "rmva_reassignCosts_3", antaresVizMedTSO:::.getLabelLanguage("reassignCosts", current_language), FALSE)
+      updateCheckboxInput(session, "rmva_newCols_3", antaresVizMedTSO:::.getLabelLanguage("newCols", current_language), FALSE)
+      
+      updateSelectInput(session, "rmva_storageFlexibility_h5", choices = opts$areaList, selected = NULL)
       updateSelectInput(session, "rmva_production_h5", paste0(antaresVizMedTSO:::.getLabelLanguage("production", current_language), " : "), 
                         choices = opts$areaList, selected = NULL)
       
@@ -302,7 +322,13 @@ observe({
         updateRadioButtons(session, "read_type_mcYears", paste0(antaresVizMedTSO:::.getLabelLanguage("mcYears selection", current_language), " : "),
                            choices, selected = choices[1], inline = TRUE)
       } else {
-        choices <- c("synthetic", "all", "custom")
+        sel <- isolate({input$read_type_mcYears})
+        if(opts$synthesis){
+          choices <- c("synthetic", "all", "custom")
+        } else {
+          choices <- c("all", "custom")
+          if(!sel %in% choices) sel <- "all"
+        }
         names(choices) <- sapply(choices, function(x){
           antaresVizMedTSO:::.getLabelLanguage(x, current_language)
         })
@@ -466,7 +492,7 @@ observe({
               title = antaresVizMedTSO:::.getLabelLanguage("Error reading selection file", current_language),
               easyClose = TRUE,
               footer = NULL,
-              e
+              e$message
             ))
             NULL
           })}, 
@@ -479,7 +505,7 @@ observe({
           title = "Warning reading selection file",
           easyClose = TRUE,
           footer = NULL,
-          HTML(paste0(list_warning, collapse  = "<br><br>"))
+          HTML(paste0(unique(list_warning), collapse  = "<br><br>"))
         ))
       }
       
@@ -491,7 +517,10 @@ observe({
         updateSelectInput(session, "read_links", selected = list_sel$links)
         
         # clusters
-        updateSelectInput(session, "read_clusters", selected = list_sel$clusters)
+        updateSelectInput(session, "read_clusters", selected = list_sel[["clusters"]])
+        
+        # clustersRes
+        updateSelectInput(session, "read_clusters_res", selected = list_sel[["clustersRes"]])
         
         # districts
         updateSelectInput(session, "read_districts", selected = list_sel$districts)
@@ -544,6 +573,7 @@ observe({
       }
       params <- list(areas = input$read_areas, links = input$read_links, 
                      clusters = input$read_clusters, districts = input$read_districts, 
+                     clustersRes = input$read_clusters_res, 
                      misc = input$read_misc, thermalAvailability = input$read_thermalAvailabilities, 
                      hydroStorage = input$read_hydroStorage, hydroStorageMaxPower = input$read_hydroStorageMaxPower, 
                      reserve = input$read_reserve, linkCapacity = input$read_linkCapacity, mustRun = input$read_mustRun, 

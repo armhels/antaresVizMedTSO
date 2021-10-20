@@ -47,17 +47,24 @@ tabPanel(textOutput("label_tab_import_data"),
                                    
                                    h3(textOutput("title_readAntares")),
                                    fluidRow(
-                                     column(3, 
-                                            selectInput("read_areas", "Areas :", choices = NULL, selected = NULL, multiple = TRUE)
+                                     column(6, 
+                                            selectInput("read_areas", "Areas :", choices = NULL, 
+                                                        selected = NULL, multiple = TRUE, width = "100%")
                                      ), 
-                                     column(3, 
-                                            selectInput("read_links", "Links :", choices = NULL, selected = NULL, multiple = TRUE)
+                                     column(6, 
+                                            selectInput("read_links", "Links :", choices = NULL, 
+                                                        selected = NULL, multiple = TRUE, width = "100%")
+                                     )
+                                   ), 
+                                   fluidRow(
+                                     column(4, 
+                                            selectInput("read_clusters", "Clusters : ", choices = NULL, selected = NULL, multiple = TRUE, width = "100%")
                                      ), 
-                                     column(3, 
-                                            selectInput("read_clusters", "Clusters : ", choices = NULL, selected = NULL, multiple = TRUE)
-                                     ), 
-                                     column(3, 
-                                            selectInput("read_districts", "Districts :", choices = NULL, selected = NULL, multiple = TRUE)
+                                     column(4, 
+                                            selectInput("read_clusters_res", "ClustersRes : ", choices = NULL, selected = NULL, multiple = TRUE, width = "100%")
+                                     ),
+                                     column(4, 
+                                            selectInput("read_districts", "Districts :", choices = NULL, selected = NULL, multiple = TRUE, width = "100%")
                                      )
                                    ), 
                                    uiOutput("ui_sel_file"),
@@ -117,10 +124,12 @@ tabPanel(textOutput("label_tab_import_data"),
                                                     conditionalPanel(condition = "input.rmva_ctrl",
                                                                      fluidRow(
                                                                        column(3, 
-                                                                              selectInput("rmva_storageFlexibility", "storageFlexibility :", choices = NULL, selected = NULL, multiple = TRUE)
+                                                                              selectInput("rmva_storageFlexibility", "storageFlexibility (PSP) :", choices = NULL, 
+                                                                                          selected = NULL, multiple = TRUE, width = "100%")
                                                                        ),
                                                                        column(3, 
-                                                                              selectInput("rmva_production", "production :", choices = NULL, selected = NULL, multiple = TRUE)
+                                                                              selectInput("rmva_production", "production :", choices = NULL, selected = NULL, 
+                                                                                          multiple = TRUE, width = "100%")
                                                                        ), 
                                                                        
                                                                        column(3, 
@@ -132,7 +141,143 @@ tabPanel(textOutput("label_tab_import_data"),
                                                                               br(),
                                                                               checkboxInput("rmva_newCols", "newCols", FALSE)
                                                                        )
+                                                                     ),
+                                                                     fluidRow(
+                                                                       column(4, 
+                                                                              selectInput("rmva_PSP_Closed", "Hydro Storage  (PSP_Closed):", choices = NULL, 
+                                                                                          selected = NULL, multiple = TRUE, width = "100%")
+                                                                       ),
+                                                                       column(4, 
+                                                                              selectInput("rmva_BATT", "Battery Storage (BATT)  :", choices = NULL, 
+                                                                                          selected = NULL, multiple = TRUE, width = "100%")
+                                                                       ),
+                                                                       column(4, 
+                                                                              selectInput("rmva_DSR", "Demand Side  (DSR) :", choices = NULL, 
+                                                                                          selected = NULL, multiple = TRUE, width = "100%")
+                                                                       )
+                                                                     ), 
+                                                                     fluidRow(
+                                                                       column(4, 
+                                                                              selectInput("rmva_EV", "Electric Vehicle (EV) :", choices = NULL, 
+                                                                                          selected = NULL, multiple = TRUE, width = "100%")
+                                                                       ),
+                                                                       
+                                                                       column(4, 
+                                                                              selectInput("rmva_P2G", "Power-to-gas (P2G) :", choices = NULL, 
+                                                                                          selected = NULL, multiple = TRUE, width = "100%")
+                                                                       ),
+                                                                       column(4, 
+                                                                              selectInput("rmva_H2", "Hydrogen (H2) :", choices = NULL, 
+                                                                                          selected = NULL, multiple = TRUE, width = "100%")
+                                                                       )
+                                                                     ),
+                                                                     checkboxInput("rmva_ctrl_step_2", "step 2", FALSE),
+                                                                     
+                                                                     conditionalPanel(condition = "input.rmva_ctrl_step_2",
+                                                                                      fluidRow(
+                                                                                        column(3, 
+                                                                                               selectInput("rmva_storageFlexibility_2", "storageFlexibility (PSP) :", choices = NULL, 
+                                                                                                           selected = NULL, multiple = TRUE, width = "100%")
+                                                                                        ),
+                                                                                        column(3, 
+                                                                                               selectInput("rmva_production_2", "production :", choices = NULL, selected = NULL, 
+                                                                                                           multiple = TRUE, width = "100%")
+                                                                                        ), 
+                                                                                        
+                                                                                        column(3, 
+                                                                                               br(),
+                                                                                               checkboxInput("rmva_reassignCosts_2", "reassignCosts", FALSE)
+                                                                                        ),
+                                                                                        
+                                                                                        column(3, 
+                                                                                               br(),
+                                                                                               checkboxInput("rmva_newCols_2", "newCols", FALSE)
+                                                                                        )
+                                                                                      ),
+                                                                                      fluidRow(
+                                                                                        column(4, 
+                                                                                               selectInput("rmva_PSP_Closed_2", "Hydro Storage  (PSP_Closed):", choices = NULL, 
+                                                                                                           selected = NULL, multiple = TRUE, width = "100%")
+                                                                                        ),
+                                                                                        column(4, 
+                                                                                               selectInput("rmva_BATT_2", "Battery Storage (BATT)  :", choices = NULL, 
+                                                                                                           selected = NULL, multiple = TRUE, width = "100%")
+                                                                                        ),
+                                                                                        column(4, 
+                                                                                               selectInput("rmva_DSR_2", "Demand Side  (DSR) :", choices = NULL, 
+                                                                                                           selected = NULL, multiple = TRUE, width = "100%")
+                                                                                        )
+                                                                                      ), 
+                                                                                      fluidRow(
+                                                                                        column(4, 
+                                                                                               selectInput("rmva_EV_2", "Electric Vehicle (EV) :", choices = NULL, 
+                                                                                                           selected = NULL, multiple = TRUE, width = "100%")
+                                                                                        ),
+                                                                                        
+                                                                                        column(4, 
+                                                                                               selectInput("rmva_P2G_2", "Power-to-gas (P2G) :", choices = NULL, 
+                                                                                                           selected = NULL, multiple = TRUE, width = "100%")
+                                                                                        ),
+                                                                                        column(4, 
+                                                                                               selectInput("rmva_H2_2", "Hydrogen (H2) :", choices = NULL, 
+                                                                                                           selected = NULL, multiple = TRUE, width = "100%")
+                                                                                        )
+                                                                                      ),
+                                                                                      checkboxInput("rmva_ctrl_step_3", "step 3", FALSE),
+                                                                                      conditionalPanel(condition = "input.rmva_ctrl_step_3",
+                                                                                                       fluidRow(
+                                                                                                         column(3, 
+                                                                                                                selectInput("rmva_storageFlexibility_3", "storageFlexibility (PSP) :", choices = NULL, 
+                                                                                                                            selected = NULL, multiple = TRUE, width = "100%")
+                                                                                                         ),
+                                                                                                         column(3, 
+                                                                                                                selectInput("rmva_production_3", "production :", choices = NULL, selected = NULL, 
+                                                                                                                            multiple = TRUE, width = "100%")
+                                                                                                         ), 
+                                                                                                         
+                                                                                                         column(3, 
+                                                                                                                br(),
+                                                                                                                checkboxInput("rmva_reassignCosts_3", "reassignCosts", FALSE)
+                                                                                                         ),
+                                                                                                         
+                                                                                                         column(3, 
+                                                                                                                br(),
+                                                                                                                checkboxInput("rmva_newCols_3", "newCols", FALSE)
+                                                                                                         )
+                                                                                                       ),
+                                                                                                       fluidRow(
+                                                                                                         column(4, 
+                                                                                                                selectInput("rmva_PSP_Closed_3", "Hydro Storage  (PSP_Closed):", choices = NULL, 
+                                                                                                                            selected = NULL, multiple = TRUE, width = "100%")
+                                                                                                         ),
+                                                                                                         column(4, 
+                                                                                                                selectInput("rmva_BATT_3", "Battery Storage (BATT)  :", choices = NULL, 
+                                                                                                                            selected = NULL, multiple = TRUE, width = "100%")
+                                                                                                         ),
+                                                                                                         column(4, 
+                                                                                                                selectInput("rmva_DSR_3", "Demand Side  (DSR) :", choices = NULL, 
+                                                                                                                            selected = NULL, multiple = TRUE, width = "100%")
+                                                                                                         )
+                                                                                                       ), 
+                                                                                                       fluidRow(
+                                                                                                         column(4, 
+                                                                                                                selectInput("rmva_EV_3", "Electric Vehicle (EV) :", choices = NULL, 
+                                                                                                                            selected = NULL, multiple = TRUE, width = "100%")
+                                                                                                         ),
+                                                                                                         
+                                                                                                         column(4, 
+                                                                                                                selectInput("rmva_P2G_3", "Power-to-gas (P2G) :", choices = NULL, 
+                                                                                                                            selected = NULL, multiple = TRUE, width = "100%")
+                                                                                                         ),
+                                                                                                         column(4, 
+                                                                                                                selectInput("rmva_H2_3", "Hydrogen (H2) :", choices = NULL, 
+                                                                                                                            selected = NULL, multiple = TRUE, width = "100%")
+                                                                                                         )
+                                                                                                       )
+                                                                                      )
                                                                      )
+                                                                     
+                                                                     
                                                     )
                                    ),
                                    div(actionButton("import_data", "Validate & import data", icon = icon("upload")), align = "center")
