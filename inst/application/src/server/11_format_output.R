@@ -505,7 +505,7 @@ observe({
         }
         
         if(!is.null(list_sel$variables_hourly)){
-          choices <- unique(c(list_sel$variables_hourly, dico()$ANTARES_naming))
+          choices <- unique(c(dico()$Name))
           selected <- list_sel$variables_hourly
           updateSelectInput(session, 'var_h_format_output', choices = choices, selected = selected)
         }
@@ -985,6 +985,7 @@ output$export_hourly_format_output <- downloadHandler(
           }
         )
         
+        data_hourly <<- data
         if(length(list_warning) > 0 & !is.null(data)){
           showModal(modalDialog(
             title = "Warning reading data",
@@ -1062,6 +1063,7 @@ output$export_hourly_format_output <- downloadHandler(
         }
         progress$set(value = 0.7)
         
+        data_hourly_frm <<- data
         if(!is.null(data)){
           # data_format <<- data
           

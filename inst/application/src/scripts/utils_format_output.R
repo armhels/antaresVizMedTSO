@@ -381,7 +381,7 @@ importAntaresDatasAnnual <- function(opts,
         
         data_areas_dist_clust[["clustersRes"]] <- merge(data_areas_dist_clust[["clustersRes"]], cluster_desc, c("area", "cluster"))
         
-        data_areas_dist_clust[["clustersRes"]]$clustersRes <- sapply(data_areas_dist_clust[["clustersRes"]]$cluster, function(x){
+        data_areas_dist_clust[["clustersRes"]]$cluster <- sapply(data_areas_dist_clust[["clustersRes"]]$cluster, function(x){
           tmp <- strsplit(as.character(x), "_")[[1]]
           if(length(tmp) > 1){
             tmp <- paste(tmp[1], tmp[2], sep = "_")
@@ -966,32 +966,84 @@ importAntaresDatasHourly <- function(opts,
     }
   }
   
-  
   # Enrichissement par la somme des clusters par districts : 
   if(!is.null(data_h[["clusters"]]) && nrow(data_h[["clusters"]]) > 0){
     try({
-      tmp <- merge(opts$districtsDef[district %in% areas_districts_selections], 
+      
+      data_h[["clusters"]][, "cluster" := {
+        tmp <- strsplit(as.character(cluster[1]), "_")[[1]]
+        if(length(tmp) > 1){
+          tmp <- paste(tmp[1], tmp[2], sep = "_")
+        } 
+        tmp
+      }, by = cluster]
+      
+      
+      tmp_district <- merge(opts$districtsDef[district %in% areas_districts_selections], 
                    data_h[["clusters"]], by = c("area"), allow.cartesian = TRUE)
-      tmp[, c("production", "NP Cost", "NODU") := list(as.numeric(production), as.numeric(`NP Cost`), as.numeric(NODU))]
-      tmp <- na.omit(cube(tmp, j = lapply(.SD, sum), 
-                          by = c("district", "cluster", "time"), .SDcols = c("production", "NP Cost", "NODU")))
-      setnames(tmp, "district", "area")
-      data_h[["clusters"]] <- rbindlist(list(data_h[["clusters"]][area %in% areas_districts_selections], tmp), use.names = T, fill = TRUE)
-      rm(tmp)
+      tmp_district[, c("production", "NP Cost", "NODU") := list(as.numeric(production), as.numeric(`NP Cost`), as.numeric(NODU))]
+      
+      setnames(tmp_district, "district", "area_tmp")
+      tmp_district[, area := NULL]
+      setnames(tmp_district, "area_tmp", "area")
+      
+      tmp_district <- rbindlist(
+        list(
+          data_h[["clusters"]][area %in% areas_districts_selections], 
+          tmp_district[!is.na(area) & !is.na(cluster), ]
+        ), 
+        use.names = T, fill = TRUE
+      )
+      
+      num_col <- sapply(tmp_district, class)
+      num_col <- names(num_col)[num_col %in% c("integer", "numeric")]
+      num_col <- setdiff(num_col, c("mcYear", "time", "timeId", "day"))
+      
+      tmp_district <- cube(tmp_district, j = lapply(.SD, sum), 
+                           by = c("area", "cluster", "time"), .SDcols = num_col)
+      
+      data_h[["clusters"]] <-  tmp_district[!is.na(area) & !is.na(cluster) & !is.na(time), ]
+      rm(tmp_district)
       gc()
     }, T)
   }
   
   if(!is.null(data_h[["clustersRes"]]) && nrow(data_h[["clustersRes"]]) > 0){
     try({
-      tmp <- merge(opts$districtsDef[district %in% areas_districts_selections], 
-                   data_h[["clustersRes"]], by = c("area"), allow.cartesian = TRUE)
-      tmp[, c("production") := list(as.numeric(production))]
-      tmp <- na.omit(cube(tmp, j = lapply(.SD, sum), 
-                          by = c("district", "cluster", "time"), .SDcols = c("production")))
-      setnames(tmp, "district", "area")
-      data_h[["clustersRes"]] <- rbindlist(list(data_h[["clustersRes"]][area %in% areas_districts_selections], tmp), use.names = T, fill = TRUE)
-      rm(tmp)
+      data_h[["clustersRes"]][, "cluster" := {
+        tmp <- strsplit(as.character(cluster[1]), "_")[[1]]
+        if(length(tmp) > 1){
+          tmp <- paste(tmp[1], tmp[2], sep = "_")
+        } 
+        tmp
+      }, by = cluster]
+      
+      
+      tmp_district <- merge(opts$districtsDef[district %in% areas_districts_selections], 
+                            data_h[["clustersRes"]], by = c("area"), allow.cartesian = TRUE)
+      tmp_district[, c("production") := list(as.numeric(production))]
+      
+      setnames(tmp_district, "district", "area_tmp")
+      tmp_district[, area := NULL]
+      setnames(tmp_district, "area_tmp", "area")
+      
+      tmp_district <- rbindlist(
+        list(
+          data_h[["clustersRes"]][area %in% areas_districts_selections], 
+          tmp_district[!is.na(area) & !is.na(cluster), ]
+        ), 
+        use.names = T, fill = TRUE
+      )
+      
+      num_col <- sapply(tmp_district, class)
+      num_col <- names(num_col)[num_col %in% c("integer", "numeric")]
+      num_col <- setdiff(num_col, c("mcYear", "time", "timeId", "day"))
+      
+      tmp_district <- cube(tmp_district, j = lapply(.SD, sum), 
+                           by = c("area", "cluster", "time"), .SDcols = num_col)
+      
+      data_h[["clustersRes"]] <-  tmp_district[!is.na(area) & !is.na(cluster) & !is.na(time), ]
+      rm(tmp_district)
       gc()
     }, T)
   }
@@ -1005,6 +1057,14 @@ importAntaresDatasHourly <- function(opts,
 }
 
 # formatage
+
+# data_h = copy(data_hourly$data)
+# areas_selections = data_hourly$areas_districts_selections
+# market_data_code = dico$Name
+# links_selections = data_hourly$links_selections
+# opts = data_hourly$opts
+# dico = dico
+
 formatHourlyOutputs <- function(data_h, 
                                 areas_selections,
                                 market_data_code, 
@@ -1014,6 +1074,9 @@ formatHourlyOutputs <- function(data_h,
   
   # browser()
   data_out <- NA ; dt_stats <- NA ; areas_districts <- NA
+  data_agg_clust <- NULL
+  data_agg_clustRes <- NULL
+  data_agg_clust_areas <- NULL
   
   if("data.table" %in% class(data_h) && attr(data_h, "type") == "links"){
     data_links <- data_h
@@ -1023,18 +1086,8 @@ formatHourlyOutputs <- function(data_h,
   
   try({
     
-    areas_selections <- tolower(areas_selections)
-    
-    if(!is.null(data_h[["clusters"]]) && nrow(data_h[["clusters"]])){
-      data_h[["clusters"]] <- aggregateClusters(data_h[["clusters"]], var = "production", opts, hourly = T)
-    }
-    
-    if(!is.null(data_h[["clustersRes"]]) && nrow(data_h[["clustersRes"]])){
-      data_h[["clustersRes"]] <- aggregateClusters(data_h[["clustersRes"]], var = "production", opts, hourly = T)
-    }
-    
     if(!is.null(data_h$districts) && nrow(data_h$districts) > 0){
-      setnames(data_h$districts, "district", "area")
+      try(setnames(data_h$districts, "district", "area"), silent = T)
       if(!is.null(data_h$areas) && nrow(data_h$areas) > 0){
         data_h_dist <- rbindlist(list(data_h$areas, data_h$districts), use.names = T, fill = T)
       } else {
@@ -1044,67 +1097,143 @@ formatHourlyOutputs <- function(data_h,
       data_h_dist <- data_h$areas
     }
     
-    if("PSP" %in% colnames(data_h_dist) && "PSP_TURB" %in% market_data_code) {
-      data_h_dist[, PSP_TURB := ifelse(PSP > 0, PSP, 0)]
-    }
+    areas_selections <- tolower(areas_selections)
     
-    if("PSP" %in% colnames(data_h_dist) && "PSP_TURB" %in% market_data_code) {
-      data_h_dist[, PSP_PUMP := ifelse(PSP < 0, PSP, 0)]
-    }
+    template_long <- as.data.table(dico)
+    template_long <- template_long[Name %in% market_data_code]
+    template_long[, order_tmp_ := 1:nrow(template_long)]
     
-    cols_areas <- intersect(colnames(data_h_dist), market_data_code)
-    
-    data_all <- data_h_dist[area %in% areas_selections,
-                            c("area", "time", cols_areas), with = F]
-    
-    
-    if(!is.null(data_h[["clusters"]]) && nrow(data_h[["clusters"]])){
-      temp <- dcast(data_h[["clusters"]], area + time ~ cluster, value.var = "var", fill = 0)
+    template_long[, c("is_cluster", "is_clusterRes", "cluster_name", "is_area") := list(FALSE, FALSE, "", FALSE)]
+    template_long[, c("is_cluster", "is_clusterRes", "cluster_name", "is_area") := {
+      is_cluster <- grepl("cluster", Type)
+      is_clusterRes <- grepl("clusterRes", Type)
+      is_cluster[is_clusterRes] <- FALSE
       
-      data_all <- merge(temp, data_all, by = c("area", "time"), all = TRUE)
-    }
-    
-    if(!is.null(data_h[["clustersRes"]]) && nrow(data_h[["clustersRes"]])){
-      temp <- dcast(data_h[["clustersRes"]], area + time ~ cluster, value.var = "var", fill = 0)
+      cluster_name <- sapply(
+        strsplit(template_long$Type, "-"),
+        function(x) {
+          if(length(x > 1)){
+            paste0(x[-1], collapse = "-")
+          } else {
+            ""
+          }
+        }
+      )
       
-      data_all <- merge(temp, data_all, by = c("area", "time"), all = TRUE)
+      cluster_name[!(is_cluster | is_clusterRes)] <- ""
+      list(is_cluster, is_clusterRes, cluster_name, grepl("^area$", tolower(Type)))
+    }]
+    
+    template_long[, tmp_mathcing_name :=  gsub("[[:space:]]+", "", tolower(Type))]
+    template_long[, id_id := paste0(tmp_mathcing_name, "_", Formula)]
+    
+    # cluster ?
+    if(any(template_long[["is_cluster"]]) && nrow(data_h[["clusters"]]) > 0){
+      uni_expr <- template_long[is_cluster == TRUE, unique(Formula)]
+      if(length(uni_expr) > 0){
+        data_agg_clust <- data.table::rbindlist(lapply(uni_expr, function(ex){
+          tmp_cluster_var <- tryCatch({
+            data_h[["clusters"]][, .(var = eval(parse(text = ex))), by = .(area, cluster, time)]
+          }, error = function(e){
+            warning(paste0('Hourly Market Data / ', ex, "' :", e$message))
+            NULL
+          })
+          if(!is.null(tmp_cluster_var)){
+            tmp_cluster_var[, Formula := ex]
+          }
+        }
+        ))
+        
+        data_agg_clust[, cluster := gsub("[[:space:]]+", "", paste0("cluster-", cluster))]
+        data_agg_clust <- dcast(data_agg_clust, cluster + Formula + time ~ area, value.var = "var", fill = 0)
+        setnames(data_agg_clust, "cluster", "tmp_mathcing_name")
+      }
     }
     
-    data_all <- data_all[, c("area", "time", intersect(market_data_code, colnames(data_all))), with = F]
+    # clusterRes ?
+    if(any(template_long[["is_clusterRes"]]) && nrow(data_h[["clustersRes"]]) > 0){
+      uni_expr <- template_long[is_clusterRes == TRUE, unique(Formula)]
+      if(length(uni_expr) > 0){
+        data_agg_clustRes <- data.table::rbindlist(lapply(uni_expr, function(ex){
+          tmp_cluster_var <- tryCatch({
+            data_h[["clustersRes"]][, .(var = eval(parse(text = ex))), by = .(area, cluster, time)]
+          }, error = function(e){
+            warning(paste0('Hourly Market Data / ', ex, "' :", e$message))
+            NULL
+          })
+          if(!is.null(tmp_cluster_var)){
+            tmp_cluster_var[, Formula := ex]
+          }
+        }
+        ))
+        
+        data_agg_clustRes[, cluster := gsub("[[:space:]]+", "", paste0("cluster-", cluster))]
+        data_agg_clustRes <- dcast(data_agg_clustRes, cluster + Formula + time ~ area, value.var = "var", fill = 0)
+        setnames(data_agg_clustRes, "cluster", "tmp_mathcing_name")
+      }
+    }
     
-    # ajout d'éventuelles variables demandées mais qui n'existent pas
-    cols_comp <- setdiff(market_data_code, colnames(data_all))
+    # areas ?
+    if(any(template_long[["is_area"]]) && !is.null(data_h_dist) && nrow(data_h_dist) > 0){
+      uni_expr <- template_long[is_area == TRUE, unique(Formula)]
+      if(length(uni_expr) > 0){
+        data_agg_clust_areas <- data.table::rbindlist(lapply(uni_expr, function(ex){
+          tmp_cluster_var <- tryCatch({
+            data_h_dist[, .(var = eval(parse(text = ex))), by = .(area, time)]
+          }, error = function(e){
+            warning(paste0('Hourly Market Data / ', ex, "' :", e$message))
+            NULL
+          })
+          if(!is.null(tmp_cluster_var)){
+            tmp_cluster_var[, Formula := ex]
+          }
+        }
+        ))
+        data_agg_clust_areas <- dcast(data_agg_clust_areas, Formula + time ~ area, value.var = "var", fill = 0)
+        data_agg_clust_areas <- data_agg_clust_areas[!is.na(Formula), ]
+        data_agg_clust_areas[, tmp_mathcing_name := "area"]
+      }
+    }
     
-    if(length(cols_comp) > 0) data_all[, (cols_comp) :=  0]
-    data_all <- data_all[, c("area", "time", market_data_code), with = F]
+    # browser()
+    full_merge <- rbindlist(list(data_agg_clust, data_agg_clust_areas, data_agg_clustRes), use.names = T, fill = TRUE)
+    rm(data_agg_clust, data_agg_clust_areas, data_agg_clustRes)
+    gc(reset= T)
     
-    cols_availables <- intersect(market_data_code, colnames(data_all))
+    full_merge <- full_merge[tmp_mathcing_name %in% template_long$tmp_mathcing_name]
     
-    setcolorder(data_all, neworder = c("area", "time", cols_availables))
-    
-    data_out <- unique(data_all[,.(Date = time)])
+    data_out <- unique(full_merge[,.(Date = time)])
     data_out[, Hour := .I]
     setcolorder(data_out, c("Hour", "Date")) 
     
-    areas_selections <- intersect(unique(data_all$area), areas_selections)
-    for(i in areas_selections){
-      data_out <- data.table(data_out, data_all[area %in% i, -(1:2)])
+    final_areas_selections <- intersect(colnames(full_merge), areas_selections)
+    v_dt_area <- c()
+    for(i in final_areas_selections){
+      tmp <- dcast(data = full_merge, time ~ tmp_mathcing_name + Formula, 
+                   value.var = i, sep = "_")
+      tmp <- tmp[, -1]
+      order_col <- order(template_long$order_tmp_[match(colnames(tmp), template_long$id_id)])
+      tmp <- tmp[, order_col, with = F]
+      v_dt_area <- c(v_dt_area, rep(i, ncol(tmp)))
+      data_out <- data.table(data_out, tmp)
     }
-    areas_districts <- data.table(t(rep(toupper(areas_selections), each = ncol(data_all) - 2)))
-    rm(data_all)
-    gc(reset = T)
+    # dt_areas_districts <- data.table(t(toupper(v_dt_area)))
+    # 
+    # colnames(dt_areas_districts) <- template_long$Name[match(colnames(data_out)[-c(1, 2)], template_long$id_id)]
+
+
+    dt_areas_districts <- data.table(t(template_long$Name[match(colnames(data_out)[-c(1, 2)], template_long$id_id)]))
+
+    colnames(data_out)[-c(1:2)] <- paste0("T", 1:(ncol(data_out)-2))
+    dt_stats <- suppressWarnings({makeTabStats(data_out)})
+    colnames(data_out)[-c(1, 2)] <- t(toupper(v_dt_area))
+    colnames(data_out)[2] <- "Date / Code or Area / Disctrict"
     
-    vars_miss <- setdiff(cols_availables, unique(dico$ANTARES_naming))
-    dico <- rbindlist(list(dico, data.table(ANTARES_naming = vars_miss, Category = vars_miss)))
-    setkey(dico, ANTARES_naming)
-    colnames(areas_districts) <- dico[colnames(data_out)[-c(1:2)]]$Category
-    dt_stats <- makeTabStats(data_out)
+    rm(full_merge) ; gc(reset = T)
   }, T)
-  
   
   #============================== Crossborder exchanges ========================================
   if(!is.null(data_links) && nrow(data_links) > 0){
-    
     
     data_out_2 <- dcast(data_links, time ~ link, value.var = "FLOW LIN.")
     rm(data_links)
@@ -1119,9 +1248,9 @@ formatHourlyOutputs <- function(data_h,
     data_out_2 <- NA ; dt_stats_2 <- NA
   }
   
-  list(data_out = data_out, dt_stats = dt_stats, areas_districts = areas_districts,
+  list(data_out = data_out, dt_stats = dt_stats, areas_districts = dt_areas_districts,
        data_out_2 = data_out_2, dt_stats_2 = dt_stats_2, links_selections = links_selections, 
-       areas_districts_selections = areas_selections)
+       areas_districts_selections = areas_selections, dico = dico)
   
 }
 
@@ -1139,9 +1268,12 @@ exportHourlyOutputs <- function(infile_name, outfile_name, hourly_outputs, data_
   writeData(wb, "Hourly Market Data", data_intro[1:3,])
   writeData(wb, "Hourly Market Data", hourly_outputs$dt_stats, startRow = 5, startCol = 2)
   
-  writeData(wb, "Hourly Market Data", hourly_outputs$areas_districts, startRow = 11,  startCol = 3)
+  writeData(wb, "Hourly Market Data", hourly_outputs$areas_districts, 
+            colNames = FALSE, startRow = 12,  startCol = 3)
   
   writeData(wb, "Hourly Market Data", hourly_outputs$data_out, startRow = 13)
+  
+  writeData(wb, "Dico", hourly_outputs$dico, borders = "all")
   
   writeData(wb, "Crossborder exchanges", data_intro[1:3,])
   writeData(wb, "Crossborder exchanges", hourly_outputs$dt_stats_2, startRow = 5, startCol = 2)
@@ -1189,10 +1321,11 @@ readTemplateFile <- function(input_path){
                                                }))
   
   if(!is.null(sel_hourly_dico) && nrow(sel_hourly_dico) > 0){
-    stopifnot(all(c("ANTARES_naming", "Category") %in% colnames(sel_hourly_dico)))
-    sel_hourly_dico$ANTARES_naming <- as.character(sel_hourly_dico$ANTARES_naming)
-    sel_hourly_dico$Category <- as.character(sel_hourly_dico$Category)
-    sel$dico <- sel_hourly_dico[, c("ANTARES_naming", "Category")]
+    stopifnot(all(c("Name", "Formula", "Type") %in% colnames(sel_hourly_dico)))
+    sel_hourly_dico$Name <- as.character(sel_hourly_dico$Name)
+    sel_hourly_dico$Formula <- as.character(sel_hourly_dico$Formula)
+    sel_hourly_dico$Type <- as.character(sel_hourly_dico$Type)
+    sel$dico <- sel_hourly_dico
   }
   
   
@@ -1218,7 +1351,7 @@ readTemplateFile <- function(input_path){
     if(length(variables_hourly) > 0){
       
       if(!is.null(sel$dico)){
-        variables_hourly_fix <- sel$dico$ANTARES_naming[match(toupper(variables_hourly), toupper(sel$dico$ANTARES_naming))]
+        variables_hourly_fix <- sel$dico$Name[match(toupper(variables_hourly), toupper(sel$dico$Name))]
         variables_hourly_fix[is.na(variables_hourly_fix)] <- variables_hourly[is.na(variables_hourly_fix)]
         variables_hourly <- variables_hourly_fix
       }

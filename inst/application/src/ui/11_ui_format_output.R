@@ -278,8 +278,8 @@ tabPanel(textOutput("label_tab_format_output"),
                                                         selectInput("read_links_h_format_output", "Links :", choices = NULL, 
                                                                     selected = NULL, multiple = TRUE, width = "100%"),
                                                         
-                                                        selectInput("var_h_format_output", "Variables :", choices = unique(defaut_output_params$dico$ANTARES_naming), 
-                                                                    selected = unique(defaut_output_params$dico$ANTARES_naming), multiple = TRUE, width = "100%"),
+                                                        selectInput("var_h_format_output", "Variables :", choices = unique(defaut_output_params$dico$Name), 
+                                                                    selected = unique(defaut_output_params$dico$Name), multiple = TRUE, width = "100%"),
                                                         conditionalPanel(condition = "input.read_type_mcYears_format_output === 'custom'", 
                                                                          selectInput("read_mcYears_h_format_output", "Choose mcYear :", choices = NULL, 
                                                                                      selected = NULL, multiple = FALSE, width = "100%")

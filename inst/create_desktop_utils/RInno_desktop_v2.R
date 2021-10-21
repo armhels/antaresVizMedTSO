@@ -5,9 +5,10 @@ Sys.setenv("TAR" = "internal")
 cran_pkgs <- c("jsonlite","remotes", "magrittr",
                "dygraphs","shiny","plotly","htmltools","htmlwidgets","manipulateWidget",
                "leaflet","sp","rgeos","raster","webshot","data.table","methods","lubridate",
-               "geojsonio","graphics","stats","leaflet.minicharts", "bit64", "plyr",
+               "geojsonio","graphics","stats","leaflet.minicharts", "bit64", "plyr", "zoo",
                "assertthat","rAmCharts","utils","openxlsx","shinydashboard","shinyWidgets", 
-               "DT","colourpicker","ggplot2","ggrepel","ggforce","stringr", "RCurl")
+               "DT","colourpicker","ggplot2","ggrepel","ggforce","stringr", "RCurl", 
+               "fontawesome", "terra")
 
 
 remotes_pkgs <- c("rte-antares-rpackage/spMaps@med-tso", 
@@ -33,13 +34,14 @@ overwrite = TRUE
 force_nativefier = TRUE
 nativefier_opts = c('--show-menu-bar')
 app_desc = 'Antares Visualizations of Med-TSO studies' 
-app_version = "0.0.2"
+app_version = "0.0.3"
 app_icon = "med_logo_DFT_icon.ico" 
 publisher = "Datastorm/RTE"
 
 # 1. copy defaut installation file ----
+# dir.create("create_desktop")
 # copy_installation(app_dir, overwrite)
-# 
+#  
 # file.remove(file.path(app_dir, "infoafter.txt"))
 # file.remove(file.path(app_dir, "infobefore.txt"))
 
@@ -54,7 +56,7 @@ publisher = "Datastorm/RTE"
 
 # Si souhait d'inclure R:
 # puis modificaiton du run.js 62
-# var Rexe           = oFSO.GetAbsolutePathName(".") + "\\R-3.6.1\\bin\\Rscript.exe";
+# var Rexe           = oFSO.GetAbsolutePathName(".") + "\\R-4.0.3\\bin\\Rscript.exe";
 #
 # et modification du launch_app.R
 # L87
@@ -68,7 +70,7 @@ publisher = "Datastorm/RTE"
 
 nativefier_opts = c("--zoom 0.8", "-m")
 nativefy_app(app_name, app_dir, nativefier_opts, 
-             app_icon = app_icon, app_port = 1984)
+             app_icon = app_icon)
 
 # utilisation du nativefier de Datastorm (fix des menus)
 app_port = 1984
@@ -106,12 +108,12 @@ app_name <- start_iss(app_name)
 
 res_iss <- directives_section(app_name, 
                               include_R = FALSE, 
-                              R_version = "3.6.1", 
+                              R_version = "4.0.3", 
                               include_Pandoc = FALSE, 
                               Pandoc_version = rmarkdown::pandoc_version(), 
                               include_Chrome = FALSE, 
                               include_Rtools = FALSE, 
-                              Rtools_version = "3.5", 
+                              Rtools_version = "4.0", 
                               app_version = app_version, 
                               publisher = publisher, 
                               main_url = "")
@@ -174,14 +176,14 @@ res_iss <-  files_section(res_iss, app_name = app_name,
 
 # Si souhait d'inclure R:
 # modification du .iss à la fin des source
-res_iss <- glue::glue('{res_iss}\nSource: "C:\\Program Files\\R\\R-3.6.1\\*"; DestDir: "{{app}}\\R-3.6.1"; Flags: ignoreversion recursesubdirs')
+res_iss <- glue::glue('{res_iss}\nSource: "C:\\Program Files\\R\\R-4.0.3\\*"; DestDir: "{{app}}\\R-3.6.1"; Flags: ignoreversion recursesubdirs')
 
                 
 # pas besoin                
 # res_iss <-  run_section(res_iss, R_flags = "/SILENT")
 # code_section
 
-R_versions <- list("3.6.1")
+R_versions <- list("4.0.3")
 acceptable_R_versions <- paste0(glue::glue("RVersions.Add('{R_versions}');"), 
                                 collapse = "\n  ")
 

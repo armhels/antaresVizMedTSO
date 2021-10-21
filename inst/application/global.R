@@ -157,7 +157,7 @@ sp_object@data <- as.data.table(sp_object@data)
 
 #------- format output
 
-defaut_template <- system.file("application/data/excel_templates/Output_Selection_template.xlsx", package = "antaresVizMedTSO")
+defaut_template <- system.file("application/www/Output_Selection_template.xlsx", package = "antaresVizMedTSO")
 defaut_output_params <- readTemplateFile(defaut_template)
 
 # new alias on map
