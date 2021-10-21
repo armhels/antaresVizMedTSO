@@ -9,20 +9,34 @@
 #'
 #'@import openxlsx
 #'
-# input_path <- "C:\\Users\\Datastorm\\Documents\\git\\antaresVizMedTSO\\inst\\application\\www\\readAntares_selection.xlsx"
+# input_path <- "C:\\Users\\BenoitThieurmel\\Documents\\git\\antaresVizMedTSO\\inst\\application\\www\\readAntares_selection.xlsx"
 readStudyShinySelection <- function(input_path){
   
   sel <- list(areas = "", links = "", clusters = "", clustersRes = "", districts = "", 
               "misc" = FALSE, "thermalAvailability" = FALSE, "hydroStorage" = FALSE, 
               "hydroStorageMaxPower" = FALSE, "reserve" = FALSE, 
               "linkCapacity" = FALSE, "mustRun" = FALSE, "thermalModulation" = FALSE, 
-              timeStep = "hourly", select = NULL, mcYears = NULL, removeVirtualAreas = FALSE,
-              storageFlexibility = NULL, production = NULL, reassignCost = FALSE, newCols = FALSE)
+              timeStep = "hourly", select = NULL, mcYears = NULL, 
+              removeVirtualAreas = FALSE, "storageFlexibility (PSP)" = NULL, 
+              "Hydro Storage (PSP_Closed)" = NULL, "Battery Storage (BATT)"  = NULL,
+              "Demand Side (DSR)" = NULL, "Electric Vehicle (EV)" = NULL,
+              "Power-to-gas (P2G)" = NULL, "Hydrogen (H2)" = NULL,
+              production = NULL, reassignCost = FALSE, newCols = FALSE,
+              removeVirtualAreas_2 = FALSE, "storageFlexibility (PSP)_2" = NULL, 
+              "Hydro Storage (PSP_Closed)_2" = NULL, "Battery Storage (BATT)_2"  = NULL,
+              "Demand Side (DSR)_2" = NULL, "Electric Vehicle (EV)_2" = NULL,
+              "Power-to-gas (P2G)_2" = NULL, "Hydrogen (H2)_2" = NULL,
+              production_2 = NULL, reassignCost_2 = FALSE, newCols_2 = FALSE,
+              removeVirtualAreas_3 = FALSE, storageFlexibility_PSP_3 = NULL, 
+              storageFlexibility_PSP_Closed_3 = NULL, "storageFlexibility (PSP)_3" = NULL, 
+              "Hydro Storage (PSP_Closed)_3" = NULL, "Battery Storage (BATT)_3"  = NULL,
+              "Demand Side (DSR)_3" = NULL, "Electric Vehicle (EV)_3" = NULL,
+              "Power-to-gas (P2G)_3" = NULL, "Hydrogen (H2)_3" = NULL,
+              production_3 = NULL, reassignCost_3 = FALSE, newCols_3 = FALSE)
   
   if(!file.exists(input_path)){
     stop("Le fichier '", input_path, "' est introuvable")
   }
-  
   
   # areas
   if("Areas" %in% openxlsx::getSheetNames(input_path)){
@@ -103,10 +117,13 @@ readStudyShinySelection <- function(input_path){
       sel_params[[1]] <- gsub("^([[:space:]]*) | ([[:space:]]*)$", "", sel_params[[1]])
       sel_params[[2]] <- gsub("^([[:space:]]*) | ([[:space:]]*)$", "", sel_params[[2]])
       
-      sel_params[[1]] <- na.locf0(sel_params[[1]])
+      # compatibility previous version
+      sel_params[[1]] <- gsub("^storageFlexibility$", "storageFlexibility (PSP)", sel_params[[1]])
+      sel_params[[1]] <- zoo::na.locf0(sel_params[[1]])
       
       for(var in c("misc", "thermalAvailability", "hydroStorage", "hydroStorageMaxPower", "reserve", 
-                   "linkCapacity", "mustRun", "thermalModulation", "reassignCost", "newCols", "removeVirtualAreas")){
+                   "linkCapacity", "mustRun", "thermalModulation", "reassignCost", "newCols", "removeVirtualAreas",
+                   "reassignCost_2", "newCols_2", "removeVirtualAreas_2", "reassignCost_3", "newCols_3", "removeVirtualAreas_3")){
         if(var %in% sel_params[[1]]){
           sel[[var]] <- as.logical(as.numeric(as.character(sel_params[sel_params[[1]] %in% var, 2])))
         }
@@ -125,7 +142,22 @@ readStudyShinySelection <- function(input_path){
         if(!any(is.na(mcy))) sel$mcYears <- mcy
       }
       
-      for(var in c("select", "storageFlexibility", "production")){
+      areas_var <- c("select", 
+                     
+                     "storageFlexibility (PSP)", "Hydro Storage (PSP_Closed)", 
+                     "Battery Storage (BATT)", "Demand Side (DSR)", "Electric Vehicle (EV)",
+                     "Power-to-gas (P2G)", "Hydrogen (H2)", "production",
+                     
+                     "storageFlexibility (PSP)_2", "Hydro Storage (PSP_Closed)_2", 
+                     "Battery Storage (BATT)_2", "Demand Side (DSR)_2", "Electric Vehicle (EV)_2",
+                     "Power-to-gas (P2G)_2", "Hydrogen (H2)_2", "production_2",
+                     
+                     "storageFlexibility (PSP)_3", "Hydro Storage (PSP_Closed)_3", 
+                     "Battery Storage (BATT)_3", "Demand Side (DSR)_3", "Electric Vehicle (EV)_3",
+                     "Power-to-gas (P2G)_3", "Hydrogen (H2)_3", "production_3"
+      )
+      
+      for(var in areas_var){
         tmp <- as.character(sel_params[sel_params[[1]] %in% var, 2])
         tmp[tolower(tmp) %in% c("na", "empty", "", "null")] <- NA
         tmp <- tmp[!is.na(tmp)]
@@ -243,41 +275,57 @@ writeStudyShinySelection <- function(val, output_path){
   }
   antares_read_params <- rbind.data.frame(antares_read_params, sel_params)
   
-  rmv_params <- data.frame(parameters = "removeVirtualAreas",	value = 0, comment = "0 disabled - 1 enabled")
-  if(!is.null(val$removeVirtualAreas)){
-    rmv_params$value <- as.numeric(val$removeVirtualAreas)
+  for(jj in c("", "_2", "_3")){
+    
+    rmv_params <- data.frame(parameters = paste0("removeVirtualAreas", jj),	value = 0, comment = "0 disabled - 1 enabled")
+    
+    if(!is.null(val[[paste0("removeVirtualAreas", jj)]])){
+      rmv_params$value <- as.numeric(val[[paste0("removeVirtualAreas", jj)]])
+    }
+    antares_read_params <- rbind.data.frame(antares_read_params, rmv_params)
+    
+    v_name <- c("storageFlexibility (PSP)", "Hydro Storage (PSP_Closed)",
+                "Battery Storage (BATT)", "Demand Side (DSR)", "Electric Vehicle (EV)",
+                "Power-to-gas (P2G)", "Hydrogen (H2)", "production")
+    
+    v_comment <- c("names of the virtual storage/flexibility areas PSP", 
+                   "names of the virtual hydro storage areas PSP_Closed",
+                   "names of the virtual battery storage areas BATT", 
+                   "names of the virtual demand side areas DSR", 
+                   "names of the virtual electric vehicle areas EV",
+                   "names of the virtual power to gas areas P2G", 
+                   "names of the virtual hydrogen areas H2", 
+                   "names of the virtual productions areas")
+    
+    for(vi in 1:length(v_name)){
+      tmp_name <- paste0(v_name[vi], jj)
+      comment <- v_comment[vi]
+      
+      if(!is.null(val[[tmp_name]])){
+        sel_params <- data.frame(parameters = tmp_name,	value = val[[tmp_name]], comment = comment)
+        sel_params$parameters[-1] <- NA
+        sel_params$comment[-1] <- NA
+      } else {
+        sel_params <- data.frame(parameters = tmp_name,	value = NA, comment = comment)
+      }
+      antares_read_params <- rbind.data.frame(antares_read_params, sel_params)
+    }
+    
+    
+    v_name <- c("reassignCost", "newCols")
+    v_comment <- c("0 disabled - 1 enabled", "0 disabled - 1 enabled")
+    
+    for(vi in 1:length(v_name)){
+      tmp_name <- paste0(v_name[vi], jj)
+      comment <- v_comment[vi]
+      
+      rmv_params <- data.frame(parameters = tmp_name,	value = 0, comment = comment)
+      if(!is.null(val[[tmp_name]])){
+        rmv_params$value <- as.numeric(val[[tmp_name]])
+      }
+      antares_read_params <- rbind.data.frame(antares_read_params, rmv_params)
+    }
   }
-  antares_read_params <- rbind.data.frame(antares_read_params, rmv_params)
-  
-  if(!is.null(val$storageFlexibility)){
-    sel_params <- data.frame(parameters = "storageFlexibility",	value = val$storageFlexibility, comment = "names of the virtual storage/flexibility areas")
-    sel_params$parameters[-1] <- NA
-    sel_params$comment[-1] <- NA
-  } else {
-    sel_params <- data.frame(parameters = "storageFlexibility",	value = NA, comment = "names of the virtual storage/flexibility areas")
-  }
-  antares_read_params <- rbind.data.frame(antares_read_params, sel_params)
-  
-  if(!is.null(val$production)){
-    sel_params <- data.frame(parameters = "production",	value = val$production, comment = "names of the virtual production areas, or empty / NULL / NA")
-    sel_params$parameters[-1] <- NA
-    sel_params$comment[-1] <- NA
-  } else {
-    sel_params <- data.frame(parameters = "production",	value = NA, comment = "names of the virtual production areas, or empty / NULL / NA")
-  }
-  antares_read_params <- rbind.data.frame(antares_read_params, sel_params)
-  
-  rmv_params <- data.frame(parameters = "reassignCost",	value = 0, comment = "0 disabled - 1 enabled")
-  if(!is.null(val$reassignCost)){
-    rmv_params$value <- as.numeric(val$reassignCost)
-  }
-  antares_read_params <- rbind.data.frame(antares_read_params, rmv_params)
-  
-  rmv_params <- data.frame(parameters = "newCols",	value = 0, comment = "0 disabled - 1 enabled")
-  if(!is.null(val$newCols)){
-    rmv_params$value <- as.numeric(val$newCols)
-  }
-  antares_read_params <- rbind.data.frame(antares_read_params, rmv_params)
   
   writeData(wb, sheet = "readAntares", antares_read_params, 
             colNames = TRUE, rowNames = FALSE, keepNA = FALSE)

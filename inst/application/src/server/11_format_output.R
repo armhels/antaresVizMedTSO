@@ -236,8 +236,8 @@ observe({
 
       # removeVirtualAreas
       updateCheckboxInput(session, "rmva_ctrl_format_output", antaresVizMedTSO:::.getLabelLanguage("enabled", current_language), FALSE)
-      updateCheckboxInput(session, "rmva_ctrl_format_output_step_2", value = FALSE)
-      updateCheckboxInput(session, "rmva_ctrl_format_output_step_3", value = FALSE)
+      updateCheckboxInput(session, "rmva_ctrl_format_output_2", value = FALSE)
+      updateCheckboxInput(session, "rmva_ctrl_format_output_3", value = FALSE)
       
       for(ii in rm_storage_input_import_format_final){
         updateSelectInput(session, ii, choices = opts$areaList, selected = NULL)
@@ -588,12 +588,46 @@ observe({
           updateSelectInput(session, "read_mcYears_format_output", selected = NULL)
         }
         
+        # removeVirtualsAreas
         updateCheckboxInput(session, "rmva_ctrl_format_output", value = list_sel$removeVirtualAreas)
-        updateCheckboxInput(session, "rmva_reassignCosts_format_output", value = list_sel$reassignCost)
-        updateCheckboxInput(session, "rmva_newCols_format_output", value = list_sel$newCols)
+        updateCheckboxInput(session, "rmva_ctrl_format_output_2", value = list_sel$removeVirtualAreas_2)
+        updateCheckboxInput(session, "rmva_ctrl_format_output_3", value = list_sel$removeVirtualAreas_3)
         
-        updateSelectInput(session, "rmva_storageFlexibility_format_output", selected = list_sel$storageFlexibility)
+        updateCheckboxInput(session, "rmva_reassignCosts_format_output", value = list_sel$reassignCost)
+        updateCheckboxInput(session, "rmva_reassignCosts_format_output_2", value = list_sel$reassignCost_2)
+        updateCheckboxInput(session, "rmva_reassignCosts_format_output_3", value = list_sel$reassignCost_3)
+        
+        updateCheckboxInput(session, "rmva_newCols_format_output", value = list_sel$newCols)
+        updateCheckboxInput(session, "rmva_newCols_format_output_2", value = list_sel$newCols_2)
+        updateCheckboxInput(session, "rmva_newCols_format_output_3", value = list_sel$newCols_3)
+        
         updateSelectInput(session, "rmva_production_format_output", selected = list_sel$production)
+        updateSelectInput(session, "rmva_production_format_output_2", selected = list_sel$production_2)
+        updateSelectInput(session, "rmva_production_format_output_3", selected = list_sel$production_3)
+        
+        updateSelectInput(session, "rmva_storageFlexibility_format_output", selected = list_sel$`storageFlexibility (PSP)`)
+        updateSelectInput(session, "rmva_PSP_Closed_format_output", selected = list_sel$`Hydro Storage (PSP_Closed)`)
+        updateSelectInput(session, "rmva_BATT_format_output", selected = list_sel$`Battery Storage (BATT)`)
+        updateSelectInput(session, "rmva_DSR_format_output", selected = list_sel$`Demand Side (DSR)`)
+        updateSelectInput(session, "rmva_EV_format_output", selected = list_sel$`Electric Vehicle (EV)`)
+        updateSelectInput(session, "rmva_P2G_format_output", selected = list_sel$`Power-to-gas (P2G)`)
+        updateSelectInput(session, "rmva_H2_format_output", selected = list_sel$`Hydrogen (H2)`)
+        
+        updateSelectInput(session, "rmva_storageFlexibility_format_output_2", selected = list_sel$`storageFlexibility (PSP)_2`)
+        updateSelectInput(session, "rmva_PSP_Closed_format_output_2", selected = list_sel$`Hydro Storage (PSP_Closed)_2`)
+        updateSelectInput(session, "rmva_BATT_format_output_2", selected = list_sel$`Battery Storage (BATT)_2`)
+        updateSelectInput(session, "rmva_DSR_format_output_2", selected = list_sel$`Demand Side (DSR)_2`)
+        updateSelectInput(session, "rmva_EV_format_output_2", selected = list_sel$`Electric Vehicle (EV)_2`)
+        updateSelectInput(session, "rmva_P2G_format_output_2", selected = list_sel$`Power-to-gas (P2G)_2`)
+        updateSelectInput(session, "rmva_H2_format_output_2", selected = list_sel$`Hydrogen (H2)_2`)
+        
+        updateSelectInput(session, "rmva_storageFlexibility_format_output_3", selected = list_sel$`storageFlexibility (PSP)_3`)
+        updateSelectInput(session, "rmva_PSP_Closed_format_output_3", selected = list_sel$`Hydro Storage (PSP_Closed)_3`)
+        updateSelectInput(session, "rmva_BATT_format_output_3", selected = list_sel$`Battery Storage (BATT)_3`)
+        updateSelectInput(session, "rmva_DSR_format_output_3", selected = list_sel$`Demand Side (DSR)_3`)
+        updateSelectInput(session, "rmva_EV_format_output_3", selected = list_sel$`Electric Vehicle (EV)_3`)
+        updateSelectInput(session, "rmva_P2G_format_output_3", selected = list_sel$`Power-to-gas (P2G)_3`)
+        updateSelectInput(session, "rmva_H2_format_output_3", selected = list_sel$`Hydrogen (H2)_3`)
         
       }
     }
@@ -615,8 +649,8 @@ observe({
     isolate({
       rm_output_params$removeVirtualAreas = list(
         input$rmva_ctrl_format_output, 
-        input$rmva_ctrl_format_output_step_2, 
-        input$rmva_ctrl_format_output_step_3
+        input$rmva_ctrl_format_output_2, 
+        input$rmva_ctrl_format_output_3
       )
       
       rm_output_params$storageFlexibility = list(

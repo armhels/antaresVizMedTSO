@@ -93,7 +93,7 @@ observe({
                 }
               )
               
-              if(input$rmva_ctrl_step_2){
+              if(input$rmva_ctrl_2){
                 
                 data <- withCallingHandlers({
                   
@@ -128,7 +128,7 @@ observe({
                 )
               }
               
-              if(input$rmva_ctrl_step_2 & input$rmva_ctrl_step_3){
+              if(input$rmva_ctrl_2 & input$rmva_ctrl_3){
                 
                 data <- withCallingHandlers({
                   

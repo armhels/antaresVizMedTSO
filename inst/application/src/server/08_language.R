@@ -149,13 +149,13 @@ observe({
   
   # Remove virtual Areas
   updateCheckboxInput(session, "rmva_ctrl", antaresVizMedTSO:::.getLabelLanguage("enabled", current_language$language))
-  updateCheckboxInput(session, "rmva_ctrl_step_2", paste0(
+  updateCheckboxInput(session, "rmva_ctrl_2", paste0(
     antaresVizMedTSO:::.getLabelLanguage("Remove virtual Areas", current_language$language), 
     " : ", 
     antaresVizMedTSO:::.getLabelLanguage("step", current_language$language), 
     " 2")
   )
-  updateCheckboxInput(session, "rmva_ctrl_step_3", paste0(
+  updateCheckboxInput(session, "rmva_ctrl_3", paste0(
     antaresVizMedTSO:::.getLabelLanguage("Remove virtual Areas", current_language$language), 
     " : ", 
     antaresVizMedTSO:::.getLabelLanguage("step", current_language$language), 

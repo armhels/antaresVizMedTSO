@@ -171,9 +171,9 @@ tabPanel(textOutput("label_tab_import_data"),
                                                                                           selected = NULL, multiple = TRUE, width = "100%")
                                                                        )
                                                                      ),
-                                                                     checkboxInput("rmva_ctrl_step_2", "step 2", FALSE),
+                                                                     checkboxInput("rmva_ctrl_2", "step 2", FALSE),
                                                                      
-                                                                     conditionalPanel(condition = "input.rmva_ctrl_step_2",
+                                                                     conditionalPanel(condition = "input.rmva_ctrl_2",
                                                                                       fluidRow(
                                                                                         column(3, 
                                                                                                selectInput("rmva_storageFlexibility_2", "storageFlexibility (PSP) :", choices = NULL, 
@@ -223,8 +223,8 @@ tabPanel(textOutput("label_tab_import_data"),
                                                                                                            selected = NULL, multiple = TRUE, width = "100%")
                                                                                         )
                                                                                       ),
-                                                                                      checkboxInput("rmva_ctrl_step_3", "step 3", FALSE),
-                                                                                      conditionalPanel(condition = "input.rmva_ctrl_step_3",
+                                                                                      checkboxInput("rmva_ctrl_3", "step 3", FALSE),
+                                                                                      conditionalPanel(condition = "input.rmva_ctrl_3",
                                                                                                        fluidRow(
                                                                                                          column(3, 
                                                                                                                 selectInput("rmva_storageFlexibility_3", "storageFlexibility (PSP) :", choices = NULL, 

@@ -216,5 +216,4 @@ build_production_list <- function(...){
     l[ind_keep] <- lapply(l[ind_keep], function(x) tolower(x))
   }
   l
-  
 }
