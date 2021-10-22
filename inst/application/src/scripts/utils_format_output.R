@@ -1217,17 +1217,16 @@ formatHourlyOutputs <- function(data_h,
       v_dt_area <- c(v_dt_area, rep(i, ncol(tmp)))
       data_out <- data.table(data_out, tmp)
     }
-    # dt_areas_districts <- data.table(t(toupper(v_dt_area)))
-    # 
-    # colnames(dt_areas_districts) <- template_long$Name[match(colnames(data_out)[-c(1, 2)], template_long$id_id)]
+    
+    dt_areas_districts <- data.table(t(toupper(v_dt_area)))
+    colnames(dt_areas_districts) <- template_long$Name[match(colnames(data_out)[-c(1, 2)], template_long$id_id)]
 
+    # dt_areas_districts <- data.table(t(template_long$Name[match(colnames(data_out)[-c(1, 2)], template_long$id_id)]))
 
-    dt_areas_districts <- data.table(t(template_long$Name[match(colnames(data_out)[-c(1, 2)], template_long$id_id)]))
-
-    colnames(data_out)[-c(1:2)] <- paste0("T", 1:(ncol(data_out)-2))
+    colnames(data_out)[-c(1, 2)] <- paste0(toupper(v_dt_area), "_", template_long$ID[match(colnames(data_out)[-c(1, 2)], template_long$id_id)])
     dt_stats <- suppressWarnings({makeTabStats(data_out)})
-    colnames(data_out)[-c(1, 2)] <- t(toupper(v_dt_area))
-    colnames(data_out)[2] <- "Date / Code or Area / Disctrict"
+    
+    colnames(data_out)[2] <- "Date / Code"
     
     rm(full_merge) ; gc(reset = T)
   }, T)
@@ -1269,7 +1268,7 @@ exportHourlyOutputs <- function(infile_name, outfile_name, hourly_outputs, data_
   writeData(wb, "Hourly Market Data", hourly_outputs$dt_stats, startRow = 5, startCol = 2)
   
   writeData(wb, "Hourly Market Data", hourly_outputs$areas_districts, 
-            colNames = FALSE, startRow = 12,  startCol = 3)
+            colNames = TRUE, startRow = 11,  startCol = 3)
   
   writeData(wb, "Hourly Market Data", hourly_outputs$data_out, startRow = 13)
   
@@ -1321,10 +1320,11 @@ readTemplateFile <- function(input_path){
                                                }))
   
   if(!is.null(sel_hourly_dico) && nrow(sel_hourly_dico) > 0){
-    stopifnot(all(c("Name", "Formula", "Type") %in% colnames(sel_hourly_dico)))
+    stopifnot(all(c("Name", "Formula", "Type", "ID") %in% colnames(sel_hourly_dico)))
     sel_hourly_dico$Name <- as.character(sel_hourly_dico$Name)
     sel_hourly_dico$Formula <- as.character(sel_hourly_dico$Formula)
     sel_hourly_dico$Type <- as.character(sel_hourly_dico$Type)
+    sel_hourly_dico$ID <- as.character(sel_hourly_dico$ID)
     sel$dico <- sel_hourly_dico
   }
   
