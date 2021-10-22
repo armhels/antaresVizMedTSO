@@ -242,7 +242,7 @@ observe({
       # clustersRes
       clustersRes <- c("all", opts$areasWithResClusters)
       if(isTRUE(all.equal(c("all"), clustersRes))) clustersRes <- c("", "all")
-      updateSelectInput(session, "read_clusters_res", paste0(antaresViz:::.getLabelLanguage("ClustersRes", current_language), " : "), 
+      updateSelectInput(session, "read_clusters_res", paste0(antaresVizMedTSO:::.getLabelLanguage("ClustersRes", current_language), " : "), 
                         choices = clustersRes, selected = clustersRes[1])
       
       # districts
