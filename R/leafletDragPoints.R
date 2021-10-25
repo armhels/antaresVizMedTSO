@@ -4,22 +4,22 @@ leafletDragPoints <- function(geopoints, map = NULL, width = NULL, height = NULL
   if (!is.null(map)){
     if("geoAreaId" %in% names(map)){
       map <- geojsonio::geojson_json(map[!duplicated(map$"geoAreaId"), ])
-    } else if("code" %in% names(map)){
-      map <- geojsonio::geojson_json(map[!duplicated(map$"code"), ])
+      # } else if("code" %in% names(map)){
+      #   map <- geojsonio::geojson_json(map[!duplicated(map$"code"), ])
     } else {
       map <- geojsonio::geojson_json(map)
     }
   }
-
+  
   if(!is.null(geopoints)){
     geopoints$avg <- (geopoints$lat + geopoints$lon) / 2
     
     firstPoint <- which.min(geopoints$avg)
     secondPoint <- which.max(geopoints$avg)
   }
-
+  
   x = list(geopoints = geopoints, map = map, init = init, reset_map = reset_map, draggable = draggable)
-
+  
   attr(x, 'TOJSON_ARGS') <- list(dataframe = "rows")
   
   # get leaflet dependencies
