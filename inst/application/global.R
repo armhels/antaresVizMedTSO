@@ -43,6 +43,7 @@ if(file.exists("default_conf.yml")){
   file_sel_import_format_output <- check_conf_file(conf$file_sel_import_format_output)
   file_sel_format_output <- check_conf_file(conf$file_sel_format_output)
   file_sel_template_format_output <- check_conf_file(conf$file_sel_template_format_output)
+  file_load_prod_stack <- check_conf_file(conf$file_load_prod_stack)
 } else {
   map_layout <- ""
   load_map_params <- ""
@@ -53,7 +54,8 @@ if(file.exists("default_conf.yml")){
   file_sel_medtso_map <- ""
   file_sel_import_format_output <- ""
   file_sel_format_output <- ""
-  file_sel_template_format_output - ""
+  file_sel_template_format_output <- ""
+  file_load_prod_stack <- ""
 }
 
 if(file_sel_template_format_output == "") file_sel_template_format_output <- "www/Annual_OutputFile_Template_R.xlsx"

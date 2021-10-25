@@ -1,7 +1,7 @@
-study_dir: C:/Users/BenoitThieurmel/Desktop/Antares/Full MedTSO V2
+study_dir: C:/Users/BenoitThieurmel/Desktop/Antares/antares-test-study
 map_layout: C:/Users/BenoitThieurmel/Desktop/Antares/mapLayout-2019-05-07-place.RDS
 load_map_params: C:/Users/BenoitThieurmel/Downloads/plotMap_Inputs_20210907_15171631020626.RDS
-file_sel_import: C:/Users/BenoitThieurmel/Downloads/readAntares_selection_20212110_110344.xlsx
+file_sel_import: C:/Users/BenoitThieurmel/Downloads/readAntares_selection (4).xlsx
 file_sel_import_medtso_maps: C:/Users/BenoitThieurmel/Downloads/readAntares_selection
   (4).xlsx
 file_sel_medtso_map: C:/Users/bthie/Desktop/Antares/readAntares_selection_Full perimeter_v2.xlsx
@@ -12,3 +12,4 @@ file_sel_format_output: C:/Users/bthie/Desktop/Antares/readAntares_selection_Ful
 load_map_colors: C:/Users/BenoitThieurmel/Downloads/plotMap_Colors_20210907_11531631008385.RDS
 file_sel_template_format_output: C:/Users/BenoitThieurmel/Downloads/Annual_OutputFile_Template_R
   (1).xlsx
+file_load_prod_stack: C:/Users/BenoitThieurmel/Documents/git/antaresVizMedTSO/inst/ex_setProdStackAlias.R
