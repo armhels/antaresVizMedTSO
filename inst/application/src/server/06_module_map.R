@@ -122,7 +122,7 @@ outputOptions(output, "must_print_map", suspendWhenHidden = FALSE)
 observe({
   tmp_ml <- ml()
   all_areas <- ind_keep_list_data()$all_areas
-  if(!is.null(tmp_ml)){
+  if(!is.null(tmp_ml) && !is.null(input[['nav-id']]) && grepl("label_tab_map_menu", input[['nav-id']])){
     if(!is.null(all_areas) && length(all_areas > 0)){
       if(!all(all_areas %in% tmp_ml$all_coords$area)){
         miss_area <- data.table(area = setdiff(all_areas, tmp_ml$all_coords$area), x = NA, y = NA, color = "#DA3713")
@@ -134,7 +134,7 @@ observe({
 })
 
 # edition du mapLayout
-ml_edit <- callModule(antaresVizMedTSO:::changeCoordsServer, "ml_edit", ml_to_edit, 
+ml_edit <- callModule(antaresVizMedTSO:::changeCoordsServer, "ml_edit", ml_to_edit,
                       what = reactive("areas"), language = map_language, stopApp = FALSE)
 
 observe({
