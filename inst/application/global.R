@@ -176,7 +176,7 @@ setAlias("Total generation", "Total generation", c("areas", "NUCLEAR",
                                                    "OIL", 
                                                    "Others_non-renewable", 
                                                    "Hydro", 
-                                                   "Battery_discharge_&_turbine", 
+                                                   "PSP_POS", 
                                                    "WIND", 
                                                    "SOLAR", 
                                                    "MISC. NDG"))
