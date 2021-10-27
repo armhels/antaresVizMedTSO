@@ -386,20 +386,24 @@ observe({
           title = "Error importing new production stack",
           easyClose = TRUE,
           footer = NULL,
-          paste("Please verify tour .R script : ", e$message, sep = "\n")
+          paste("Please verify your .R script : ", e$message, sep = "\n")
         ))
         NULL
       })
     
     if(!is.null(check_src)){
       
-      showModal(modalDialog(
-        title = "New production stack imported !",
-        easyClose = TRUE,
-        footer = NULL,
-        "No error sourcing .R script"
-      ))
-      
+      if(!init_file_load_prod_stack){
+        showModal(modalDialog(
+          title = "New production stack imported !",
+          easyClose = TRUE,
+          footer = NULL,
+          "No error sourcing .R script"
+        ))
+      } else {
+        init_file_load_prod_stack <<- FALSE
+      }
+
       # udpate prodStack 
       isolate({
         ind_keep_list_data <- ind_keep_list_data()

@@ -58,6 +58,12 @@ if(file.exists("default_conf.yml")){
   file_load_prod_stack <- ""
 }
 
+if(file_load_prod_stack == ""){
+  init_file_load_prod_stack <- FALSE
+} else {
+  init_file_load_prod_stack <- TRUE
+}
+
 if(file_sel_template_format_output == "") file_sel_template_format_output <- "www/Annual_OutputFile_Template_R.xlsx"
 defaut_map_layout <- NULL
 if(!is.null(map_layout) && file.exists(map_layout)){
