@@ -51,6 +51,7 @@ formater_tab <- function(data, output_type, new_names){
 # import
 importAntaresDatasAnnual <- function(opts, 
                                      areas_districts_selections, 
+                                     data_linkCapacity = NULL,
                                      links_selections, mcYears = 1, 
                                      removeVirtualAreas = FALSE,
                                      storageFlexibility = NULL, production = NULL,
@@ -64,6 +65,7 @@ importAntaresDatasAnnual <- function(opts,
   data_areas_dist_clustH = NULL
   dataForSurplus = NULL
   data_areas_districts = NULL
+  areas_districtsH = NULL
   
   any_removeVirtualAreas <- FALSE
   check <- lapply(removeVirtualAreas, function(x) if(!is.null(x) && length(x) == 1 && x) {any_removeVirtualAreas <<- TRUE})
@@ -72,27 +74,26 @@ importAntaresDatasAnnual <- function(opts,
   if(length(storageFlexibility) > 0) all_storageFlexibility <- tolower(unlist(storageFlexibility))
   if(length(production) > 0) all_production <- tolower(unlist(production))
   
-  # browser()
   # Imports :
   
   opts$districtsDef[, district := tolower(district)]
   opts$districtsDef[, area := tolower(area)]
   
+  rm_areas <- c(unname(all_storageFlexibility), unname(all_production))
   if("all" %in% links_selections){
     links_selections <- unique(tolower(opts$linkList))
-    if(any_removeVirtualAreas && (length(all_storageFlexibility) > 0 || length(all_production) > 0)){
-      ind_rm <- grepl(paste(paste0("(", c(all_storageFlexibility, all_production), ")"), collapse = "|"), 
-                      links_selections)
-      links_selections <- links_selections[!ind_rm]
+    if(any_removeVirtualAreas && length(rm_areas) > 0){
+      rm_links <- opts$linksDef[from %in% rm_areas | to %in% rm_areas, link]
+      if(length(rm_links) > 0){
+        links_selections <- setdiff(links_selections, rm_links)
+      }
     }
   }
+  
   if("all" %in% areas_districts_selections){
     areas_districts_selections <- unique(c(tolower(opts$areaList), tolower(opts$districtList)))
-    
-    if(any_removeVirtualAreas && (length(all_storageFlexibility) > 0 || length(all_production) > 0)){
-      ind_rm <- grepl(paste(paste0("(", c(all_storageFlexibility, all_production), ")"), collapse = "|"), 
-                      areas_districts_selections)
-      areas_districts_selections <- areas_districts_selections[!ind_rm]
+    if(any_removeVirtualAreas && length(rm_areas) > 0){
+      areas_districts_selections <- setdiff(areas_districts_selections, rm_areas)
     }
   }
   
@@ -197,7 +198,8 @@ importAntaresDatasAnnual <- function(opts,
                                         links = "all",
                                         timeStep = "hourly", 
                                         select = NULL, 
-                                        linkCapacity = linkCapacity, mcYears = mcYears)
+                                        linkCapacity = FALSE, 
+                                        mcYears = mcYears)
   
   if(any_removeVirtualAreas){
     
@@ -237,6 +239,10 @@ importAntaresDatasAnnual <- function(opts,
     }
     
     surplus <- suppressWarnings({antaresProcessing::surplus(data_areas_dist_clustH)}) 
+    
+    if(linkCapacity && !is.null(data_linkCapacity) && nrow(data_linkCapacity) > 0 && !is.null(data_areas_dist_clustH$links)){
+      data_areas_dist_clustH$links <- merge(data_areas_dist_clustH$links, data_linkCapacity, by=c("link", "timeId"))
+    }
     
     # des bugs dans antaresProcessing du a des NA....
     # surplus_districts <- suppressWarnings({antaresProcessing::surplus(data_areas_dist_clustH, groupByDistrict = T)})
@@ -484,6 +490,8 @@ formatAnnualOutputs <- function(data_areas_dist_clust,
   yearly_welfare = data.table()
   yearly_interconnection = data.table()
   data_long_out = data.table()
+  
+  areas_districts_selections <- intersect(tolower(areas_districts_selections), unique(data_areas_districts$area))
   
   if(!(is.null(data_areas_dist_clust))){
     #============================== YEARLY OUTPUT SHORT ========================================
@@ -827,15 +835,14 @@ importAntaresDatasHourly <- function(opts,
   opts$districtsDef[, district := tolower(district)]
   opts$districtsDef[, area := tolower(area)]
   
+  rm_areas <- c(unname(all_storageFlexibility), unname(all_production))
+  
   if(length(areas_districts_selections) > 0){
     
     if("all" %in% areas_districts_selections){
       areas_districts_selections <- unique(c(tolower(opts$areaList), tolower(opts$districtList)))
-      
-      if(any_removeVirtualAreas && (length(all_storageFlexibility) > 0 || length(all_production) > 0)){
-        ind_rm <- grepl(paste(paste0("(", c(all_storageFlexibility, all_production), ")"), collapse = "|"), 
-                        areas_districts_selections)
-        areas_districts_selections <- areas_districts_selections[!ind_rm]
+      if(any_removeVirtualAreas && length(rm_areas) > 0){
+        areas_districts_selections <- setdiff(areas_districts_selections, rm_areas)
       }
     }
     
@@ -871,10 +878,11 @@ importAntaresDatasHourly <- function(opts,
   
   if("all" %in% links_selections){
     links_selections <- unique(tolower(opts$linkList))
-    if(any_removeVirtualAreas && (length(all_storageFlexibility) > 0 || length(all_production) > 0)){
-      ind_rm <- grepl(paste(paste0("(", c(all_storageFlexibility, all_production), ")"), collapse = "|"), 
-                      links_selections)
-      links_selections <- links_selections[!ind_rm]
+    if(any_removeVirtualAreas && length(rm_areas) > 0){
+      rm_links <- opts$linksDef[from %in% rm_areas | to %in% rm_areas, link]
+      if(length(rm_links) > 0){
+        links_selections <- setdiff(links_selections, rm_links)
+      }
     }
   }
   
@@ -1125,15 +1133,18 @@ formatHourlyOutputs <- function(data_h,
     }]
     
     template_long[, tmp_mathcing_name :=  gsub("[[:space:]]+", "", tolower(Type))]
+    template_long[, cluster_name :=  gsub("^[[:space:]]+|[[:space:]]+$", "", cluster_name)]
     template_long[, id_id := paste0(tmp_mathcing_name, "_", Formula)]
     
     # cluster ?
+
     if(any(template_long[["is_cluster"]]) && nrow(data_h[["clusters"]]) > 0){
       uni_expr <- template_long[is_cluster == TRUE, unique(Formula)]
-      if(length(uni_expr) > 0){
+      sub_cluster_data <- data_h[["clusters"]][as.character(cluster) %in% template_long[is_cluster == TRUE, cluster_name], ]
+      if(length(uni_expr) > 0 & nrow(sub_cluster_data) > 0){
         data_agg_clust <- data.table::rbindlist(lapply(uni_expr, function(ex){
           tmp_cluster_var <- tryCatch({
-            data_h[["clusters"]][, .(var = eval(parse(text = ex))), by = .(area, cluster, time)]
+            sub_cluster_data[, .(var = eval(parse(text = ex))), by = .(area, cluster, time)]
           }, error = function(e){
             warning(paste0('Hourly Market Data / ', ex, "' :", e$message))
             NULL
@@ -1153,10 +1164,11 @@ formatHourlyOutputs <- function(data_h,
     # clusterRes ?
     if(any(template_long[["is_clusterRes"]]) && nrow(data_h[["clustersRes"]]) > 0){
       uni_expr <- template_long[is_clusterRes == TRUE, unique(Formula)]
-      if(length(uni_expr) > 0){
+      sub_clusterRes_data <- data_h[["clustersRes"]][as.character(cluster) %in% template_long[is_clusterRes == TRUE, cluster_name], ]
+      if(length(uni_expr) > 0 & nrow(sub_clusterRes_data) > 0){
         data_agg_clustRes <- data.table::rbindlist(lapply(uni_expr, function(ex){
           tmp_cluster_var <- tryCatch({
-            data_h[["clustersRes"]][, .(var = eval(parse(text = ex))), by = .(area, cluster, time)]
+            sub_clusterRes_data[, .(var = eval(parse(text = ex))), by = .(area, cluster, time)]
           }, error = function(e){
             warning(paste0('Hourly Market Data / ', ex, "' :", e$message))
             NULL
@@ -1212,6 +1224,12 @@ formatHourlyOutputs <- function(data_h,
       tmp <- dcast(data = full_merge, time ~ tmp_mathcing_name + Formula, 
                    value.var = i, sep = "_")
       tmp <- tmp[, -1]
+      
+      # fill missing col
+      miss_col <- setdiff(template_long$id_id, colnames(tmp))
+      if(length(miss_col) > 0){
+        tmp[, c(miss_col) := 0]
+      }
       order_col <- order(template_long$order_tmp_[match(colnames(tmp), template_long$id_id)])
       tmp <- tmp[, order_col, with = F]
       v_dt_area <- c(v_dt_area, rep(i, ncol(tmp)))

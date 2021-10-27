@@ -270,10 +270,23 @@ observe({
     isolate({
       
       areas <- c("all", unique(c(opts$areaList, opts$districtList)))
-      if(input$rmva_ctrl_format_output && (length(input$rmva_storageFlexibility_format_output) > 0 || length(input$rmva_production_format_output) > 0)){
-        ind_rm <- grepl(paste(paste0("(", c(input$rmva_storageFlexibility_format_output, input$rmva_production_format_output), ")"), collapse = "|"), 
-                        areas)
-        areas <- areas[!ind_rm]
+      rm_areas <- c(input$rmva_storageFlexibility_format_output, input$rmva_production_format_output, 
+                    input$rmva_PSP_Closed_format_output, input$rmva_BATT_format_output, 
+                    input$rmva_DSR_format_output, input$rmva_EV_format_output, 
+                    input$rmva_P2G_format_output, input$rmva_H2_format_output,
+                    
+                    input$rmva_storageFlexibility_format_output_2, input$rmva_production_format_output_2, 
+                    input$rmva_PSP_Closed_format_output_2, input$rmva_BATT_format_output_2, 
+                    input$rmva_DSR_format_output_2, input$rmva_EV_format_output_2, 
+                    input$rmva_P2G_format_output_2, input$rmva_H2_format_output_2,
+                    
+                    input$rmva_storageFlexibility_format_output_3, input$rmva_production_format_output_3, 
+                    input$rmva_PSP_Closed_format_output_3, input$rmva_BATT_format_output_3, 
+                    input$rmva_DSR_format_output_3, input$rmva_EV_format_output_3, 
+                    input$rmva_P2G_format_output_3, input$rmva_H2_format_output_3)
+      
+      if(length(rm_areas) > 0){
+        areas <- setdiff(areas, rm_areas)
       }
       
       updateSelectInput(session, "read_areas_y_format_output", choices = areas, selected = areas[1])
@@ -281,16 +294,19 @@ observe({
       
       # links
       links <- c("all", unique(c(opts$linkList)))
-      if(input$rmva_ctrl_format_output && (length(input$rmva_storageFlexibility_format_output) > 0 || length(input$rmva_production_format_output) > 0)){
-        ind_rm <- grepl(paste(paste0("(", c(input$rmva_storageFlexibility_format_output, input$rmva_production_format_output), ")"), collapse = "|"), 
-                        links)
-        links <- links[!ind_rm]
+      if(length(rm_areas) > 0){
+        rm_links <- opts$linksDef[from %in% rm_areas | to %in% rm_areas, link]
+        if(length(rm_links) > 0){
+          links <- setdiff(links, rm_links)
+        }
       }
-      
-      updateSelectInput(session, "read_links_y_format_output", paste0(antaresVizMedTSO:::.getLabelLanguage("Links", current_language), " : "), 
+
+      updateSelectInput(session, "read_links_y_format_output", 
+                        paste0(antaresVizMedTSO:::.getLabelLanguage("Links", current_language), " : "), 
                         choices = links, selected = links[1])
       
-      updateSelectInput(session, "read_links_h_format_output", paste0(antaresVizMedTSO:::.getLabelLanguage("Links", current_language), " : "), 
+      updateSelectInput(session, "read_links_h_format_output", 
+                        paste0(antaresVizMedTSO:::.getLabelLanguage("Links", current_language), " : "), 
                         choices = links, selected = links[1])
       
     })
@@ -737,6 +753,15 @@ output$export_annual_format_output <- downloadHandler(
         i <- length(mcYears)
       }
       
+      # import linkCapacity once
+      data_linkCapacity <- tryCatch({
+        readInputTS(linkCapacity = input$read_links_y_format_output)
+      }, error = function(e) NULL)
+      
+      if(!is.null(data_linkCapacity) && nrow(data_linkCapacity) > 0){
+        data_linkCapacity[, c("time", "day", "month" , "hour") := NULL]
+      }
+      
       tmp_files <- lapply(1:i, function(tmp){
         
         tmp_file <- paste0(tempdir(), "/", "Annual_OutputFile_", format(Sys.time(), format = "%Y%d%m_%H%M%S"), '.xlsx')
@@ -753,6 +778,7 @@ output$export_annual_format_output <- downloadHandler(
             importAntaresDatasAnnual(opts = opts_format_output(), 
                                      areas_districts_selections = input$read_areas_y_format_output,
                                      links_selections = input$read_links_y_format_output, 
+                                     data_linkCapacity = data_linkCapacity,
                                      mcYears = mcy, 
                                      removeVirtualAreas = rm_output_params$removeVirtualAreas,
                                      storageFlexibility = rm_output_params$storageFlexibility, 
