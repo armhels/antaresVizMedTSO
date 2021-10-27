@@ -186,6 +186,7 @@ changeCoordsUI <- function(id, map_builder = TRUE) {
 }
 
 # changeCoords Module SERVER function
+#' @import sp
 #' @importFrom rgeos gDistance
 #' @importFrom raster aggregate
 #' @import rgdal
