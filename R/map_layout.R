@@ -234,17 +234,17 @@ changeCoordsServer <- function(input, output, session,
   
   current_map <- reactive({
     if (!map_builder){
-      map()
+      checkSlotId(map())
     } else {
       if (!is.null(map()) & input$set_map_ml == 0){
-        map()
+        checkSlotId(map())
       } else {
         if(!is.null(isolate(input$merge_cty))){
-          getSpMaps(countries = isolate(input$ml_countries), 
+          checkSlotId(getSpMaps(countries = isolate(input$ml_countries), 
                     states = isolate(input$ml_states), 
-                    mergeCountry = isolate(input$merge_cty))
+                    mergeCountry = isolate(input$merge_cty)))
         } else {
-          map()
+          checkSlotId(map())
         }
       }
     }
