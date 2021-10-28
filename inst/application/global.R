@@ -176,7 +176,6 @@ setAlias("Total generation", "Total generation", c("areas", "NUCLEAR",
                                                    "OIL", 
                                                    "Others_non-renewable", 
                                                    "Hydro", 
-                                                   "PSP_POS", 
                                                    "WIND", 
                                                    "SOLAR", 
                                                    "MISC. NDG"))
@@ -225,3 +224,56 @@ build_production_list <- function(...){
   }
   l
 }
+
+
+setProdStackAlias(
+  name = "Med-TSO_1",
+  variables = alist(
+    "Surplus" = - `SPIL. ENRG`,  
+    "pumpedStorage" = (PSP + {if(exists("PSP_Closed", inherits = FALSE)){PSP_Closed} else {0}}),
+    "Battery" = {if(exists("BATT", inherits = FALSE)){BATT} else {0}},
+    "import/export" = -(BALANCE + `ROW BAL.`),
+    "Others thermal" = `MISC. DTG` + `MIX. FUEL`,
+    "Other renewable" = `MISC. NDG`,
+    "wind" = WIND,
+    "solar" = SOLAR,
+    "nuclear" = NUCLEAR,
+    "hydraulic" = `H. ROR` + `H. STOR`,
+    "gas" = GAS,
+    "LIGNITE" = LIGNITE,
+    "coal" = COAL,
+    "oil" = OIL
+  ),
+  colors = c(
+    "#dcec5e",#surplus
+    "#951b81",#pompage
+    "#e5007d",#batterie
+    "#a5b4b8",#import
+    "#b4822b",#autre thermiques 
+    "#166a57",#autres renouvelables
+    "#74cfa0",#eolien 
+    "#f27406",#solaire
+    "#f5b300",#nucleaire
+    "#2772b2",#hydraulique
+    "#aad6e0",#gaz 
+    "#694d30",#lignite
+    "#292525",#charbon 
+    "#3d607d" #fioul
+  ),
+  lines = alist(
+    "Total load" = LOAD - {if(exists("P2G", inherits = FALSE)){P2G} else {0}} - {if(exists("EV", inherits = FALSE)){EV} else {0}},
+    "Power to Gas" = - {if(exists("P2G", inherits = FALSE)){P2G} else {0}},
+    "Electric Vehicle" = - {if(exists("EV", inherits = FALSE)){EV} else {0}},
+    "generation" = NUCLEAR + LIGNITE + COAL + GAS + OIL + `MIX. FUEL` +
+      `MISC. DTG` + WIND + SOLAR + `H. ROR` + `H. STOR` +
+      `MISC. NDG` + 
+      {if(exists("PSP_POS", inherits = FALSE)){PSP_POS} else {0}} + 
+      {if(exists("PSP_Closed_POS", inherits = FALSE)){PSP_Closed_POS} else {0}} + 
+      {if(exists("BATT_POS", inherits = FALSE)){BATT_POS} else {0}} - `SPIL. ENRG`),
+  lineColors = c(
+    "#005542",#Consommation totale
+    "#b2e34f",#Power to gaz
+    "#e0d61d",#Vehicule électrique
+    "#e5007d"),#Production	
+  lineWidth = 2
+)
