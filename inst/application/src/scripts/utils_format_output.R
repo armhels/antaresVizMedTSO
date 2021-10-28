@@ -4,37 +4,19 @@ require(antaresProcessing)
 require(stringr)
 require(openxlsx)
 
-# Somme des variables finissant par _chiffre :
-aggregateClusters <- function(data, var, opts, hourly = F, div = 1){
-  data <- copy(data)
-  if("group" %in% colnames(data)){
-    data$group <- NULL
+check_R_expr <- function(expr){
+  expr_split <- strsplit(expr, "`")[[1]]
+  if(length(expr_split) > 1){
+    ind_modify <- seq(from = 2, to = length(expr_split), by = 2)
+    expr_split[ind_modify] <- paste0('{if(exists("', expr_split[ind_modify],
+                                     '", inherits = FALSE)){`', expr_split[ind_modify], 
+                                     '`} else {warning("Cannot find `', expr_split[ind_modify], '` variable"); 0}}')
+    return(paste0(expr_split, collapse = ""))
+  } else {
+    return(expr)
   }
-  
-  cdesc <- readClusterDesc(opts)
-  # data <- merge(data, cdesc[, list(area, cluster, group)], all.x = T, by = c("area", "cluster"))
-  data <- merge(data, unique(cdesc[, list(cluster, group = tolower(group))]), all.x = T, by = c("cluster"))
-  
-  # ind <- grep("_[0-9]$", data[["cluster"]])
-  # data[ind, cluster := gsub(pattern = "_[0-9]$", "", cluster)]
-  data$cluster <- sapply(data$cluster, function(x){
-    tmp <- strsplit(as.character(x), "_")[[1]]
-    if(length(tmp) > 1){
-      tmp <- paste(tmp[1], tmp[2], sep = "_")
-    } 
-    tmp
-  })
-  
-  # other non res + mixed fioul
-  data[tolower(group) %in% c("other", "mixed fuel"), cluster := "other_nonrenewable"]
-  
-  if(hourly){
-    data <- data[, .(var = sum(get(var)) / div), by = .(area, cluster, time)]  
-  }else {
-    data <- data[, .(var = sum(get(var)) / div), by = .(area, cluster)]
-  }
-  data
 }
+
 
 formater_tab <- function(data, output_type, new_names){
   t_tmp <- t(data)
@@ -115,12 +97,41 @@ importAntaresDatasAnnual <- function(opts,
     }
     
     if(!any_removeVirtualAreas){
+      
       data_areas_dist_clust <- readAntares(areas = areas_selection, 
                                            districts = districts_selection,
                                            clusters = areas_clusters_selection,
                                            clustersRes = areas_clusters_res_selection,
                                            links = NULL,
                                            timeStep = "annual", select = NULL, mcYears = mcYears)
+      
+      for(nn in c("clusters", "clustersRes")){
+        if(!is.null(data_areas_dist_clust[[nn]]) && nrow(data_areas_dist_clust[[nn]]) > 0){
+          cluster_desc <- readClusterDesc(opts = opts)
+          if(all(c("unitcount", "nominalcapacity") %in% colnames(cluster_desc))){
+            cluster_desc[, installed.capacity := unitcount * nominalcapacity]
+          } else if("nominalcapacity" %in% colnames(cluster_desc)){
+            cluster_desc[, installed.capacity := nominalcapacity]
+          }
+          cluster_desc_class <- sapply(cluster_desc, class)
+          keep_col <- c("area", "cluster", "group", names(cluster_desc_class)[cluster_desc_class %in% c("integer", "numeric")])
+          cluster_desc <- cluster_desc[, keep_col, with = FALSE]
+          
+          data_areas_dist_clust[[nn]] <- merge(data_areas_dist_clust[[nn]], cluster_desc, c("area", "cluster"))
+          
+          data_areas_dist_clust[[nn]]$cluster <- sapply(data_areas_dist_clust[[nn]]$cluster, function(x){
+            tmp <- strsplit(as.character(x), "_")[[1]]
+            if(length(tmp) > 1){
+              tmp <- paste(tmp[1], tmp[2], sep = "_")
+            } 
+            tmp
+          })
+          
+          # other non res + mixed fioul
+          data_areas_dist_clust[[nn]][tolower(group) %in% c("other", "mixed fuel"), cluster := "other_nonrenewable"]
+          data_areas_dist_clust[[nn]][, group := NULL]
+        }
+      }
       
     } else {
       
@@ -136,6 +147,34 @@ importAntaresDatasAnnual <- function(opts,
                                            clustersRes = clusters_res,
                                            links = "all",
                                            timeStep = "annual", select = NULL, mcYears = mcYears)
+
+      for(nn in c("clusters", "clustersRes")){
+        if(!is.null(data_areas_dist_clust[[nn]]) && nrow(data_areas_dist_clust[[nn]]) > 0){
+          cluster_desc <- readClusterDesc(opts = opts)
+          if(all(c("unitcount", "nominalcapacity") %in% colnames(cluster_desc))){
+            cluster_desc[, installed.capacity := unitcount * nominalcapacity]
+          } else if("nominalcapacity" %in% colnames(cluster_desc)){
+            cluster_desc[, installed.capacity := nominalcapacity]
+          }
+          cluster_desc_class <- sapply(cluster_desc, class)
+          keep_col <- c("area", "cluster", "group", names(cluster_desc_class)[cluster_desc_class %in% c("integer", "numeric")])
+          cluster_desc <- cluster_desc[, keep_col, with = FALSE]
+          
+          data_areas_dist_clust[[nn]] <- merge(data_areas_dist_clust[[nn]], cluster_desc, c("area", "cluster"))
+          
+          data_areas_dist_clust[[nn]]$cluster <- sapply(data_areas_dist_clust[[nn]]$cluster, function(x){
+            tmp <- strsplit(as.character(x), "_")[[1]]
+            if(length(tmp) > 1){
+              tmp <- paste(tmp[1], tmp[2], sep = "_")
+            } 
+            tmp
+          })
+          
+          # other non res + mixed fioul
+          data_areas_dist_clust[[nn]][tolower(group) %in% c("other", "mixed fuel"), cluster := "other_nonrenewable"]
+          data_areas_dist_clust[[nn]][, group := NULL]
+        }
+      }
       
       for(ii in 1:length(removeVirtualAreas)){
         if(!is.null(removeVirtualAreas[[ii]]) && length(removeVirtualAreas[[ii]]) == 1 && removeVirtualAreas[[ii]]){
@@ -158,11 +197,11 @@ importAntaresDatasAnnual <- function(opts,
       }
       
       if(!is.null(data_areas_dist_clust[["clusters"]]) && nrow(data_areas_dist_clust[["clusters"]]) > 0){
-        data_areas_dist_clust[["clusters"]][area %in% areas_clusters_selection, ]
+        data_areas_dist_clust[["clusters"]] <- data_areas_dist_clust[["clusters"]][area %in% areas_clusters_selection, ]
       }
       
       if(!is.null(data_areas_dist_clust[["clustersRes"]]) && nrow(data_areas_dist_clust[["clustersRes"]]) > 0){
-        data_areas_dist_clust[["clustersRes"]][area %in% areas_clusters_res_selection, ]
+        data_areas_dist_clust[["clustersRes"]] <- data_areas_dist_clust[["clustersRes"]][area %in% areas_clusters_res_selection, ]
       }
       
       if(!is.null(data_areas_dist_clust$districts) && nrow(data_areas_dist_clust$districts) > 0){
@@ -322,104 +361,34 @@ importAntaresDatasAnnual <- function(opts,
   # Enrichissement par la somme des clusters par districts : 
   if(!is.null(data_areas_dist_clust)){
     try({
-      if(!is.null(data_areas_dist_clust[["clusters"]]) && nrow(data_areas_dist_clust[["clusters"]]) > 0){
-        
-        # browser()
-        cluster_desc <- readClusterDesc(opts = opts)
-        if(all(c("unitcount", "nominalcapacity") %in% colnames(cluster_desc))){
-          cluster_desc[, installed.capacity := unitcount * nominalcapacity]
-        } else if("nominalcapacity" %in% colnames(cluster_desc)){
-          cluster_desc[, installed.capacity := nominalcapacity]
-        }
-        cluster_desc_class <- sapply(cluster_desc, class)
-        keep_col <- c("area", "cluster", "group", names(cluster_desc_class)[cluster_desc_class %in% c("integer", "numeric")])
-        cluster_desc <- cluster_desc[, keep_col, with = FALSE]
-        
-        data_areas_dist_clust[["clusters"]] <- merge(data_areas_dist_clust[["clusters"]], cluster_desc, c("area", "cluster"))
-        
-        data_areas_dist_clust[["clusters"]]$cluster <- sapply(data_areas_dist_clust[["clusters"]]$cluster, function(x){
-          tmp <- strsplit(as.character(x), "_")[[1]]
-          if(length(tmp) > 1){
-            tmp <- paste(tmp[1], tmp[2], sep = "_")
-          } 
-          tmp
-        })
-        
-        # other non res + mixed fioul
-        data_areas_dist_clust[["clusters"]][tolower(group) %in% c("other", "mixed fuel"), cluster := "other_nonrenewable"]
-        
-        tmp_district <- merge(opts$districtsDef[district %in% areas_districts_selections], 
-                              data_areas_dist_clust[["clusters"]], by = "area", allow.cartesian = TRUE)
-        
-        setnames(tmp_district, "district", "area_tmp")
-        tmp_district[, area := NULL]
-        setnames(tmp_district, "area_tmp", "area")
-        tmp_district <- rbindlist(
-          list(
-            data_areas_dist_clust[["clusters"]][area %in% areas_districts_selections], 
-            tmp_district[!is.na(area) & !is.na(cluster), ]
-          ), 
-          use.names = T, fill = TRUE
-        )
-        
-        num_col <- sapply(tmp_district, class)
-        num_col <- names(num_col)[num_col %in% c("integer", "numeric")]
-        num_col <- setdiff(num_col, c("mcYear", "time"))
-        
-        tmp_district <- cube(tmp_district, j = lapply(.SD, sum), 
-                             by = c("area", "cluster"), .SDcols = num_col)
-        
-        data_areas_dist_clust[["clusters"]] <- tmp_district[!is.na(area) & !is.na(cluster), ]
-        rm(tmp_district)
-        gc()
-      }
       
-      if(!is.null(data_areas_dist_clust[["clustersRes"]]) && nrow(data_areas_dist_clust[["clustersRes"]]) > 0){       
-        cluster_desc <- readClusterResDesc(opts = opts)
-        if(all(c("unitcount", "nominalcapacity") %in% colnames(cluster_desc))){
-          cluster_desc[, installed.capacity := unitcount * nominalcapacity]
-        } else if("nominalcapacity" %in% colnames(cluster_desc)){
-          cluster_desc[, installed.capacity := nominalcapacity]
+      for(nn in c("clusters", "clustersRes")){
+        if(!is.null(data_areas_dist_clust[[nn]]) && nrow(data_areas_dist_clust[[nn]]) > 0){
+          tmp_district <- merge(opts$districtsDef[district %in% areas_districts_selections], 
+                                data_areas_dist_clust[[nn]], by = "area", allow.cartesian = TRUE)
+          
+          setnames(tmp_district, "district", "area_tmp")
+          tmp_district[, area := NULL]
+          setnames(tmp_district, "area_tmp", "area")
+          tmp_district <- rbindlist(
+            list(
+              data_areas_dist_clust[[nn]][area %in% areas_districts_selections], 
+              tmp_district[!is.na(area) & !is.na(cluster), ]
+            ), 
+            use.names = T, fill = TRUE
+          )
+          
+          num_col <- sapply(tmp_district, class)
+          num_col <- names(num_col)[num_col %in% c("integer", "numeric")]
+          num_col <- setdiff(num_col, c("mcYear", "time"))
+          
+          tmp_district <- cube(tmp_district, j = lapply(.SD, sum), 
+                               by = c("area", "cluster"), .SDcols = num_col)
+          
+          data_areas_dist_clust[[nn]] <- tmp_district[!is.na(area) & !is.na(cluster), ]
+          rm(tmp_district)
+          gc()
         }
-        cluster_desc_class <- sapply(cluster_desc, class)
-        keep_col <- c("area", "cluster", "group", names(cluster_desc_class)[cluster_desc_class %in% c("integer", "numeric")])
-        cluster_desc <- cluster_desc[, keep_col, with = FALSE]
-        
-        data_areas_dist_clust[["clustersRes"]] <- merge(data_areas_dist_clust[["clustersRes"]], cluster_desc, c("area", "cluster"))
-        
-        data_areas_dist_clust[["clustersRes"]]$cluster <- sapply(data_areas_dist_clust[["clustersRes"]]$cluster, function(x){
-          tmp <- strsplit(as.character(x), "_")[[1]]
-          if(length(tmp) > 1){
-            tmp <- paste(tmp[1], tmp[2], sep = "_")
-          } 
-          tmp
-        })
-        
-        tmp_district <- merge(opts$districtsDef[district %in% areas_districts_selections], 
-                              data_areas_dist_clust[["clustersRes"]], by = "area", allow.cartesian = TRUE)
-        
-        
-        setnames(tmp_district, "district", "area_tmp")
-        tmp_district[, area := NULL]
-        setnames(tmp_district, "area_tmp", "area")
-        tmp_district <- rbindlist(
-          list(
-            data_areas_dist_clust[["clustersRes"]][area %in% areas_districts_selections], 
-            tmp_district[!is.na(area) & !is.na(cluster), ]
-          ), 
-          use.names = T, fill = TRUE
-        )
-        
-        num_col <- sapply(tmp_district, class)
-        num_col <- names(num_col)[num_col %in% c("integer", "numeric")]
-        num_col <- setdiff(num_col, c("mcYear", "time"))
-        
-        tmp_district <- cube(tmp_district, j = lapply(.SD, sum), 
-                             by = c("area", "cluster"), .SDcols = num_col)
-        
-        data_areas_dist_clust[["clustersRes"]] <- tmp_district[!is.na(area) & !is.na(cluster), ]
-        rm(tmp_district)
-        gc()
       }
     }, T)
   }
@@ -493,14 +462,14 @@ formatAnnualOutputs <- function(data_areas_dist_clust,
   
   areas_districts_selections <- intersect(tolower(areas_districts_selections), unique(data_areas_districts$area))
   
-  if(!(is.null(data_areas_dist_clust))){
+  if(!(is.null(data_areas_districts))){
     #============================== YEARLY OUTPUT SHORT ========================================
     
     template_gen <- openxlsx::read.xlsx(xlsxFile = template, 
                                         sheet = "Yearly Outputs Short", 
                                         startRow = 7)
     
-    compute_expr <- paste0("'", template_gen[[2]], "' = tryCatch({", template_gen[[3]], "}, error = function(e){warning(paste0('Yearly Outputs Short : ', e$message));NA})")
+    compute_expr <- paste0("'", template_gen[[2]], "' = tryCatch({", sapply(template_gen[[3]], function(x) check_R_expr(x)), "}, error = function(e){warning(paste0('Yearly Outputs Short : ', e$message));NA})")
     compute_expr <- paste0("list(", paste(compute_expr, collapse = ", "), ")")
     
     yearly_output_short <- data_areas_districts[, eval(parse(text = compute_expr))]
@@ -524,7 +493,7 @@ formatAnnualOutputs <- function(data_areas_dist_clust,
                                               sheet = "Yearly Welfare", 
                                               startRow = 7)
       
-      compute_expr <- paste0("'", template_surplus[[2]], "' = tryCatch({", template_surplus[[3]], "}, error = function(e){warning(paste0('Yearly Welfare : ', e$message));NA})")
+      compute_expr <- paste0("'", template_surplus[[2]], "' = tryCatch({", sapply(template_surplus[[3]], function(x) check_R_expr(x)), "}, error = function(e){warning(paste0('Yearly Welfare : ', e$message));NA})")
       compute_expr <- paste0("list(", paste(compute_expr, collapse = ", "), ")")
       
       yearly_welfare <- surplus[, eval(parse(text = compute_expr))]
@@ -548,7 +517,7 @@ formatAnnualOutputs <- function(data_areas_dist_clust,
                                         startRow = 7, skipEmptyCols = FALSE)
   
   template_links <- t(template_links[, -c(1:2)])
-  compute_expr <- paste0("'", template_links[, 1], "' = tryCatch({", template_links[, 2], "}, error = function(e){warning(paste0('Yearly Interconnection : ', e$message));NA})")
+  compute_expr <- paste0("'", template_links[, 1], "' = tryCatch({", sapply(template_links[, 2], function(x) check_R_expr(x)), "}, error = function(e){warning(paste0('Yearly Interconnection : ', e$message));NA})")
   compute_expr <- paste0("list(", paste(compute_expr, collapse = ", "), ")")
   
   try({
@@ -625,7 +594,7 @@ formatAnnualOutputs <- function(data_areas_dist_clust,
       if(length(uni_expr) > 0){
         data_agg_clust <- data.table::rbindlist(lapply(uni_expr, function(ex){
           tmp_cluster_var <- tryCatch({
-            data_areas_dist_clust[["clusters"]][, .(var = eval(parse(text = ex))), by = .(area, cluster)]
+            data_areas_dist_clust[["clusters"]][, .(var = eval(parse(text = check_R_expr(ex)))), by = .(area, cluster)]
           }, error = function(e){
             warning(paste0('Yearly Outputs Long / ', ex, "' :", e$message))
             NULL
@@ -648,7 +617,7 @@ formatAnnualOutputs <- function(data_areas_dist_clust,
       if(length(uni_expr) > 0){
         data_agg_clustRes <- data.table::rbindlist(lapply(uni_expr, function(ex){
           tmp_cluster_var <- tryCatch({
-            data_areas_dist_clust[["clustersRes"]][, .(var = eval(parse(text = ex))), by = .(area, cluster)]
+            data_areas_dist_clust[["clustersRes"]][, .(var = eval(parse(text = check_R_expr(ex)))), by = .(area, cluster)]
           }, error = function(e){
             warning(paste0('Yearly Outputs Long / ', ex, "' :", e$message))
             NULL
@@ -671,7 +640,7 @@ formatAnnualOutputs <- function(data_areas_dist_clust,
       if(length(uni_expr) > 0){
         data_agg_clust_areas <- data.table::rbindlist(lapply(uni_expr, function(ex){
           tmp_cluster_var <- tryCatch({
-            data_areas_districts[, .(var = eval(parse(text = ex))), by = .(area)]
+            data_areas_districts[, .(var = eval(parse(text = check_R_expr(ex)))), by = .(area)]
           }, error = function(e){
             warning(paste0('Yearly Outputs Long / ', ex, "' :", e$message))
             NULL
@@ -1107,8 +1076,10 @@ formatHourlyOutputs <- function(data_h,
     
     areas_selections <- tolower(areas_selections)
     
+    # browser()
     template_long <- as.data.table(dico)
     template_long <- template_long[Name %in% market_data_code]
+    template_long <- template_long[match(market_data_code, Name)]
     template_long[, order_tmp_ := 1:nrow(template_long)]
     
     template_long[, c("is_cluster", "is_clusterRes", "cluster_name", "is_area") := list(FALSE, FALSE, "", FALSE)]
@@ -1144,7 +1115,7 @@ formatHourlyOutputs <- function(data_h,
       if(length(uni_expr) > 0 & nrow(sub_cluster_data) > 0){
         data_agg_clust <- data.table::rbindlist(lapply(uni_expr, function(ex){
           tmp_cluster_var <- tryCatch({
-            sub_cluster_data[, .(var = eval(parse(text = ex))), by = .(area, cluster, time)]
+            sub_cluster_data[, .(var = eval(parse(text = check_R_expr(ex)))), by = .(area, cluster, time)]
           }, error = function(e){
             warning(paste0('Hourly Market Data / ', ex, "' :", e$message))
             NULL
@@ -1168,7 +1139,7 @@ formatHourlyOutputs <- function(data_h,
       if(length(uni_expr) > 0 & nrow(sub_clusterRes_data) > 0){
         data_agg_clustRes <- data.table::rbindlist(lapply(uni_expr, function(ex){
           tmp_cluster_var <- tryCatch({
-            sub_clusterRes_data[, .(var = eval(parse(text = ex))), by = .(area, cluster, time)]
+            sub_clusterRes_data[, .(var = eval(parse(text = check_R_expr(ex)))), by = .(area, cluster, time)]
           }, error = function(e){
             warning(paste0('Hourly Market Data / ', ex, "' :", e$message))
             NULL
@@ -1191,7 +1162,7 @@ formatHourlyOutputs <- function(data_h,
       if(length(uni_expr) > 0){
         data_agg_clust_areas <- data.table::rbindlist(lapply(uni_expr, function(ex){
           tmp_cluster_var <- tryCatch({
-            data_h_dist[, .(var = eval(parse(text = ex))), by = .(area, time)]
+            data_h_dist[, .(var = eval(parse(text = check_R_expr(ex)))), by = .(area, time)]
           }, error = function(e){
             warning(paste0('Hourly Market Data / ', ex, "' :", e$message))
             NULL
