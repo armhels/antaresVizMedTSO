@@ -94,34 +94,34 @@ needed <- strsplit(needed, ",")
 #
 pkgEnv$prodStackAliases <- list(
   
-  eco2mix = .getProdStackAlias(
-    description = "Production stack used on Eco2mix website: 
-    http://www.rte-france.com/fr/eco2mix/eco2mix-mix-energetique",
-    var = c("pumpedStorage", "import/export", "bioenergy", "wind", "solar", 
-            "nuclear", "hydraulic", "gas", "coal", "lignite", "oil", "other"),
-    lines = c("load", "totalProduction")
-  ),
-  
-  thermalFirst = .getProdStackAlias(
-    description = "thermal first",
-    var = c("pumpedStorage", "import/export", "nuclear", "lignite", "coal", "gas",
-            "oil", "mixFuel", "misc. DTG", "bioenergy", "wind", "solar", 
-            "hydraulicRor", "hydraulicStor"),
-    lines = c("load", "totalProduction")
-  ),
-  
-  netLoad = .getProdStackAlias(
-    description = "netLoad",
-    var = c("pumpedStorage", "import/export", "nuclear", "lignite", "coal", "gas",
-            "oil", "mixFuel", "misc. DTG", "hydraulicStor"),
-    lines = c("netLoad")
-  ),
-  
-  mustRun = .getProdStackAlias(
-    description = "must-run",
-    var = c("pumpedStorage", "import/export", "mustRunTotal", "thermalDispatchable",
-            "hydraulicDispatchable", "renewableNoDispatchable")
-  )
+  # eco2mix = .getProdStackAlias(
+  #   description = "Production stack used on Eco2mix website: 
+  #   http://www.rte-france.com/fr/eco2mix/eco2mix-mix-energetique",
+  #   var = c("pumpedStorage", "import/export", "bioenergy", "wind", "solar", 
+  #           "nuclear", "hydraulic", "gas", "coal", "lignite", "oil", "other"),
+  #   lines = c("load", "totalProduction")
+  # ),
+  # 
+  # thermalFirst = .getProdStackAlias(
+  #   description = "thermal first",
+  #   var = c("pumpedStorage", "import/export", "nuclear", "lignite", "coal", "gas",
+  #           "oil", "mixFuel", "misc. DTG", "bioenergy", "wind", "solar", 
+  #           "hydraulicRor", "hydraulicStor"),
+  #   lines = c("load", "totalProduction")
+  # ),
+  # 
+  # netLoad = .getProdStackAlias(
+  #   description = "netLoad",
+  #   var = c("pumpedStorage", "import/export", "nuclear", "lignite", "coal", "gas",
+  #           "oil", "mixFuel", "misc. DTG", "hydraulicStor"),
+  #   lines = c("netLoad")
+  # ),
+  # 
+  # mustRun = .getProdStackAlias(
+  #   description = "must-run",
+  #   var = c("pumpedStorage", "import/export", "mustRunTotal", "thermalDispatchable",
+  #           "hydraulicDispatchable", "renewableNoDispatchable")
+  # )
 )
 
 rm(graphicalCharter, formulas, colors)
@@ -216,11 +216,11 @@ for(l in setdiff(colnames(expand_language_columns), "en")){
 }
 
 
-# add _std _min _max
+# add _std _min _max, _POS, _NEG
 map_cumul[, tmp_row := 1:nrow(map_cumul)]
 
 tmp_expr <- paste0(colnames(expand_language_columns), " = c(", colnames(expand_language_columns), ", paste0(", 
-                   colnames(expand_language_columns), ", c('_std', '_min', '_max')))")
+                   colnames(expand_language_columns), ", c('_std', '_min', '_max', '_POS', '_NEG')))")
 eval_lg_colums <- paste0("list(operation = operation[1], division = division[1], decimales = decimales[1], ", 
                          paste(tmp_expr, collapse = ", "), ")")
 
