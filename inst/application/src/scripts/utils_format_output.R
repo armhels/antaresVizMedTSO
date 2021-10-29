@@ -1201,18 +1201,17 @@ formatHourlyOutputs <- function(data_h,
       if(length(miss_col) > 0){
         tmp[, c(miss_col) := 0]
       }
-      order_col <- order(template_long$order_tmp_[match(colnames(tmp), template_long$id_id)])
-      tmp <- tmp[, order_col, with = F]
+      tmp <- tmp[, template_long$id_id, with = F]
       v_dt_area <- c(v_dt_area, rep(i, ncol(tmp)))
       data_out <- data.table(data_out, tmp)
     }
     
     dt_areas_districts <- data.table(t(toupper(v_dt_area)))
-    colnames(dt_areas_districts) <- template_long$Name[match(colnames(data_out)[-c(1, 2)], template_long$id_id)]
+    colnames(dt_areas_districts) <- rep(template_long$Name, length(final_areas_selections))
 
     # dt_areas_districts <- data.table(t(template_long$Name[match(colnames(data_out)[-c(1, 2)], template_long$id_id)]))
 
-    colnames(data_out)[-c(1, 2)] <- paste0(toupper(v_dt_area), "_", template_long$ID[match(colnames(data_out)[-c(1, 2)], template_long$id_id)])
+    colnames(data_out)[-c(1, 2)] <- paste0(toupper(v_dt_area), "_", rep(template_long$ID, length(final_areas_selections)))
     dt_stats <- suppressWarnings({makeTabStats(data_out)})
     
     colnames(data_out)[2] <- "Date / Code"
