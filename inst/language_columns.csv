@@ -36,8 +36,8 @@ MAX MRG;Marge_maximum;Maximum_margin
 NP COST ;Cout_demarrage;Starting_cost
 NODU;Nb_unite_demarre;Nb_unit_commitment
 FLOW LIN.;Echange net;Exchange (net)
-FLOW_NEG;Echange (Export);Exchange (Import)
-FLOW_POS;Echange (Import);Exchange (Export)
+FLOW_NEG;Echange (Import);Exchange (Import)
+FLOW_POS;Echange (Export);Exchange (Export)
 UCAP LIN.;Flux_absolu;Flow_(abs)
 FLOW QUAD.;Flux_quadratique;Flow_(quad)
 CONG. FEE (ALG.);Cout_congestion;Congestion_fee
