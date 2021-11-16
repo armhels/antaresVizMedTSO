@@ -1096,7 +1096,7 @@ output$export_hourly_format_output <- downloadHandler(
         if(!is.null(data)){
           # data_format <<- data
           
-          infile_name <- system.file("application/data/excel_templates/hourly_OutputFile_Template__R.xlsx", package = "antaresVizMedTSO")
+          infile_name <- system.file("application/data/excel_templates/Hourly_OutputFile_Template__R.xlsx", package = "antaresVizMedTSO")
           options(scipen = 10000, digits = 1)
           
           progress$set(message = 'Hourly Output', detail = 'Writting data...')
