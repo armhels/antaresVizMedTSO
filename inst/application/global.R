@@ -79,7 +79,8 @@ if(!is.null(map_layout) && file.exists(map_layout)){
 if(!is.null(load_map_colors) && file.exists(load_map_colors)){
   tmp_col <- tryCatch(readRDS(load_map_colors), error = function(e) NULL)
   if(!is.null(tmp_col)){
-    setColorsVars(unique(rbind(tmp_col, getColorsVars()[lan == "en", colnames(tmp_col), with = FALSE])))
+    tmp <- as.data.table(rbind(tmp_col, getColorsVars()[lan == "en", colnames(tmp_col), with = FALSE]))
+    setColorsVars( unique(tmp, by = "Column"))
   }
 }
 
