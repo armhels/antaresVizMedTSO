@@ -65,6 +65,9 @@ if(file_load_prod_stack == ""){
 }
 
 if(file_sel_template_format_output == "") file_sel_template_format_output <- "www/Annual_OutputFile_Template_R.xlsx"
+
+if(file_sel_format_output == "") file_sel_format_output <- "www/Output_Selection_template.xlsx"
+
 defaut_map_layout <- NULL
 if(!is.null(map_layout) && file.exists(map_layout)){
   tmp_ml <- try(readRDS(map_layout), silent = TRUE)
@@ -74,8 +77,10 @@ if(!is.null(map_layout) && file.exists(map_layout)){
 }
 
 if(!is.null(load_map_colors) && file.exists(load_map_colors)){
-  tmp_col <- try(readRDS(load_map_colors), silent = TRUE)
-  setColorsVars(tmp_col)
+  tmp_col <- tryCatch(readRDS(load_map_colors), error = function(e) NULL)
+  if(!is.null(tmp_col)){
+    setColorsVars(unique(rbind(tmp_col, getColorsVars()[lan == "en", colnames(tmp_col), with = FALSE])))
+  }
 }
 
 # choose a directory

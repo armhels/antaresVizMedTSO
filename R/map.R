@@ -235,7 +235,7 @@ plotMap <- function(x,
   areaChartType <- match.arg(areaChartType)
   xyCompare <- match.arg(xyCompare)
   
-  tmp_colAreaVar <- gsub("(_std$)|(_min$)|(_max$)", "", colAreaVar)
+  tmp_colAreaVar <- gsub("(_std$)|(_min$)|(_max$)|(_POS$)|(_NEG$)", "", colAreaVar)
   if(tmp_colAreaVar != "none" & tmp_colAreaVar %in% pkgEnv$colorsVars$Column & runScale)
   {
     raw <- pkgEnv$colorsVars[Column == tmp_colAreaVar]
