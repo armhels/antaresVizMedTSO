@@ -216,11 +216,11 @@ for(l in setdiff(colnames(expand_language_columns), "en")){
 }
 
 
-# add _std _min _max, _POS, _NEG
+# add _std _min _max
 map_cumul[, tmp_row := 1:nrow(map_cumul)]
 
 tmp_expr <- paste0(colnames(expand_language_columns), " = c(", colnames(expand_language_columns), ", paste0(", 
-                   colnames(expand_language_columns), ", c('_std', '_min', '_max', '_POS', '_NEG')))")
+                   colnames(expand_language_columns), ", c('_std', '_min', '_max')))")
 eval_lg_colums <- paste0("list(operation = operation[1], division = division[1], decimales = decimales[1], ", 
                          paste(tmp_expr, collapse = ", "), ")")
 
