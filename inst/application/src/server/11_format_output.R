@@ -1014,7 +1014,7 @@ output$export_hourly_format_output <- downloadHandler(
           }
         )
         
-        data_hourly <<- data
+        # data_hourly <<- data
         if(length(list_warning) > 0 & !is.null(data)){
           showModal(modalDialog(
             title = "Warning reading data",
@@ -1092,7 +1092,7 @@ output$export_hourly_format_output <- downloadHandler(
         }
         progress$set(value = 0.7)
         
-        data_hourly_frm <<- data
+        # data_hourly_frm <<- data
         if(!is.null(data)){
           # data_format <<- data
           
