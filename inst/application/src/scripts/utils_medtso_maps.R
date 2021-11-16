@@ -10,7 +10,8 @@
 get_data_map <- function(opts, areas = NULL, links = NULL, mcYears = 1, 
                          removeVirtualAreas = FALSE,
                          storageFlexibility = NULL, production = NULL,
-                         reassignCosts = FALSE, newCols = TRUE, rowBal = TRUE){
+                         reassignCosts = FALSE, newCols = TRUE, 
+                         rowBal = TRUE, rmVA_prodVars = getAlias("rmVA_production")){
   
   any_removeVirtualAreas <- FALSE
   check <- lapply(removeVirtualAreas, function(x) if(!is.null(x) && length(x) == 1 && x) {any_removeVirtualAreas <<- TRUE})
@@ -45,7 +46,8 @@ get_data_map <- function(opts, areas = NULL, links = NULL, mcYears = 1,
               production = production[[ii]],
               reassignCosts = reassignCosts[[ii]], 
               newCols = newCols[[ii]], 
-              rowBal = rowBal
+              rowBal = rowBal,
+              prodVars = rmVA_prodVars
             )
           })
         }

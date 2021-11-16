@@ -277,3 +277,14 @@ setProdStackAlias(
     "#e5007d"),#Production	
   lineWidth = 2
 )
+
+rmVA_prodVars <- unique(
+  c(
+    "LOAD", 
+    paste0(
+      rep(c("PSP", "PSP_Closed", "BATT", "DSR", "EV", "P2G", "H2"), each = 3), 
+      c("", "_POS", "_NEG")
+    ),
+    getAlias("rmVA_production")
+  )
+)

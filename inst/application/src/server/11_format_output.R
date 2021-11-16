@@ -233,7 +233,7 @@ observe({
       updateSelectInput(session, "read_mcYears_format_output", paste0(antaresVizMedTSO:::.getLabelLanguage("mcYears", current_language), " : "), 
                         choices = mcy, selected = mcy)
       
-
+      
       # removeVirtualAreas
       updateCheckboxInput(session, "rmva_ctrl_format_output", antaresVizMedTSO:::.getLabelLanguage("enabled", current_language), FALSE)
       updateCheckboxInput(session, "rmva_ctrl_format_output_2", value = FALSE)
@@ -300,7 +300,7 @@ observe({
           links <- setdiff(links, rm_links)
         }
       }
-
+      
       updateSelectInput(session, "read_links_y_format_output", 
                         paste0(antaresVizMedTSO:::.getLabelLanguage("Links", current_language), " : "), 
                         choices = links, selected = links[1])
@@ -785,7 +785,8 @@ output$export_annual_format_output <- downloadHandler(
                                      production = rm_output_params$production,
                                      reassignCosts = rm_output_params$reassignCosts,
                                      newCols = rm_output_params$newCols, 
-                                     storage_vars = storage_vars
+                                     storage_vars = storage_vars, 
+                                     rmVA_prodVars = rmVA_prodVars
             )
           },
           error = function(e){
@@ -995,7 +996,9 @@ output$export_hourly_format_output <- downloadHandler(
                                      production = rm_output_params$production,
                                      reassignCosts = rm_output_params$reassignCosts,
                                      newCols = rm_output_params$newCols, 
-                                     storage_vars = storage_vars)
+                                     storage_vars = storage_vars, 
+                                     rmVA_prodVars = rmVA_prodVars
+            )
           },
           error = function(e){
             showModal(modalDialog(

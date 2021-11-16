@@ -405,7 +405,7 @@ observe({
         updateSelectInput(session, "rmva_EV_medtso_maps_3", selected = list_sel$`Electric Vehicle (EV)_3`)
         updateSelectInput(session, "rmva_P2G_medtso_maps_3", selected = list_sel$`Power-to-gas (P2G)_3`)
         updateSelectInput(session, "rmva_H2_medtso_maps_3", selected = list_sel$`Hydrogen (H2)_3`)
-      
+        
       }
     }
   })
@@ -483,8 +483,9 @@ data_map <- reactive({
                              input$rmva_newCols_medtso_maps,
                              input$rmva_newCols_medtso_maps_2,
                              input$rmva_newCols_medtso_maps_3
-                           )
-                           )
+                           ),
+                           rmVA_prodVars = rmVA_prodVars
+              )
             },
             error = function(e){
               showModal(modalDialog(

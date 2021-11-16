@@ -78,7 +78,8 @@ observe({
                                      storageFlexibility = storageFlexibility_list, 
                                      production = input$rmva_production,
                                      reassignCosts = input$rmva_reassignCosts, 
-                                     newCols = input$rmva_newCols)},
+                                     newCols = input$rmva_newCols, 
+                                     prodVars = rmVA_prodVars)},
                   error = function(e){
                     showModal(modalDialog(
                       title = "removeVirtualAreas : error",
@@ -112,7 +113,8 @@ observe({
                                        storageFlexibility = storageFlexibility_list, 
                                        production = input$rmva_production_2,
                                        reassignCosts = input$rmva_reassignCosts_2, 
-                                       newCols = input$rmva_newCols_2)},
+                                       newCols = input$rmva_newCols_2, 
+                                       prodVars = rmVA_prodVars)},
                     error = function(e){
                       showModal(modalDialog(
                         title = "removeVirtualAreas step 2 : error",
@@ -147,7 +149,8 @@ observe({
                                        storageFlexibility = storageFlexibility_list, 
                                        production = input$rmva_production_3,
                                        reassignCosts = input$rmva_reassignCosts_3, 
-                                       newCols = input$rmva_newCols_3)},
+                                       newCols = input$rmva_newCols_3, 
+                                       prodVars = rmVA_prodVars)},
                     error = function(e){
                       showModal(modalDialog(
                         title = "removeVirtualAreas step 3 : error",

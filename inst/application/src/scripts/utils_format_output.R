@@ -38,7 +38,8 @@ importAntaresDatasAnnual <- function(opts,
                                      removeVirtualAreas = FALSE,
                                      storageFlexibility = NULL, production = NULL,
                                      reassignCosts = FALSE, newCols = TRUE, rowBal = TRUE, 
-                                     storage_vars = c("PSP", "PSP_Closed", "BATT", "DSR", "EV", "P2G", "H2")){
+                                     storage_vars = c("PSP", "PSP_Closed", "BATT", "DSR", "EV", "P2G", "H2"), 
+                                     rmVA_prodVars = getAlias("rmVA_production")){
   
   # init :
   # browser()
@@ -185,7 +186,8 @@ importAntaresDatasAnnual <- function(opts,
               production = production[[ii]],
               reassignCosts = reassignCosts[[ii]], 
               newCols = newCols[[ii]], 
-              rowBal = rowBal
+              rowBal = rowBal, 
+              prodVars = rmVA_prodVars
             )
           })
         }
@@ -251,7 +253,8 @@ importAntaresDatasAnnual <- function(opts,
             production = production[[ii]],
             reassignCosts = reassignCosts[[ii]], 
             newCols = newCols[[ii]], 
-            rowBal = rowBal
+            rowBal = rowBal, 
+            prodVars = rmVA_prodVars
           )
         })
       }
@@ -786,7 +789,8 @@ importAntaresDatasHourly <- function(opts,
                                      reassignCosts = FALSE, 
                                      newCols = TRUE, 
                                      rowBal = TRUE, 
-                                     storage_vars = c("PSP", "PSP_Closed", "BATT", "DSR", "EV", "P2G", "H2")){
+                                     storage_vars = c("PSP", "PSP_Closed", "BATT", "DSR", "EV", "P2G", "H2"),
+                                     rmVA_prodVars = getAlias("rmVA_production")){
   
   #init :
   # browser()
@@ -890,7 +894,8 @@ importAntaresDatasHourly <- function(opts,
             production = production[[ii]],
             reassignCosts = reassignCosts[[ii]], 
             newCols = newCols[[ii]], 
-            rowBal = rowBal
+            rowBal = rowBal,
+            prodVars = rmVA_prodVars
           )
         })
       }
