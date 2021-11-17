@@ -3,3 +3,5 @@
 .RData
 .Ruserdata
 inst/examples
+create_desktop/*
+*.Rproj
