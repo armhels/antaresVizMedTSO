@@ -65,7 +65,7 @@ file.remove(file.path(app_dir, "infobefore.txt"))
 # et modification du launch_app.R
 # L87
 # R_path <- paste0(getwd(), "\\R-4.0.3\\bin\\R.exe")
-# system(sprintf(paste0(R_path, ' -e ".libPaths(c(\'%s\')); shiny::runApp(\'./\', port=1984)"'), applibpath), wait = FALSE)
+# system(sprintf(paste0('"', R_path, '" -e ".libPaths(c(\'%s\')); shiny::runApp(\'./\', port=1984)"'), applibpath), wait = FALSE)
 # 
 # et package_manger.R L 32 33
 # .libPaths(c(applibpath))
