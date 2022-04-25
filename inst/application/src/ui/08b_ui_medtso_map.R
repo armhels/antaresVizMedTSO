@@ -3,8 +3,20 @@ tabPanel(textOutput("label_tab_medtso_map_menu"),
                      tabPanel(textOutput("label_tab_import_data_2"),
                               h3(textOutput("title_import_data_3")),
                               fluidRow(
-                                column(5, 
-                                       directoryInput('directory_medtso_maps', label = '', value = study_dir)
+                                # column(5, 
+                                #        directoryInput('directory_medtso_maps', label = '', value = study_dir)
+                                # ), 
+                                column(1, 
+                                       div(
+                                         shinyDirButton(id = "directory_medtso_maps", label = "", title = "", icon = icon("folder")), 
+                                         style = "margin-top:17px", align = "center"
+                                       )
+                                ), 
+                                column(4, 
+                                       div(
+                                         verbatimTextOutput("print_directory_medtso_maps"), 
+                                         style = "margin-top:15px", align = "left"
+                                       )
                                 ), 
                                 conditionalPanel(condition = "output.ctrl_is_antares_study_medtso_maps", 
                                                  column(1, 
@@ -43,20 +55,25 @@ tabPanel(textOutput("label_tab_medtso_map_menu"),
                                                           ),
                                                           column(3, 
                                                                  selectInput("read_mcYears_medtso_maps", "Choose mcYears :", choices = NULL, selected = NULL, multiple = FALSE)
-                                                          ),
-                                                          column(3, 
-                                                                 checkboxInput("rmva_ctrl_medtso_maps", "Remove virtual Areas", FALSE)
                                                           )
                                                         ), 
-                                                        
+                                                        fluidRow(
+                                                          column(3, 
+                                                                 h4(textOutput("title_removeVirtualAreas_2"))
+                                                          ),
+                                                          column(3, 
+                                                                 checkboxInput("rmva_ctrl_medtso_maps", "enabled", FALSE)
+                                                          )
+                                                        ),
                                                         conditionalPanel(condition = "input.rmva_ctrl_medtso_maps",
-                                                                         h4(textOutput("title_removeVirtualAreas_2")),
                                                                          fluidRow(
                                                                            column(3, 
-                                                                                  selectInput("rmva_storageFlexibility_medtso_maps", "storageFlexibility :", choices = NULL, selected = NULL, multiple = TRUE)
+                                                                                  selectInput("rmva_storageFlexibility_medtso_maps", "storageFlexibility (PSP) :", choices = NULL, 
+                                                                                              selected = NULL, multiple = TRUE, width = "100%")
                                                                            ),
                                                                            column(3, 
-                                                                                  selectInput("rmva_production_medtso_maps", "production :", choices = NULL, selected = NULL, multiple = TRUE)
+                                                                                  selectInput("rmva_production_medtso_maps", "production :", choices = NULL, selected = NULL, 
+                                                                                              multiple = TRUE, width = "100%")
                                                                            ), 
                                                                            
                                                                            column(3, 
@@ -68,12 +85,148 @@ tabPanel(textOutput("label_tab_medtso_map_menu"),
                                                                                   br(),
                                                                                   checkboxInput("rmva_newCols_medtso_maps", "newCols", FALSE)
                                                                            )
+                                                                         ),
+                                                                         fluidRow(
+                                                                           column(4, 
+                                                                                  selectInput("rmva_PSP_Closed_medtso_maps", "Hydro Storage  (PSP_Closed):", choices = NULL, 
+                                                                                              selected = NULL, multiple = TRUE, width = "100%")
+                                                                           ),
+                                                                           column(4, 
+                                                                                  selectInput("rmva_BATT_medtso_maps", "Battery Storage (BATT)  :", choices = NULL, 
+                                                                                              selected = NULL, multiple = TRUE, width = "100%")
+                                                                           ),
+                                                                           column(4, 
+                                                                                  selectInput("rmva_DSR_medtso_maps", "Demand Side  (DSR) :", choices = NULL, 
+                                                                                              selected = NULL, multiple = TRUE, width = "100%")
+                                                                           )
+                                                                         ), 
+                                                                         fluidRow(
+                                                                           column(4, 
+                                                                                  selectInput("rmva_EV_medtso_maps", "Electric Vehicle (EV) :", choices = NULL, 
+                                                                                              selected = NULL, multiple = TRUE, width = "100%")
+                                                                           ),
+                                                                           
+                                                                           column(4, 
+                                                                                  selectInput("rmva_P2G_medtso_maps", "Power-to-gas (P2G) :", choices = NULL, 
+                                                                                              selected = NULL, multiple = TRUE, width = "100%")
+                                                                           ),
+                                                                           column(4, 
+                                                                                  selectInput("rmva_H2_medtso_maps", "Hydrogen (H2) :", choices = NULL, 
+                                                                                              selected = NULL, multiple = TRUE, width = "100%")
+                                                                           )
+                                                                         ),
+                                                                         checkboxInput("rmva_ctrl_medtso_maps_2", "step 2", FALSE),
+                                                                         
+                                                                         conditionalPanel(condition = "input.rmva_ctrl_medtso_maps_2",
+                                                                                          fluidRow(
+                                                                                            column(3, 
+                                                                                                   selectInput("rmva_storageFlexibility_medtso_maps_2", "storageFlexibility (PSP) :", choices = NULL, 
+                                                                                                               selected = NULL, multiple = TRUE, width = "100%")
+                                                                                            ),
+                                                                                            column(3, 
+                                                                                                   selectInput("rmva_production_medtso_maps_2", "production :", choices = NULL, selected = NULL, 
+                                                                                                               multiple = TRUE, width = "100%")
+                                                                                            ), 
+                                                                                            
+                                                                                            column(3, 
+                                                                                                   br(),
+                                                                                                   checkboxInput("rmva_reassignCosts_medtso_maps_2", "reassignCosts", FALSE)
+                                                                                            ),
+                                                                                            
+                                                                                            column(3, 
+                                                                                                   br(),
+                                                                                                   checkboxInput("rmva_newCols_medtso_maps_2", "newCols", FALSE)
+                                                                                            )
+                                                                                          ),
+                                                                                          fluidRow(
+                                                                                            column(4, 
+                                                                                                   selectInput("rmva_PSP_Closed_medtso_maps_2", "Hydro Storage  (PSP_Closed):", choices = NULL, 
+                                                                                                               selected = NULL, multiple = TRUE, width = "100%")
+                                                                                            ),
+                                                                                            column(4, 
+                                                                                                   selectInput("rmva_BATT_medtso_maps_2", "Battery Storage (BATT)  :", choices = NULL, 
+                                                                                                               selected = NULL, multiple = TRUE, width = "100%")
+                                                                                            ),
+                                                                                            column(4, 
+                                                                                                   selectInput("rmva_DSR_medtso_maps_2", "Demand Side  (DSR) :", choices = NULL, 
+                                                                                                               selected = NULL, multiple = TRUE, width = "100%")
+                                                                                            )
+                                                                                          ), 
+                                                                                          fluidRow(
+                                                                                            column(4, 
+                                                                                                   selectInput("rmva_EV_medtso_maps_2", "Electric Vehicle (EV) :", choices = NULL, 
+                                                                                                               selected = NULL, multiple = TRUE, width = "100%")
+                                                                                            ),
+                                                                                            
+                                                                                            column(4, 
+                                                                                                   selectInput("rmva_P2G_medtso_maps_2", "Power-to-gas (P2G) :", choices = NULL, 
+                                                                                                               selected = NULL, multiple = TRUE, width = "100%")
+                                                                                            ),
+                                                                                            column(4, 
+                                                                                                   selectInput("rmva_H2_medtso_maps_2", "Hydrogen (H2) :", choices = NULL, 
+                                                                                                               selected = NULL, multiple = TRUE, width = "100%")
+                                                                                            )
+                                                                                          ),
+                                                                                          checkboxInput("rmva_ctrl_medtso_maps_3", "step 3", FALSE),
+                                                                                          conditionalPanel(condition = "input.rmva_ctrl_medtso_maps_3",
+                                                                                                           fluidRow(
+                                                                                                             column(3, 
+                                                                                                                    selectInput("rmva_storageFlexibility_medtso_maps_3", "storageFlexibility (PSP) :", choices = NULL, 
+                                                                                                                                selected = NULL, multiple = TRUE, width = "100%")
+                                                                                                             ),
+                                                                                                             column(3, 
+                                                                                                                    selectInput("rmva_production_medtso_maps_3", "production :", choices = NULL, selected = NULL, 
+                                                                                                                                multiple = TRUE, width = "100%")
+                                                                                                             ), 
+                                                                                                             
+                                                                                                             column(3, 
+                                                                                                                    br(),
+                                                                                                                    checkboxInput("rmva_reassignCosts_medtso_maps_3", "reassignCosts", FALSE)
+                                                                                                             ),
+                                                                                                             
+                                                                                                             column(3, 
+                                                                                                                    br(),
+                                                                                                                    checkboxInput("rmva_newCols_medtso_maps_3", "newCols", FALSE)
+                                                                                                             )
+                                                                                                           ),
+                                                                                                           fluidRow(
+                                                                                                             column(4, 
+                                                                                                                    selectInput("rmva_PSP_Closed_medtso_maps_3", "Hydro Storage  (PSP_Closed):", choices = NULL, 
+                                                                                                                                selected = NULL, multiple = TRUE, width = "100%")
+                                                                                                             ),
+                                                                                                             column(4, 
+                                                                                                                    selectInput("rmva_BATT_medtso_maps_3", "Battery Storage (BATT)  :", choices = NULL, 
+                                                                                                                                selected = NULL, multiple = TRUE, width = "100%")
+                                                                                                             ),
+                                                                                                             column(4, 
+                                                                                                                    selectInput("rmva_DSR_medtso_maps_3", "Demand Side  (DSR) :", choices = NULL, 
+                                                                                                                                selected = NULL, multiple = TRUE, width = "100%")
+                                                                                                             )
+                                                                                                           ), 
+                                                                                                           fluidRow(
+                                                                                                             column(4, 
+                                                                                                                    selectInput("rmva_EV_medtso_maps_3", "Electric Vehicle (EV) :", choices = NULL, 
+                                                                                                                                selected = NULL, multiple = TRUE, width = "100%")
+                                                                                                             ),
+                                                                                                             
+                                                                                                             column(4, 
+                                                                                                                    selectInput("rmva_P2G_medtso_maps_3", "Power-to-gas (P2G) :", choices = NULL, 
+                                                                                                                                selected = NULL, multiple = TRUE, width = "100%")
+                                                                                                             ),
+                                                                                                             column(4, 
+                                                                                                                    selectInput("rmva_H2_medtso_maps_3", "Hydrogen (H2) :", choices = NULL, 
+                                                                                                                                selected = NULL, multiple = TRUE, width = "100%")
+                                                                                                             )
+                                                                                                           )
+                                                                                          )
                                                                          )
+                                                                         
+                                                                         
                                                         ),
                                                         
                                                         hr(),
                                                         uiOutput("ui_sel_file_import_medtso_maps"),
-                                                        
+                                                        hr(),
                                                         div(actionButton("import_data_medtso_maps", "Validate & import data", icon = icon("upload")), align = "center")
                                                  )
                                                )
@@ -85,7 +238,7 @@ tabPanel(textOutput("label_tab_medtso_map_menu"),
                               conditionalPanel(condition = "output.have_data_map_tso",
                                                br(),
                                                uiOutput("ui_file_sel_medtso_map"),
-                                               
+                                               hr(),
                                                fluidRow(
                                                  column(4, includeMarkdown("src/inputs_medtso_maps.md")),
                                                  column(8, tabsetPanel(

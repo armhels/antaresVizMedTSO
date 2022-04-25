@@ -151,8 +151,10 @@ changeCoordsUI <- function(id, map_builder = TRUE) {
     ),
     fluidRow(
       column(2, 
-             div(br(), actionButton(ns("reset_ml"), "Re-Init layout"), align = "center")
-             
+             conditionalPanel(
+               condition = paste0("output['", ns("is_map_layout"), "'] === false"),
+               div(br(), actionButton(ns("reset_ml"), "Re-Init layout"), align = "center")
+             )
       ),
       column(width = 8, div(h3(textOutput(ns("title_layout"))), align = "center")),
       column(2, 
@@ -184,8 +186,10 @@ changeCoordsUI <- function(id, map_builder = TRUE) {
 }
 
 # changeCoords Module SERVER function
+#' @import sp
 #' @importFrom rgeos gDistance
 #' @importFrom raster aggregate
+#' @import rgdal
 changeCoordsServer <- function(input, output, session, 
                                layout, what = reactive("areas"), 
                                map = reactive(NULL), map_builder = TRUE, 
@@ -222,15 +226,26 @@ changeCoordsServer <- function(input, output, session,
   
   outputOptions(output, "control_state", suspendWhenHidden = FALSE)
   
+  output$is_map_layout <- reactive({
+    "mapLayout" %in% class(layout())
+  })
+  
+  outputOptions(output, "is_map_layout", suspendWhenHidden = FALSE)
+  
   current_map <- reactive({
     if (!map_builder){
-      map()
+      checkSlotId(map())
     } else {
       if (!is.null(map()) & input$set_map_ml == 0){
-        map()
+        checkSlotId(map())
       } else {
-        getSpMaps(countries = isolate(input$ml_countries), states = isolate(input$ml_states), 
-                  mergeCountry = isolate(input$merge_cty))
+        if(!is.null(isolate(input$merge_cty))){
+          checkSlotId(getSpMaps(countries = isolate(input$ml_countries), 
+                    states = isolate(input$ml_states), 
+                    mergeCountry = isolate(input$merge_cty)))
+        } else {
+          checkSlotId(map())
+        }
       }
     }
   })
@@ -238,14 +253,37 @@ changeCoordsServer <- function(input, output, session,
   data <- reactive({
     input$reset_ml
     if (!is.null(layout())){
-      if (what() == "areas") {
+      if("mapLayout" %in% class(layout())){
+        isolate({current_state$state <- 3 })
+        coords <- copy(layout()$all_coords[, list(area, x, y, color)])
+        # check new area to set (x, y as NA)
+        ind_na <- which(is.na(coords$x))
+        if(length(ind_na) > 0){
+          areas_na <- coords$area[ind_na]
+          # set in antartic
+          
+          coords[ind_na, c("x", "y") := list(runif(length(ind_na), min = 51, max = 113), runif(length(ind_na), min = -36, max = -17))]
+          showModal(
+            modalDialog(
+              title = "Important message !",
+              paste0("Some areas in data are missing from the current map layout. They were placed Between South Africa & Autralia. So you can edit/move them if needed from the map editor mayout panel. (",
+                     paste(areas_na, collapse = ", "), ")"),
+              easyClose = TRUE
+            )
+          )
+        }
+        info <- coords$area
+        links <- copy(layout()$links)
+      }else if (what() == "areas") {
         coords <- copy(layout()$areas)
         info <- coords$area
         links <- copy(layout()$links)
+        if(is.null(links)) links <- data.table()
       } else {
         coords <- copy(layout()$districts)
         info <- coords$district
         links <- copy(layout()$districtLinks)
+        if(is.null(links)) links <- data.table()
       }
       
       links$x0 <- as.numeric(links$x0)
@@ -253,7 +291,9 @@ changeCoordsServer <- function(input, output, session,
       links$y0 <- as.numeric(links$y0)
       links$y1 <- as.numeric(links$y1)
       
-      current_state$state <- 0
+      if(isolate({current_state$state})  == -1){
+        isolate({current_state$state <- 0 })
+      }
       
       list(coords = coords, info = info, links = links)
     } else {
@@ -275,7 +315,9 @@ changeCoordsServer <- function(input, output, session,
         pt1 <- which.min(avgCoord)
         pt2 <- which.max(avgCoord)
         
-        data_points$points$lon[pt1] <- data_points$points$lat[pt1] <- 0
+        if(!"mapLayout" %in% class(isolate(layout()))){
+          data_points$points$lon[pt1] <- data_points$points$lat[pt1] <- 0
+        }
         
         data_points$pt1 <- pt1
         data_points$pt2 <- pt2
@@ -294,7 +336,7 @@ changeCoordsServer <- function(input, output, session,
         cex[pt] <- 2
         par (mar = rep(0.1, 4))
         graphics::plot.default(points$oldLon, points$oldLat, bty = "n", xaxt = "n", yaxt = "n",
-             xlab = "", ylab = "", main = "", col = col, asp = 1, pch = 19, cex = cex)
+                               xlab = "", ylab = "", main = "", col = col, asp = 1, pch = 19, cex = cex)
       }
     })
   }
@@ -330,6 +372,12 @@ changeCoordsServer <- function(input, output, session,
   })
   
   observe({
+    if (current_state$state == 3) {
+      lfDragPoints$map <- leafletDragPoints(data_points$points, isolate(current_map()), init = TRUE)
+    }
+  })
+  
+  observe({
     if (!is.null(input$map_init)){
       if (input$map_init){
         lfDragPoints$map <- leafletDragPoints(NULL, current_map(), reset_map = TRUE)
@@ -341,9 +389,13 @@ changeCoordsServer <- function(input, output, session,
   output$map <- renderLeafletDragPoints({lfDragPoints$map})
   
   coords <- reactive({
-    coords <- matrix(input[[paste0("map", "_coords")]], ncol = 2, byrow = TRUE)
-    colnames(coords) <- c("lat", "lon")
-    as.data.frame(coords)
+    if(!is.null(input[[paste0("map", "_coords")]])){
+      coords <- matrix(input[[paste0("map", "_coords")]], ncol = 2, byrow = TRUE)
+      colnames(coords) <- c("lat", "lon")
+      as.data.frame(coords)
+    } else {
+      NULL
+    }
   })
   
   observe({
@@ -375,6 +427,19 @@ changeCoordsServer <- function(input, output, session,
         )
         
       })
+    } else if (current_state$state == 3) {
+      isolate({
+        current_state$state <- 4
+        output$order <- renderText({
+          .getLabelLanguage("Drag the markers on the map to adjust coordinates then click the 'Done' button", language())
+        })
+        
+        output$info <- renderUI(HTML( 
+          paste0("<p>", 
+                 .getLabelLanguage("You can click on a marker to display information", language()), 
+                 "</p>"))
+        )
+      })
     }
   })
   
@@ -384,20 +449,29 @@ changeCoordsServer <- function(input, output, session,
   # When the Done button is clicked, return a value
   observeEvent(input$done, {
     coords <- sp::SpatialPoints(coords()[, c("lon", "lat")],
-                                proj4string = sp::CRS("+proj=longlat +datum=WGS84"))
+                                proj4string = sp::CRS("+proj=longlat +datum=WGS84 +no_defs"))
     
+    
+    # special with only one area...
+    if(nrow(data()$coords) == 1){
+      coords <- coords[1, ]
+    } 
     
     map <- current_map()
     
     if (!is.null(map)) {
-      map <- sp::spTransform(map, sp::CRS("+proj=longlat +datum=WGS84"))
+      map <- sp::spTransform(map, sp::CRS("+proj=longlat +datum=WGS84 +no_defs"))
       map$geoAreaId <- 1:length(map)
       coords$geoAreaId <- sp::over(coords, map)$geoAreaId
     }
     
     # Put coords in right order
-    ord <- order(c(data_points$pt1, data_points$pt2, (1:length(coords))[-c(data_points$pt1, data_points$pt2)]))
-    mapCoords <- coords[ord, ]
+    if(!"mapLayout" %in% class(isolate(layout()))){
+      ord <- order(c(data_points$pt1, data_points$pt2, (1:length(coords))[-c(data_points$pt1, data_points$pt2)]))
+      mapCoords <- coords[ord,]
+    } else {
+      mapCoords <- coords
+    }
     
     final_coords <- data()$coords
     final_links <- data()$links
@@ -408,13 +482,25 @@ changeCoordsServer <- function(input, output, session,
     if (what() == "areas") {
       final_links[final_coords, `:=`(x0 = x, y0 = y), on = c(from = "area")]
       final_links[final_coords, `:=`(x1 = x, y1 = y), on = c(to = "area")]
+      if(!is.null(final_links) && nrow(final_links) > 0){
+        final_links[final_coords, `:=`(x0 = x, y0 = y), on = c(from = "area")]
+        final_links[final_coords, `:=`(x1 = x, y1 = y), on = c(to = "area")]
+      }
     } else {
       final_links[final_coords, `:=`(x0 = x, y0 = y), on = c(fromDistrict = "district")]
       final_links[final_coords, `:=`(x1 = x, y1 = y), on = c(toDistrict = "district")]
+      if(!is.null(final_links) && nrow(final_links) > 0){
+        final_links[final_coords, `:=`(x0 = x, y0 = y), on = c(from = "area")]
+        final_links[final_coords, `:=`(x1 = x, y1 = y), on = c(to = "area")]
+      }
     }
     
     if (!is.null(map)) {
       final_coords$geoAreaId <- mapCoords$geoAreaId
+      dup_geo <- na.omit(unique(final_coords$geoAreaId[duplicated(final_coords$geoAreaId)]))
+      if(length(dup_geo) > 0){
+        final_coords$geoAreaId[final_coords$geoAreaId %in% dup_geo] <- NA
+      }
       final_coords_map <- final_coords[!is.na(final_coords$geoAreaId), ]
       if (!isolate(input$merge_ste)){
         map <- map[final_coords_map$geoAreaId, ]

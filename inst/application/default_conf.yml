@@ -1,2 +1,11 @@
-study_dir : C:\Users\Datastorm\Desktop\Med-TSO\Reference%20May%202019(1)
-map_layout : C:\Users\Datastorm\Desktop\Med-TSO\Recette_Juin_2019\mapLayout-Full perimeter-2019-06-07.RDS
+study_dir: C:/Users/BenoitThieurmel/Desktop/Antares/antares-test-study
+map_layout: C:/Users/BenoitThieurmel/Desktop/Antares/mapLayout-2019-05-07-place.RDS
+load_map_params: C:/Users/BenoitThieurmel/Downloads/plotMap_Inputs_20210907_15171631020626.RDS
+file_sel_import: C:/Users/BenoitThieurmel/Documents/AVM parameter for stand alone/readAntares_selection_TEASIMED_v2.xlsx
+file_sel_import_medtso_maps: C:/Users/BenoitThieurmel/Downloads/readAntares_selection
+  (4).xlsx
+file_sel_medtso_map: C:/Users/bthie/Desktop/Antares/readAntares_selection_Full perimeter_v2.xlsx
+file_sel_import_format_output: C:/Users/BenoitThieurmel/Desktop/Antares/readAntares_selection_TEASIMED_v1.xlsx
+file_sel_format_output: C:/Users/BenoitThieurmel/Desktop/Antares/Output_Selection_template_TEASIMED_v2.xlsx
+load_map_colors: C:/Users/BenoitThieurmel/Downloads/plotMap_Colors_20210907_11531631008385.RDS
+file_sel_template_format_output: C:/Users/BenoitThieurmel/Desktop/Antares/Annual_OutputFile_Template_TEASIMED_v1.xlsx

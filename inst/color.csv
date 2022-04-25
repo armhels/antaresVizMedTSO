@@ -19,3 +19,9 @@ red;green;blue;Column
 84;151;208;H. STOR
 101;180;197;netLoad
 1;1;1;AVL DTG
+0;0;255;PSP_Closed
+0;0;255;BATT
+0;0;255;DSR
+0;0;255;EV
+0;0;255;P2G
+0;0;255;H2

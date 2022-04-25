@@ -28,6 +28,9 @@
                     width = NULL, height = NULL, highlight = FALSE, stepPlot = FALSE, drawPoints = FALSE, 
                     language = language, label_variable2Axe = NULL, ...) {
   
+  if(is.null(typeConfInt)) typeConfInt <- FALSE
+  if(is.null(confInt)) confInt <- 0
+  
   uniqueElements <- as.character(sort(unique(dt$element)))
   plotConfInt <- FALSE
   if (is.null(group)) group <- sample(1e9, 1)

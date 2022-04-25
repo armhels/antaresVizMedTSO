@@ -9,100 +9,161 @@
 #'
 #'@import openxlsx
 #'
-# input_path <- "C:\\Users\\Datastorm\\Documents\\git\\antaresVizMedTSO\\inst\\application\\www\\readAntares_selection.xlsx"
+# input_path <- "C:\\Users\\BenoitThieurmel\\Documents\\git\\antaresVizMedTSO\\inst\\application\\www\\readAntares_selection.xlsx"
 readStudyShinySelection <- function(input_path){
   
-  sel <- list(areas = "", links = "", clusters = "", districts = "", 
+  sel <- list(areas = "", links = "", clusters = "", clustersRes = "", districts = "", 
               "misc" = FALSE, "thermalAvailability" = FALSE, "hydroStorage" = FALSE, 
               "hydroStorageMaxPower" = FALSE, "reserve" = FALSE, 
               "linkCapacity" = FALSE, "mustRun" = FALSE, "thermalModulation" = FALSE, 
-              timeStep = "hourly", select = NULL, mcYears = NULL, removeVirtualAreas = FALSE,
-              storageFlexibility = NULL, production = NULL, reassignCost = FALSE, newCols = FALSE)
+              timeStep = "hourly", select = NULL, mcYears = NULL, 
+              removeVirtualAreas = FALSE, "storageFlexibility (PSP)" = "", 
+              "Hydro Storage (PSP_Closed)" = "", "Battery Storage (BATT)"  = "",
+              "Demand Side (DSR)" = "", "Electric Vehicle (EV)" = "",
+              "Power-to-gas (P2G)" = "", "Hydrogen (H2)" = "",
+              production = "", reassignCost = FALSE, newCols = FALSE,
+              removeVirtualAreas_2 = FALSE, "storageFlexibility (PSP)_2" = "", 
+              "Hydro Storage (PSP_Closed)_2" = "", "Battery Storage (BATT)_2"  = "",
+              "Demand Side (DSR)_2" = "", "Electric Vehicle (EV)_2" = "",
+              "Power-to-gas (P2G)_2" = "", "Hydrogen (H2)_2" = "",
+              production_2 = "", reassignCost_2 = FALSE, newCols_2 = FALSE,
+              removeVirtualAreas_3 = FALSE, "storageFlexibility (PSP)_3" = "", 
+              "Hydro Storage (PSP_Closed)_3" = "", "Battery Storage (BATT)_3"  = "",
+              "Demand Side (DSR)_3" = "", "Electric Vehicle (EV)_3" = "",
+              "Power-to-gas (P2G)_3" = "", "Hydrogen (H2)_3" = "",
+              production_3 = "", reassignCost_3 = FALSE, newCols_3 = FALSE)
   
   if(!file.exists(input_path)){
     stop("Le fichier '", input_path, "' est introuvable")
   }
   
   # areas
-  sel_areas <- suppressWarnings(tryCatch(openxlsx::read.xlsx(input_path, sheet = "Areas", check.names = FALSE, colNames = FALSE),
-                                         error = function(e) {
-                                           stop("Error reading sheet 'Areas' : ", e)
-                                         }))
-  
-  if(!is.null(sel_areas) && nrow(sel_areas) > 0){
-    sel$areas <- tolower(as.character(sel_areas[, 1]))
+  if("Areas" %in% openxlsx::getSheetNames(input_path)){
+    sel_areas <- suppressWarnings(tryCatch(openxlsx::read.xlsx(input_path, sheet = "Areas", 
+                                                               check.names = FALSE, colNames = FALSE),
+                                           error = function(e) {
+                                             stop("Error reading sheet 'Areas' : ", e)
+                                           }))
+    
+    if(!is.null(sel_areas) && nrow(sel_areas) > 0){
+      sel$areas <- tolower(as.character(sel_areas[, 1]))
+    }
   }
   
   # links
-  sel_links <-  suppressWarnings(tryCatch(openxlsx::read.xlsx(input_path, sheet = "Links", check.names = FALSE, colNames = FALSE),
-                                          error = function(e) {
-                                            stop("Error reading sheet 'Links' : ", e)
-                                          }))
-  
-  if(!is.null(sel_links) && nrow(sel_links) > 0){
-    sel$links <- tolower(as.character(sel_links[, 1]))
+  if("Links" %in% openxlsx::getSheetNames(input_path)){
+    sel_links <-  suppressWarnings(tryCatch(openxlsx::read.xlsx(input_path, sheet = "Links", 
+                                                                check.names = FALSE, colNames = FALSE),
+                                            error = function(e) {
+                                              stop("Error reading sheet 'Links' : ", e)
+                                            }))
+    
+    if(!is.null(sel_links) && nrow(sel_links) > 0){
+      sel$links <- tolower(as.character(sel_links[, 1]))
+    }
   }
   
   # clusters
-  sel_clusters <-  suppressWarnings(tryCatch(openxlsx::read.xlsx(input_path, sheet = "Clusters", check.names = FALSE, colNames = FALSE),
-                                             error = function(e) {
-                                               stop("Error reading sheet 'Clusters' : ", e)
-                                             }))
-  
-  if(!is.null(sel_clusters) && nrow(sel_clusters) > 0){
-    sel$clusters <- tolower(as.character(sel_clusters[, 1]))
+  if("Clusters" %in% openxlsx::getSheetNames(input_path)){
+    sel_clusters <-  suppressWarnings(tryCatch(openxlsx::read.xlsx(input_path, sheet = "Clusters", 
+                                                                   check.names = FALSE, colNames = FALSE),
+                                               error = function(e) {
+                                                 stop("Error reading sheet 'Clusters' : ", e)
+                                               }))
+    
+    if(!is.null(sel_clusters) && nrow(sel_clusters) > 0){
+      sel$clusters <- tolower(as.character(sel_clusters[, 1]))
+    }
   }
   
-  # districts
-  sel_districts <-  suppressWarnings(tryCatch(openxlsx::read.xlsx(input_path, sheet = "Districts", check.names = FALSE, colNames = FALSE),
-                                              error = function(e) {
-                                                stop("Error reading sheet 'Districts' : ", e)
-                                              }))
+  # clustersRes
+  if("ClustersRes" %in% openxlsx::getSheetNames(input_path)){
+    sel_clusters_res <-  suppressWarnings(tryCatch(openxlsx::read.xlsx(input_path, sheet = "ClustersRes", 
+                                                                       check.names = FALSE, colNames = FALSE),
+                                                   error = function(e) {
+                                                     stop("Error reading sheet 'ClustersRes' : ", e)
+                                                   }))
+    
+    if(!is.null(sel_clusters_res) && nrow(sel_clusters_res) > 0){
+      sel$clustersRes <- tolower(as.character(sel_clusters_res[, 1]))
+    }
+  }
   
-  if(!is.null(sel_districts) && nrow(sel_districts) > 0){
-    sel$districts <- tolower(as.character(sel_districts[, 1]))
+  
+  # districts
+  if("Districts" %in% openxlsx::getSheetNames(input_path)){
+    sel_districts <-  suppressWarnings(tryCatch(openxlsx::read.xlsx(input_path, sheet = "Districts", 
+                                                                    check.names = FALSE, colNames = FALSE),
+                                                error = function(e) {
+                                                  stop("Error reading sheet 'Districts' : ", e)
+                                                }))
+    
+    if(!is.null(sel_districts) && nrow(sel_districts) > 0){
+      sel$districts <- tolower(as.character(sel_districts[, 1]))
+    }
   }
   
   # readAntares parameters
-  sel_params <-  suppressWarnings(tryCatch(openxlsx::read.xlsx(input_path, sheet = "readAntares", check.names = FALSE, colNames = TRUE),
-                                           error = function(e) {
-                                             stop("Error reading sheet 'readAntares' : ", e)
-                                           }))
-  
-  if(!is.null(sel_params) && nrow(sel_params) > 0){
+  if("readAntares" %in% openxlsx::getSheetNames(input_path)){
+    sel_params <-  suppressWarnings(tryCatch(openxlsx::read.xlsx(input_path, sheet = "readAntares", 
+                                                                 check.names = FALSE, colNames = TRUE),
+                                             error = function(e) {
+                                               stop("Error reading sheet 'readAntares' : ", e)
+                                             }))
     
-    sel_params[[1]] <- gsub("^([[:space:]]*) | ([[:space:]]*)$", "", sel_params[[1]])
-    sel_params[[2]] <- gsub("^([[:space:]]*) | ([[:space:]]*)$", "", sel_params[[2]])
-    
-    sel_params[[1]] <- na.locf0(sel_params[[1]])
-    
-    for(var in c("misc", "thermalAvailability", "hydroStorage", "hydroStorageMaxPower", "reserve", 
-                 "linkCapacity", "mustRun", "thermalModulation", "reassignCost", "newCols", "removeVirtualAreas")){
-      if(var %in% sel_params[[1]]){
-        sel[[var]] <- as.logical(as.numeric(as.character(sel_params[sel_params[[1]] %in% var, 2])))
+    if(!is.null(sel_params) && nrow(sel_params) > 0){
+      
+      sel_params[[1]] <- gsub("^([[:space:]]*) | ([[:space:]]*)$", "", sel_params[[1]])
+      sel_params[[2]] <- gsub("^([[:space:]]*) | ([[:space:]]*)$", "", sel_params[[2]])
+      
+      # compatibility previous version
+      sel_params[[1]] <- gsub("^storageFlexibility$", "storageFlexibility (PSP)", sel_params[[1]])
+      sel_params[[1]] <- zoo::na.locf0(sel_params[[1]])
+      
+      for(var in c("misc", "thermalAvailability", "hydroStorage", "hydroStorageMaxPower", "reserve", 
+                   "linkCapacity", "mustRun", "thermalModulation", "reassignCost", "newCols", "removeVirtualAreas",
+                   "reassignCost_2", "newCols_2", "removeVirtualAreas_2", "reassignCost_3", "newCols_3", "removeVirtualAreas_3")){
+        if(var %in% sel_params[[1]]){
+          sel[[var]] <- as.logical(as.numeric(as.character(sel_params[sel_params[[1]] %in% var, 2])))
+        }
       }
-    }
-    
-    if("timeStep" %in% sel_params[[1]]){
-      ts <- tolower(as.character(sel_params[sel_params[[1]] %in% "timeStep", 2]))
-      stopifnot(ts %in% c("hourly", "daily", "weekly", "monthly", "annual"))
-      sel$timeStep <- ts
-    }
-    
-    if("mcYears" %in% sel_params[[1]] && !is.na(sel_params[sel_params[[1]] %in% "mcYears", 2])){
-      tmp <- as.character(sel_params[sel_params[[1]] %in% "mcYears", 2])
-      tmp <- gsub("^([[:space:]]*) | ([[:space:]]*)$", "", unlist(strsplit(tmp, ";")))
-      mcy <- suppressWarnings(as.numeric(tmp))
-      if(!any(is.na(mcy))) sel$mcYears <- mcy
-    }
-    
-    for(var in c("select", "storageFlexibility", "production")){
-      tmp <- as.character(sel_params[sel_params[[1]] %in% var, 2])
-      tmp[tolower(tmp) %in% c("na", "empty", "", "null")] <- NA
-      tmp <- tmp[!is.na(tmp)]
-      if(length(tmp) > 0){
-        if(var %in% c("storageFlexibility", "production")) tmp <- tolower(tmp)
-        sel[[var]] <- tmp
+      
+      if("timeStep" %in% sel_params[[1]]){
+        ts <- tolower(as.character(sel_params[sel_params[[1]] %in% "timeStep", 2]))
+        stopifnot(ts %in% c("hourly", "daily", "weekly", "monthly", "annual"))
+        sel$timeStep <- ts
+      }
+      
+      if("mcYears" %in% sel_params[[1]] && !is.na(sel_params[sel_params[[1]] %in% "mcYears", 2])){
+        tmp <- as.character(sel_params[sel_params[[1]] %in% "mcYears", 2])
+        tmp <- gsub("^([[:space:]]*) | ([[:space:]]*)$", "", unlist(strsplit(tmp, ";")))
+        mcy <- suppressWarnings(as.numeric(tmp))
+        if(!any(is.na(mcy))) sel$mcYears <- mcy
+      }
+      
+      areas_var <- c("select", 
+                     
+                     "storageFlexibility (PSP)", "Hydro Storage (PSP_Closed)", 
+                     "Battery Storage (BATT)", "Demand Side (DSR)", "Electric Vehicle (EV)",
+                     "Power-to-gas (P2G)", "Hydrogen (H2)", "production",
+                     
+                     "storageFlexibility (PSP)_2", "Hydro Storage (PSP_Closed)_2", 
+                     "Battery Storage (BATT)_2", "Demand Side (DSR)_2", "Electric Vehicle (EV)_2",
+                     "Power-to-gas (P2G)_2", "Hydrogen (H2)_2", "production_2",
+                     
+                     "storageFlexibility (PSP)_3", "Hydro Storage (PSP_Closed)_3", 
+                     "Battery Storage (BATT)_3", "Demand Side (DSR)_3", "Electric Vehicle (EV)_3",
+                     "Power-to-gas (P2G)_3", "Hydrogen (H2)_3", "production_3"
+      )
+      
+      for(var in areas_var){
+        tmp <- as.character(sel_params[sel_params[[1]] %in% var, 2])
+        tmp[tolower(tmp) %in% c("na", "empty", "", "null")] <- NA
+        tmp <- tmp[!is.na(tmp)]
+        if(length(tmp) > 0){
+          if(var %in% c("storageFlexibility", "production")) tmp <- tolower(tmp)
+          sel[[var]] <- tmp
+        }
       }
     }
   }
@@ -150,6 +211,7 @@ writeStudyShinySelection <- function(val, output_path){
   addWorksheet(wb, "Areas")
   addWorksheet(wb, "Links")
   addWorksheet(wb, "Clusters")
+  addWorksheet(wb, "ClustersRes")
   addWorksheet(wb, "Districts")
   addWorksheet(wb, "readAntares")
   
@@ -169,11 +231,15 @@ writeStudyShinySelection <- function(val, output_path){
               colNames = FALSE, rowNames = FALSE)
   }
   
-  if(!is.null(val$clusters)){
-    writeData(wb, sheet = "Clusters", data.frame(val$clusters), 
+  if(!is.null(val[["clusters"]])){
+    writeData(wb, sheet = "Clusters", data.frame(val[["clusters"]]), 
               colNames = FALSE, rowNames = FALSE)
   }
   
+  if(!is.null(val[["clustersRes"]])){
+    writeData(wb, sheet = "ClustersRes", data.frame(val[["clustersRes"]]), 
+              colNames = FALSE, rowNames = FALSE)
+  }
   antares_read_params <- do.call("rbind.data.frame", 
                                  lapply(c("misc", "thermalAvailability", "hydroStorage", 
                                           "hydroStorageMaxPower", "reserve", "linkCapacity", 
@@ -208,41 +274,57 @@ writeStudyShinySelection <- function(val, output_path){
   }
   antares_read_params <- rbind.data.frame(antares_read_params, sel_params)
   
-  rmv_params <- data.frame(parameters = "removeVirtualAreas",	value = 0, comment = "0 disabled - 1 enabled")
-  if(!is.null(val$removeVirtualAreas)){
-    rmv_params$value <- as.numeric(val$removeVirtualAreas)
+  for(jj in c("", "_2", "_3")){
+    
+    rmv_params <- data.frame(parameters = paste0("removeVirtualAreas", jj),	value = 0, comment = "0 disabled - 1 enabled")
+    
+    if(!is.null(val[[paste0("removeVirtualAreas", jj)]])){
+      rmv_params$value <- as.numeric(val[[paste0("removeVirtualAreas", jj)]])
+    }
+    antares_read_params <- rbind.data.frame(antares_read_params, rmv_params)
+    
+    v_name <- c("storageFlexibility (PSP)", "Hydro Storage (PSP_Closed)",
+                "Battery Storage (BATT)", "Demand Side (DSR)", "Electric Vehicle (EV)",
+                "Power-to-gas (P2G)", "Hydrogen (H2)", "production")
+    
+    v_comment <- c("names of the virtual storage/flexibility areas PSP", 
+                   "names of the virtual hydro storage areas PSP_Closed",
+                   "names of the virtual battery storage areas BATT", 
+                   "names of the virtual demand side areas DSR", 
+                   "names of the virtual electric vehicle areas EV",
+                   "names of the virtual power to gas areas P2G", 
+                   "names of the virtual hydrogen areas H2", 
+                   "names of the virtual productions areas")
+    
+    for(vi in 1:length(v_name)){
+      tmp_name <- paste0(v_name[vi], jj)
+      comment <- v_comment[vi]
+      
+      if(!is.null(val[[tmp_name]])){
+        sel_params <- data.frame(parameters = tmp_name,	value = val[[tmp_name]], comment = comment)
+        sel_params$parameters[-1] <- NA
+        sel_params$comment[-1] <- NA
+      } else {
+        sel_params <- data.frame(parameters = tmp_name,	value = NA, comment = comment)
+      }
+      antares_read_params <- rbind.data.frame(antares_read_params, sel_params)
+    }
+    
+    
+    v_name <- c("reassignCost", "newCols")
+    v_comment <- c("0 disabled - 1 enabled", "0 disabled - 1 enabled")
+    
+    for(vi in 1:length(v_name)){
+      tmp_name <- paste0(v_name[vi], jj)
+      comment <- v_comment[vi]
+      
+      rmv_params <- data.frame(parameters = tmp_name,	value = 0, comment = comment)
+      if(!is.null(val[[tmp_name]])){
+        rmv_params$value <- as.numeric(val[[tmp_name]])
+      }
+      antares_read_params <- rbind.data.frame(antares_read_params, rmv_params)
+    }
   }
-  antares_read_params <- rbind.data.frame(antares_read_params, rmv_params)
-  
-  if(!is.null(val$storageFlexibility)){
-    sel_params <- data.frame(parameters = "storageFlexibility",	value = val$storageFlexibility, comment = "names of the virtual storage/flexibility areas")
-    sel_params$parameters[-1] <- NA
-    sel_params$comment[-1] <- NA
-  } else {
-    sel_params <- data.frame(parameters = "storageFlexibility",	value = NA, comment = "names of the virtual storage/flexibility areas")
-  }
-  antares_read_params <- rbind.data.frame(antares_read_params, sel_params)
-  
-  if(!is.null(val$production)){
-    sel_params <- data.frame(parameters = "production",	value = val$production, comment = "names of the virtual production areas, or empty / NULL / NA")
-    sel_params$parameters[-1] <- NA
-    sel_params$comment[-1] <- NA
-  } else {
-    sel_params <- data.frame(parameters = "production",	value = NA, comment = "names of the virtual production areas, or empty / NULL / NA")
-  }
-  antares_read_params <- rbind.data.frame(antares_read_params, sel_params)
-  
-  rmv_params <- data.frame(parameters = "reassignCost",	value = 0, comment = "0 disabled - 1 enabled")
-  if(!is.null(val$reassignCost)){
-    rmv_params$value <- as.numeric(val$reassignCost)
-  }
-  antares_read_params <- rbind.data.frame(antares_read_params, rmv_params)
-  
-  rmv_params <- data.frame(parameters = "newCols",	value = 0, comment = "0 disabled - 1 enabled")
-  if(!is.null(val$newCols)){
-    rmv_params$value <- as.numeric(val$newCols)
-  }
-  antares_read_params <- rbind.data.frame(antares_read_params, rmv_params)
   
   writeData(wb, sheet = "readAntares", antares_read_params, 
             colNames = TRUE, rowNames = FALSE, keepNA = FALSE)

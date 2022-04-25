@@ -1,8 +1,8 @@
 Package: antaresVizMedTSO
 Type: Package
 Title: Antares Visualizations
-Version: 0.16.2
-Date: 2019-10-09
+Version: 0.17
+Date: 2021-10-14
 Authors@R: c(
     person("Benoit", "Thieurmel", email = "benoit.thieurmel@datastorm.fr", role = c("aut", "cre")),
     person("Francois", "Guillem", , "francois.guillem@rte-france.com", role = "aut"),
@@ -23,7 +23,7 @@ License: GPL (>= 2) | file LICENSE
 LazyData: TRUE
 Encoding: UTF-8
 Depends:
-    antaresRead (>= 2.0.0),
+    antaresRead (>= 2.2.9),
     antaresProcessing (>= 0.13.0), 
     spMaps (>= 0.2)
 Imports:
@@ -35,6 +35,7 @@ Imports:
     manipulateWidget (>= 0.10.0),
     leaflet (>= 1.1.0),
     sp,
+    rgdal,
     rgeos,
     raster,
     webshot,
@@ -51,13 +52,14 @@ Imports:
     openxlsx,
     shinydashboard,
     shinyWidgets, 
+    shinyFiles,
     DT,
     colourpicker,
     ggplot2,
     ggrepel,
     ggforce,
     stringr
-RoxygenNote: 6.1.1
+RoxygenNote: 7.1.2
 Suggests: testthat,
     covr,
     rhdf5 (>= 2.20.2),

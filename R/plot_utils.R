@@ -19,6 +19,7 @@
                        dateRange = NULL, aggregate = c("none", "mean", "sum", "mean by areas", "sum by areas"), 
                        typeConfInt = FALSE) {
   
+  if(is.null(typeConfInt)) typeConfInt <- FALSE
   if (length(variable) == 0){return(tpl[0])}
   if ("all" %in% elements) elements <- uniqueElement
   aggregate <- match.arg(aggregate)

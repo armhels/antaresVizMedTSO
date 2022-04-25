@@ -1,5 +1,26 @@
 function(input, output, session) {
 
+  # shiny files
+  volumes <- {
+    vol <- getVolumes()()
+    # names(vol) <- gsub("/$", "", vol)
+    names(vol) <- vol
+    
+    if(!is.null(study_dir) && study_dir != "" && dir.exists(study_dir)){
+      study_path <- strsplit(study_dir, "/")[[1]]
+      study_path <- paste0(study_path[-length(study_path)], collapse = "/")
+      c(Home = fs::path_home(), vol, Antares = study_path)
+    } else {
+      c(Home = fs::path_home(), vol)
+    }
+  }
+  
+  output$is_manipulate_new_version <- reactive({
+    packageVersion("manipulateWidget") >= "0.11"
+  })
+  
+  outputOptions(output, "is_manipulate_new_version", suspendWhenHidden = FALSE)
+  
   #----------------
   # Write h5
   #----------------
@@ -66,6 +87,20 @@ function(input, output, session) {
           # with areas
           ind_areas <- intersect(which(list_data_all$have_areas), ind_all)
           
+          # all areas in data
+          if(length(ind_areas) > 0){
+            all_areas <- unique(do.call("c", lapply(ind_areas, function(x){
+              data <- list_data_all$antaresDataList[[x]]
+              if("antaresDataTable" %in% class(data)){
+                unique(as.character(data$area))            
+              } else  if("antaresDataList" %in% class(data)){
+                unique(as.character(data$areas$area))
+              }
+            })))
+          } else {
+            all_areas <- NULL
+          }
+          
           # with links
           ind_links <- intersect(which(list_data_all$have_links), ind_all)
           
@@ -91,7 +126,8 @@ function(input, output, session) {
           list(ind_all = ind_all, 
                ind_areas = validAreas, 
                ind_links = validLinks,
-               refStudy = refStudy)
+               refStudy = refStudy, 
+               all_areas = all_areas)
         } else {
           NULL
         }

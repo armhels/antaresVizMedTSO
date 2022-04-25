@@ -1,61 +1,26 @@
 require(data.table)
 require(antaresRead)
 
-path <- "C:\\Users\\Datastorm\\Desktop\\Med-TSO\\Antares_FULL_V2\\Full%20MedTSO%20V2\\Full MedTSO V2"
-
+path <- "C:\\Users\\BenoitThieurmel\\Desktop\\Antares\\Full MedTSO V2"
 
 # path <- "C:\\Users\\Datastorm\\Downloads\\Reference%20May%202019"
 opts <- setSimulationPath(path)
 
-x <- readAntares(areas = "all", timeStep = "monthly", mcYears = 1)
-language <- "medtso"
-print(head(x))
-if(language != "en"){
-  ind_to_change <- which(colnames(x) %in% language_columns$en)
-  if(length(ind_to_change) > 0){
-    new_name <- language_columns[get("en") %in% colnames(x), ]
-    v_new_name <- new_name[[language]]
-    names(v_new_name) <- new_name[["en"]]
-    setnames(x, colnames(x)[ind_to_change], unname(v_new_name[colnames(x)[ind_to_change]]))
-  }
-}
-
-# Annual ----
-params <- antaresVizMedTSO::readStudyShinySelection("C:\\Users\\Datastorm\\Desktop\\Med-TSO\\Antares_FULL_V2\\readAntares_selection_Full perimeter_v2.xlsx")
-params$mcYears <- 1
+areas_districts_selections <- c("fr00", "es00", "fr_all", "medtso")
+links_selections <- c("fr00 - ie00", "es00- fr00")
+# mcYears = 1
 mcYears = NULL
-
-opts = opts
-areas_districts_selections = params$areas
-links_selections = params$links
-mcYears = 1
-removeVirtualAreas = params$removeVirtualAreas
-storageFlexibility =params$storageFlexibility 
-newCols = params$newCols
-production = params$production
-reassignCosts = params$reassignCosts
-rowBal = FALSE
-
-# l <- readRDS("inst/application/l.RDS")
-# 
-# opts = l$opts
-# areas_districts_selections = l$areas_districts_selections
-# links_selections = l$links_selections
-# mcYears = l$mcYears
-# removeVirtualAreas = l$removeVirtualAreas
-# storageFlexibility= l$storageFlexibility
-# production = l$production
-# reassignCosts = l$reassignCosts
-# newCols = l$newCols
-
-
+removeVirtualAreas = FALSE
+storageFlexibility = NULL
+production = NULL
+reassignCosts = FALSE
+newCols = TRUE
+rowBal = TRUE
 system.time({antares_datas <- importAntaresDatasAnnual(opts = opts, areas_districts_selections = areas_districts_selections,
                                                        links_selections = links_selections, mcYears = mcYears, 
                                                        removeVirtualAreas = removeVirtualAreas, storageFlexibility =storageFlexibility, 
                                                        newCols = newCols)})
 
-saveRDS(antares_datas, file = "antares_datas.RDS", compress = FALSE)
-antares_datas <- readRDS("antares_datas.RDS")
 sim_name <- unlist(strsplit(opts$simPath, "/"))
 sim_name <- sim_name[length(sim_name)]
 data_intro <- data.table("Scenario" = c("Simulator", "Date", "Status", "MC-Year Selection", "Study", "Simulation"), 
@@ -75,14 +40,26 @@ vars = vars
 opts = antares_datas$opts
 data_intro = data_intro
 
-annual_outputs <- formatAnnualOutputs(data_areas_dist_clust = antares_datas$data_areas_dist_clust,
+template <- "C:/Users/BenoitThieurmel/Documents/git/antaresVizMedTSO/inst/application/www/Annual_OutputFile_Template_R.xlsx"
+
+# annual_outputs <- formatAnnualOutputs(data_areas_dist_clust = antares_datas$data_areas_dist_clust,
+#                                       data_areas_dist_clustH = antares_datas$data_areas_dist_clustH,
+#                                       dataForSurplus = antares_datas$dataForSurplus,
+#                                       data_areas_districts = antares_datas$data_areas_districts,
+#                                       links_selections = antares_datas$links_selections,
+#                                       areas_districts_selections = antares_datas$areas_districts_selections,
+#                                       vars = vars, opts = antares_datas$opts, data_intro = data_intro)
+
+annual_outputs_v3 <- formatAnnualOutputs(data_areas_dist_clust = antares_datas$data_areas_dist_clust,
                                       data_areas_dist_clustH = antares_datas$data_areas_dist_clustH,
                                       dataForSurplus = antares_datas$dataForSurplus,
                                       data_areas_districts = antares_datas$data_areas_districts,
                                       links_selections = antares_datas$links_selections,
                                       areas_districts_selections = antares_datas$areas_districts_selections,
-                                      vars = vars, opts = antares_datas$opts, data_intro = data_intro)
+                                      opts = antares_datas$opts, data_intro = data_intro, template =template)
 
+all.equal(annual_outputs$data_long_out[, 3:5], annual_outputs_v2$data_long_out)
+all.equal(annual_outputs$t_welfare_block, annual_outputs_v2$yearly_welfare)
 
 View(annual_outputs$data_long_out[, c(1:2, 15:20)])
 removeVirtualAreas = TRUE

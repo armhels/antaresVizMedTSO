@@ -18,21 +18,21 @@ if (Sys.info()['sysname'] == 'Darwin') {
   choose.dir = function(default = NA, caption = NA) {
     command = 'osascript'
     args = '-e "POSIX path of (choose folder{{prompt}}{{default}})"'
-
+    
     if (!is.null(caption) && !is.na(caption) && nzchar(caption)) {
       prompt = sprintf(' with prompt \\"%s\\"', caption)
     } else {
       prompt = ''
     }
     args = sub('{{prompt}}', prompt, args, fixed = T)
-
+    
     if (!is.null(default) && !is.na(default) && nzchar(default)) {
       default = sprintf(' default location \\"%s\\"', path.expand(default))
     } else {
       default = ''
     }
     args = sub('{{default}}', default, args, fixed = T)
-
+    
     suppressWarnings({
       path = system2(command, args = args, stderr = TRUE)
     })
@@ -40,7 +40,7 @@ if (Sys.info()['sysname'] == 'Darwin') {
       # user canceled
       path = NA
     }
-
+    
     return(path)
   }
 } else if (Sys.info()['sysname'] == 'Linux') {
@@ -63,6 +63,39 @@ if (Sys.info()['sysname'] == 'Darwin') {
       path = path[2]
     }
     
+    return(path)
+  }
+} else if (Sys.info()['sysname'] == 'Windows') {
+  
+  choose.dir =  function(default = NA, caption = NA, useNew = TRUE) {
+    if(useNew){
+      ## uses a powershell script rather than the bat version, gives a nicer interface
+      ## and allows setting of the default directory and the caption
+      # whereisutils <- system.file("utils", 'newFolderDialog.ps1', package = "shinyDirectoryInput")
+      whereisutils <- file.path("src", "scripts", 'newFolderDialog.ps1')
+      command = 'powershell'
+      args = paste('-NoProfile -ExecutionPolicy Bypass -File',normalizePath(whereisutils))
+      if (!is.null(default) && !is.na(default) && nzchar(default)) {
+        args = paste(args, sprintf('-default "%s"', normalizePath(default)))
+      }
+      
+      if (!is.null(caption) && !is.na(caption) && nzchar(caption)) {
+        args = paste(args, sprintf('-caption "%s"', caption))
+      }
+      
+      suppressWarnings({
+        path = system2(command, args = args, stdout = TRUE)
+      })
+    } else {
+      # whereisutils <- system.file("utils", 'choose_dir.bat', package = "shinyDirectoryInput")
+      whereisutils <- file.path("src", "scripts", 'choose_dir.bat')
+      command = normalizePath(whereisutils)
+      args = if (is.na(caption)) '' else sprintf('"%s"', caption)
+      suppressWarnings({
+        path = system2(command, args = args, stdout = TRUE)
+      })
+    }  
+    if (path == 'NONE') path = NA
     return(path)
   }
 }
@@ -91,14 +124,14 @@ directoryInput = function(inputId, label, value = NULL) {
   if (!is.null(value) && !is.na(value)) {
     value = path.expand(value)
   }
-
+  
   tagList(
     singleton(
       tags$head(
         tags$script(src = 'js/directory_input_binding.js')
       )
     ),
-
+    
     div(
       class = 'form-group directory-input-container',
       .shiny_AND(label, tags$label(label)),
@@ -129,9 +162,9 @@ directoryInput = function(inputId, label, value = NULL) {
         )
       )
     )
-
+    
   )
-
+  
 }
 
 .shiny_AND <- function (x, y) {

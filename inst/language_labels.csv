@@ -137,6 +137,7 @@ Please first choose a folder with antares output;Sélectionner un répertoire co
 Please set or import a map layout before;Editer ou importer le positionnement des points;Please set or import a map layout before
 Download Layout;Télécharger le positionnement;Download Layout
 Import a layout;Importer un positionnement;Import a layout
+Edit layout;Editer le positionnement;Edit layout
 Current map layout;Positionnement actuel;Current map layout
 Countries;Pays;Countries
 States;Etats;States
@@ -155,6 +156,8 @@ Invalid Map Layout : wrongs nodes/links informations;Informations sur les positi
 To use a reference, select at least two studies, number of studies selected :;Pour utiliser une référence, sélectionnez au moins deux études, nombre d'études sélectionnées :;To use a reference, select at least two studies, number of studies selected :
 Import a selection file (.xlsx);Importer un fichier de sélection (.xlsx);Import a selection file (.xlsx)
 Download selection file template;Télécharger le modèle du fichier de sélection;Download selection file template
+Import a template output file (.xlsx);Importer un template de fichier de sortie;Import a template output file (.xlsx)
+Download template output file example;Télécharger le modèle du template de fichier de sortie;Download template output file example
 Generate current selection file;Générer le fichier de la sélection actuelle;Generate current selection file
 Error reading selection file;Erreur lors de la lecture du fichier de sélection;Error reading selection file
 Warning reading selection file;Warning lors de la lecture du fichier de sélection;Warning reading selection file
@@ -170,3 +173,10 @@ Med-TSO Maps; Cartes Med-TSO;Med-TSO Maps
 Export;Exportation;Export
 Generate output file;Générer le fichier de sortie;Generate output file
 File automatically downloaded in default folder;Fichier téléchargé automatiquement dans le répertoire par défaut;File automatically downloaded in default folder
+Import a plotMap configuration (.RDS);Importer une configuration plotMap (.RDS);Import a plotMap configuration (.RDS)
+Download current plotMap configuration;Télécharger la configuration actuelle du plotMap;Download current plotMap configuration
+Download current color settings;Télécharger la charte graphique actuelle;Download current color settings
+Import color settings (.RDS);Importer une charte graphique (.RDS);Import color settings (.RDS)
+Colors;Couleurs;Colors
+step;étape;step
+Import new production stack configuration (.R);Importer des nouvelles définitions d'empilements (.R);Import new production stack configuration (.R)

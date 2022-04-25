@@ -5,12 +5,16 @@ MRG. PRICE;Prix_marginal;Marginal_price
 CO2 EMIS.;Emissions_CO2;CO2_emissions
 BALANCE;Echanges;Balance
 ROW BAL.;Balance_autres_pays;RoW_Balance
-PSP;Pompage_turbinage;Pumping_Storage_Plant
 MISC. NDG;Autres_renouvelables;Other_renewables
 LOAD;Consommation;Demand
 H. ROR;Hydraulique_fil;Hydro_ROR
 WIND;Eolien;Wind
+WIND OFFSHORE;eolien offshore;Wind_Offshore
+WIND ONSHORE;eolien onshore;Wind_Onshore
 SOLAR;Solaire;Solar
+SOLAR CONCRT.;solaire a concentration;Solar_CSP
+SOLAR PV;solaire PV;Solar_PV
+SOLAR ROOFT;solaire toiture;Solar_Rooftop
 NUCLEAR;Nucleaire;Nuclear
 LIGNITE;Lignite;Lignite
 COAL;Charbon;Coal
@@ -18,24 +22,29 @@ GAS;Gaz;Gas
 OIL;Fioul;Oil
 MIX. FUEL;Thermique_mixte;Mix_Fuel
 MISC. DTG;Thermique_autre;Other_Fuel
+MISC. DTG 2;thermique_autre 2;Other_Fuel_2
+MISC. DTG 3;thermique_autre 3;Other_Fuel_3
+MISC. DTG 4;thermique_autre 4;Other_Fuel_4
 H. STOR;Hydraulique_lac;Hydro_reservoir
 UNSP. ENRG;Energie_non_distribuee;Unsupplied_energy
 SPIL. ENRG;Deversement;Dumped_energy
 LOLD;Duree_defaillance;Loss_of_load_duration
-LOLP;Probabilite_defaillance;Loss_of_load_prob
+LOLP;Probabilite_defaillance;Loss_of_load_Expectation
 AVL DTG;Thermique_disponible;Available_thermal
 DTG MRG;Marge_thermique;Thermal_margin
 MAX MRG;Marge_maximum;Maximum_margin
 NP COST ;Cout_demarrage;Starting_cost
-NODU;Unite_demarre;Nb_unit_commitment
-FLOW LIN.;Flux;Flow
+NODU;Nb_unite_demarre;Nb_unit_commitment
+FLOW LIN.;Echange net;Exchange (net)
+FLOW_NEG;Echange (Import);Exchange (Import)
+FLOW_POS;Echange (Export);Exchange (Export)
 UCAP LIN.;Flux_absolu;Flow_(abs)
 FLOW QUAD.;Flux_quadratique;Flow_(quad)
 CONG. FEE (ALG.);Cout_congestion;Congestion_fee
 CONG. FEE (ABS.);Cout_congesition_absolu;Congestion_fee_(Abs)
 MARG. COST;Ecart_cout_marginal;Marginal_cost_diff
-CONG. PROB +;Congestion_prob+;Congestion_prob+
-CONG. PROB -;Congestion_prob-;Congestion_prob-
+CONG. PROB +;Congestion_prob_Export;Congestion_prob_Export
+CONG. PROB -;Congestion_prob_Import;Congestion_prob_Import
 HURDLE COST;Hurdle_cost;Hurdle_cost
 congestion;Congestion;Congestion
 effacement;Effacement;Demand_side_Management
@@ -59,7 +68,7 @@ thermal;Thermique;Thermal
 thermalDispatchable;Thermique dispatchable;thermalDispatchable
 hydraulicDispatchable;Hydraulique dispatchable;hydraulicDispatchable
 oil;Fioul;Oil
-generation;Generation;Generation
+generation;Production;Generation
 economy;Economie;Economy
 adequacy;Adequation;Adequacy
 mixFuel;Thermique mixte;mixFuel
@@ -68,9 +77,37 @@ hydraulicRor;Hydraulique_fil;hydraulicRor
 hydraulicStor;Hydraulique_lac;hydraulicStor
 totalProduction;Production Totale;totalProduction
 netLoad;Consommation nette;netLoad
-thermalAvailability;Marge disponible;thermalAvailability
-Battery_storage_&_pumping;Stockage_batterie_&_pompage;Battery_storage_&_pumping
-Battery_discharge_&_turbine;Decharge_batterie_&_turbine;Battery_discharge_&_turbine
+thermalAvailability;Thermique disponible;thermalAvailability
 Others_non-renewable;Autres_non-renouvelables;Others_non-renewable
+Other renewable;Autre renouvelable;Other renewable
+Others thermal;Autres thermiques;Others thermal
 Hydro;Hydroelectricite;Hydro_generation
 Total generation;Production totale;Total generation
+RENW. 1;RENW. 1;RENW. 1
+RENW. 2;RENW. 2;RENW. 2
+RENW. 3;RENW. 3;RENW. 3
+RENW. 4;RENW. 4;RENW. 4
+PSP;STEP avec apport (bilan net);Pump Storage - Open Loop (net)
+PSP_POS;STEP avec apport (turbine);Pump Storage - Open Loop (turbine)
+PSP_NEG;STEP avec apport (pompe);Pump Storage - Open Loop (pump)
+PSP_closed;STEP sans apport (bilan net);Pump Storage - Closed Loop (net)
+PSP_closed_POS;STEP sans apport (turbine);Pump Storage - Closed Loop (turbine)
+PSP_closed_NEG;STEP sans apport (pompe);Pump Storage - Closed Loop (pump)
+BATT;Stockage par batterie (bilan net);Battery Storage (net)
+BATT_POS;Stockage par batterie (decharge);Battery Storage discharge
+BATT_NEG;Stockage par batterie (charge);Battery Storage charge
+DSR;Effacements (net);Demand Side Response (net)
+DSR_POS;DSR_POS;DSR_POS
+DSR_NEG;DSR_NEG;DSR_NEG
+EV;Vehicule Electrique (consommation nette);Electric Vehicle (net)
+EV_POS;Vehicule Electrique (V2G);Electric Vehicle (V2G)
+EV_NEG;Vehicule Electrique (G2V);Electric Vehicle (G2V)
+P2G;Power to Gas;Power to Gas
+P2G_POS;Power to Gas (production electricite);Power to Gas (generation)
+P2G_NEG;Power to Gas (demande);Power to Gas (load)
+H2;Power to Hydrogen;Power to Hydrogen
+H2_POS;Pile a combustible a Hydrogene;Fuel Cell Hydrogen
+H2_NEG;Power to Hydrogen (consommation electrolyse);Power to Hydrogen (Electrolizer load)
+Battery;Batterie;Battery
+Total load;Consommation totale;Total load
+Electric Vehicle;Vehicule Electrique;Electric Vehicle

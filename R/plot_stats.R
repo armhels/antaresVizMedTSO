@@ -2,6 +2,9 @@
                           main = NULL, ylab = NULL, highlight = FALSE, stepPlot = FALSE, drawPoints = FALSE, language = "en", 
                           label_variable2Axe = NULL, ...) {
   
+  if(is.null(typeConfInt)) typeConfInt <- FALSE
+  if(is.null(confInt)) confInt <- 0
+  
   uniqueElements <- as.character(sort(unique(dt$element)))
   plotConfInt <- FALSE
   # If dt contains several Monte-Carlo scenario, compute aggregate statistics

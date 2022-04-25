@@ -110,33 +110,6 @@ for(j in 1:16){
                                       value = FALSE)
                 } else {
                   data <- list_data[[k]]
-                  # if("list" %in% class(data)){
-                  #   if(length(data) > 0) {
-                  #     ctrl <- sapply(1:length(data), FUN = function(i){
-                  #       data_i <- data[[i]]
-                  #       if("timeId" %in% colnames(data[[i]])) {
-                  #         data[[i]][, timeId := NULL]
-                  #       }
-                  #       changeCols <- colnames(data[[i]])[which(sapply(data[[i]], function(x) {
-                  #         "factor" %in% class(x)
-                  #       }))]
-                  #       if(length(changeCols) > 0){
-                  #         data[[i]][,(changeCols) := lapply(.SD, as.character), .SDcols = changeCols]
-                  #       }
-                  #       invisible(NULL)
-                  #     })
-                  #   }
-                  # } else if("data.frame" %in% class(data)) {
-                  #   if("timeId" %in% colnames(data)) {
-                  #     data[, timeId := NULL]
-                  #   }
-                  #   changeCols <- colnames(data)[which(sapply(data, function(x) {
-                  #     "factor" %in% class(x)
-                  #   }))]
-                  #   if(length(changeCols) > 0){
-                  #     data[,(changeCols):= lapply(.SD, as.character), .SDcols = changeCols]
-                  #   }
-                  # }
                   imported_data(data)
                 }
               }
@@ -153,6 +126,7 @@ for(j in 1:16){
 
 output$panels_tab <- renderUI({
   imported_data <- imported_data()
+  # browser()
   isolate({
     if(!is.null(imported_data)) {
       nb_panels <- ifelse("list" %in% class(imported_data), length(imported_data), 1)
@@ -213,7 +187,7 @@ output$panels_tab <- renderUI({
         liste_tab <- list()
         sapply(1:nb_panels, FUN = function(nb){
           panel_name <- names(imported_data)[nb]
-          if(panel_name == "clusters") {
+          if(panel_name %in% c("clusters", "clustersRes")) {
             liste_tab[[nb]] <<- tabPanel(title = panel_name,
                                          fluidRow(column(3,
                                                          selectInput(paste0("lig", nb), label = "Areas", choices = NULL, selected = NULL, multiple = T)),
@@ -263,6 +237,8 @@ output$panels_tab <- renderUI({
           res_list <- tabsetPanel(liste_tab[[1]], liste_tab[[2]], liste_tab[[3]])
         } else if(nb_panels == 4) {
           res_list <- tabsetPanel(liste_tab[[1]], liste_tab[[2]], liste_tab[[3]], liste_tab[[4]])
+        } else if(nb_panels == 5) {
+          res_list <- tabsetPanel(liste_tab[[1]], liste_tab[[2]], liste_tab[[3]], liste_tab[[4]], liste_tab[[5]])
         }
 
       } else {
@@ -284,6 +260,7 @@ observe({
   if(!is.null(imported_data)) {
     isolate({
 
+      # browser()
       nb_panels <- ifelse("list" %in% class(imported_data), length(imported_data), 1)
       if(nb_panels == 1) {
 
@@ -299,12 +276,12 @@ observe({
         } else if(panel_name == "districts") {
           choix_lig1 <- unique(imported_data$district)
           choix_col1 <- colnames(imported_data)[-which(colnames(imported_data) == "district")]
-        } else if(panel_name == "clusters") {
+        } else if(panel_name %in% c("clusters", "clustersRes")) {
           choix_lig1 <- unique(imported_data$area)
           choix_col1 <- colnames(imported_data)[-which(colnames(imported_data) %in% c("area", "cluster"))]
         }
 
-        if(panel_name == "clusters") {
+        if(panel_name %in% c("clusters", "clustersRes")) {
           updateSelectInput(session, "lig1", label = "areas", choices = c("all", as.character(choix_lig1)),
                             selected = "all")
         } else {
@@ -336,13 +313,13 @@ observe({
             choix_lig1 <- unique(data_nb$district)
             choix_col1 <- colnames(data_nb)[-which(colnames(data_nb) %in% c("district","month", "week",
                                                                             "day", "hour", "time"))]
-          } else if(panel_name == "clusters") {
+          } else if(panel_name %in% c("clusters", "clustersRes")) {
             choix_lig1 <- unique(data_nb$area)
             choix_col1 <- colnames(data_nb)[-which(colnames(data_nb) %in% c("area", "cluster", "month", "week",
                                                                             "day", "hour", "time"))]
           }
 
-          if(panel_name == "clusters") {
+          if(panel_name %in% c("clusters", "clustersRes")) {
             updateSelectInput(session, paste0("lig", nb), label = "areas",
                               choices = c("all", as.character(choix_lig1)), selected = "all")
           } else {
@@ -378,7 +355,7 @@ choix_lig1_2 <- reactive({
         data_nb <- imported_data
       }
 
-      if(panel_name == "clusters" & !is.null(input[[paste0("lig", 1)]])) {
+      if(panel_name %in% c("clusters", "clustersRes") & !is.null(input[[paste0("lig", 1)]])) {
         if("all" %in% lig1) {
           lig1 <- as.character(unique(data_nb$area))
         }
@@ -421,7 +398,7 @@ choix_lig2_2 <- reactive({
       if(nb_panels > 1) {
         panel_name = names(imported_data)[2]
         data_nb <- imported_data[[2]]
-        if(panel_name == "clusters" & !is.null(input[[paste0("lig", 2)]])) {
+        if(panel_name %in% c("clusters", "clustersRes") & !is.null(input[[paste0("lig", 2)]])) {
           if("all" %in% lig2) {
             lig2 <- as.character(unique(data_nb$area))
           }
@@ -468,7 +445,7 @@ choix_lig3_2 <- reactive({
       if(nb_panels > 1) {
         panel_name = names(imported_data)[3]
         data_nb <- imported_data[[3]]
-        if(panel_name == "clusters" & !is.null(input[[paste0("lig", 3)]])) {
+        if(panel_name %in% c("clusters", "clustersRes") & !is.null(input[[paste0("lig", 3)]])) {
           if("all" %in% lig3) {
             lig3 <- as.character(unique(data_nb$area))
           }
@@ -514,7 +491,7 @@ choix_lig4_2 <- reactive({
       if(nb_panels > 1) {
         panel_name = names(imported_data)[4]
         data_nb <- imported_data[[4]]
-        if(panel_name == "clusters" & !is.null(input[[paste0("lig", 4)]])) {
+        if(panel_name %in% c("clusters", "clustersRes") & !is.null(input[[paste0("lig", 4)]])) {
           if("all" %in% lig4) {
             lig4 <- as.character(unique(data_nb$area))
           }
@@ -551,6 +528,51 @@ observe({
   }
 })
 
+choix_lig5_2 <- reactive({
+  imported_data <- imported_data()
+  lig5 <- input$lig5
+  isolate({
+    if(!is.null(lig5) & length(imported_data) > 3) {
+      nb_panels <- ifelse("list" %in% class(imported_data), length(imported_data), 1)
+      if(nb_panels > 1) {
+        panel_name = names(imported_data)[5]
+        data_nb <- imported_data[[5]]
+        if(panel_name %in% c("clusters", "clustersRes") & !is.null(input[[paste0("lig", 5)]])) {
+          if("all" %in% lig5) {
+            lig5 <- as.character(unique(data_nb$area))
+          }
+          data_2 <- data_nb[area %in% lig5]
+          choix_lig5_2 <- c("all", as.character(unique(data_2$cluster)))
+          
+          current_sel <- isolate(input$lig5_2)
+          selected <- intersect(current_sel, choix_lig5_2)
+          if(length(selected) == 0){
+            selected = "all"
+          }
+          choix_lig5_2 <- list(choices = choix_lig5_2, selected = selected)
+        } else {
+          choix_lig5_2 <- NULL
+        }
+        
+      } else {
+        choix_lig5_2 <- NULL
+      }
+      return(choix_lig5_2)
+    }
+    
+  })
+})
+
+observe({
+  choix_lig5_2 <- choix_lig5_2()
+  if(!is.null(choix_lig5_2)) {
+    isolate({
+      updateSelectInput(session, "lig5_2", label = "Clusters", choices = as.character(choix_lig5_2$choices),
+                        selected = as.character(choix_lig4_2$selected))
+      
+    })
+  }
+})
 # donnees et tables -------------------------------------------------------
 
 data_dt1 <- reactive({
@@ -700,6 +722,41 @@ output$box_tab4_3 <- renderInfoBox({
 })
 
 
+data_dt5 <- reactive({
+  imported_data <- imported_data()
+  if(!is.null((imported_data))) {
+    nb_panels <- ifelse("list" %in% class(imported_data), length(imported_data), 1)
+    
+    panel_name <- names(imported_data)[5]
+    data2 <- imported_data[[5]]
+    
+    data2 <- subsetDataTable(data = data2, panel_name = panel_name,
+                             lig1 = input$lig5, lig2 = input$lig5_2, col1 = input$col5)
+    
+    data2
+    
+  } else {
+    data.table("No data")
+  }
+})
+
+output$dt5 <- renderDT({
+  datatable(head(data_dt5(), 10), rownames = FALSE,
+            options = list(dom = 't', scrollX = TRUE))
+})
+
+output$box_tab5_1 <- renderInfoBox({
+  infoBox(title = antaresVizMedTSO:::.getLabelLanguage("N. Rows", current_language$language), value = nrow(data_dt5()), icon = icon("bars"), color = "green", fill = FALSE)
+})
+
+output$box_tab5_2 <- renderInfoBox({
+  infoBox(title = antaresVizMedTSO:::.getLabelLanguage("N. Cols", current_language$language), value = ncol(data_dt5()), icon = icon("barcode"), color = "green", fill = FALSE)
+})
+
+output$box_tab5_3 <- renderInfoBox({
+  infoBox(title = antaresVizMedTSO:::.getLabelLanguage("Size", current_language$language), value = format(object.size(data_dt4()), units = "auto"), icon = icon("archive"), color = "green", fill = FALSE)
+})
+
 # Import des donnees ------------------------------------------------------
 output$import_data <- downloadHandler(
   filename = function() {
@@ -712,22 +769,22 @@ output$import_data <- downloadHandler(
                                 message = list(id = "#export_busy"))
 
       withCallingHandlers({
-        tryCatch({openxlsx::write.xlsx(data_res, file, row.names = FALSE)},
+        tryCatch({openxlsx::write.xlsx(data_res, file, rowNames = FALSE)},
                  error = function(e){
                    showModal(modalDialog(
                      title = "Error writing data",
                      easyClose = TRUE,
                      footer = NULL,
-                     paste("You can try to reduce size... Error : ", e, sep = "\n")
+                     paste("You can try to reduce size... Error : ", e$message, sep = "\n")
                    ))
-                   openxlsx::write.xlsx(NULL, file, row.names = FALSE)
+                   openxlsx::write.xlsx(NULL, file, rowNames = FALSE)
                  })},
         warning = function(w){
           showModal(modalDialog(
             title = "Warning writing data",
             easyClose = TRUE,
             footer = NULL,
-            w
+            w$message
           ))
         }
       )
@@ -766,22 +823,22 @@ output$import_data_sel <- downloadHandler(
                                 message = list(id = "#export_busy"))
 
       withCallingHandlers({
-        tryCatch({openxlsx::write.xlsx(data_import, file, row.names = FALSE)},
+        tryCatch({openxlsx::write.xlsx(data_import, file, rowNames = FALSE)},
                  error = function(e){
                    showModal(modalDialog(
                      title = "Error writing data",
                      easyClose = TRUE,
                      footer = NULL,
-                     paste("You can try to reduce size... Error : ", e, sep = "\n")
+                     paste("You can try to reduce size... Error : ", e$message, sep = "\n")
                    ))
-                   openxlsx::write.xlsx(NULL, file, row.names = FALSE)
+                   openxlsx::write.xlsx(NULL, file, rowNames = FALSE)
                  })},
         warning = function(w){
           showModal(modalDialog(
             title = "Warning writing data",
             easyClose = TRUE,
             footer = NULL,
-            w
+            w$message
           ))
         }
       )
@@ -811,22 +868,22 @@ output$import_tab1 <- downloadHandler(
                                 message = list(id = "#export_busy_1"))
 
       withCallingHandlers({
-        tryCatch({openxlsx::write.xlsx(data_res, file, row.names = FALSE)},
+        tryCatch({openxlsx::write.xlsx(data_res, file, rowNames = FALSE)},
                  error = function(e){
                    showModal(modalDialog(
                      title = "Error writing data",
                      easyClose = TRUE,
                      footer = NULL,
-                     paste("You can try to reduce size... Error : ", e, sep = "\n")
+                     paste("You can try to reduce size... Error : ", e$message, sep = "\n")
                    ))
-                   openxlsx::write.xlsx(NULL, file, row.names = FALSE)
+                   openxlsx::write.xlsx(NULL, file, rowNames = FALSE)
                  })},
         warning = function(w){
           showModal(modalDialog(
             title = "Warning writing data",
             easyClose = TRUE,
             footer = NULL,
-            w
+            w$message
           ))
         }
       )
@@ -856,22 +913,22 @@ output$import_tab2 <- downloadHandler(
                                 message = list(id = "#export_busy_2"))
 
       withCallingHandlers({
-        tryCatch({openxlsx::write.xlsx(data_res, file, row.names = FALSE)},
+        tryCatch({openxlsx::write.xlsx(data_res, file, rowNames = FALSE)},
                  error = function(e){
                    showModal(modalDialog(
                      title = "Error writing data",
                      easyClose = TRUE,
                      footer = NULL,
-                     paste("You can try to reduce size... Error : ", e, sep = "\n")
+                     paste("You can try to reduce size... Error : ", e$message, sep = "\n")
                    ))
-                   openxlsx::write.xlsx(NULL, file, row.names = FALSE)
+                   openxlsx::write.xlsx(NULL, file, rowNames = FALSE)
                  })},
         warning = function(w){
           showModal(modalDialog(
             title = "Warning writing data",
             easyClose = TRUE,
             footer = NULL,
-            w
+            w$message
           ))
         }
       )
@@ -901,22 +958,22 @@ output$import_tab3 <- downloadHandler(
                                 message = list(id = "#export_busy_3"))
 
       withCallingHandlers({
-        tryCatch({openxlsx::write.xlsx(data_res, file, row.names = FALSE)},
+        tryCatch({openxlsx::write.xlsx(data_res, file, rowNames = FALSE)},
                  error = function(e){
                    showModal(modalDialog(
                      title = "Error writing data",
                      easyClose = TRUE,
                      footer = NULL,
-                     paste("You can try to reduce size... Error : ", e, sep = "\n")
+                     paste("You can try to reduce size... Error : ", e$message, sep = "\n")
                    ))
-                   openxlsx::write.xlsx(NULL, file, row.names = FALSE)
+                   openxlsx::write.xlsx(NULL, file, rowNames = FALSE)
                  })},
         warning = function(w){
           showModal(modalDialog(
             title = "Warning writing data",
             easyClose = TRUE,
             footer = NULL,
-            w
+            w$message
           ))
         }
       )
@@ -946,22 +1003,22 @@ output$import_tab4 <- downloadHandler(
                                 message = list(id = "#export_busy_4"))
 
       withCallingHandlers({
-        tryCatch({openxlsx::write.xlsx(data_res, file, row.names = FALSE)},
+        tryCatch({openxlsx::write.xlsx(data_res, file, rowNames = FALSE)},
                  error = function(e){
                    showModal(modalDialog(
                      title = "Error writing data",
                      easyClose = TRUE,
                      footer = NULL,
-                     paste("You can try to reduce size... Error : ", e, sep = "\n")
+                     paste("You can try to reduce size... Error : ", e$message, sep = "\n")
                    ))
-                   openxlsx::write.xlsx(NULL, file, row.names = FALSE)
+                   openxlsx::write.xlsx(NULL, file, rowNames = FALSE)
                  })},
         warning = function(w){
           showModal(modalDialog(
             title = "Warning writing data",
             easyClose = TRUE,
             footer = NULL,
-            w
+            w$message
           ))
         }
       )
@@ -980,6 +1037,50 @@ output$import_tab4 <- downloadHandler(
   }
 )
 
+output$import_tab5 <- downloadHandler(
+  filename = function() {
+    paste0("Antares_IO_", format(Sys.time(), "%d%m%Y_%H%M%S"), ".xlsx")
+  },
+  content = function(file) {
+    data_res <- data_dt5()
+    if(!is.null(data_res)){
+      session$sendCustomMessage(type = 'show_spinner',
+                                message = list(id = "#export_busy_5"))
+      
+      withCallingHandlers({
+        tryCatch({openxlsx::write.xlsx(data_res, file, rowNames = FALSE)},
+                 error = function(e){
+                   showModal(modalDialog(
+                     title = "Error writing data",
+                     easyClose = TRUE,
+                     footer = NULL,
+                     paste("You can try to reduce size... Error : ", e$message, sep = "\n")
+                   ))
+                   openxlsx::write.xlsx(NULL, file, rowNames = FALSE)
+                 })},
+        warning = function(w){
+          showModal(modalDialog(
+            title = "Warning writing data",
+            easyClose = TRUE,
+            footer = NULL,
+            w$message
+          ))
+        }
+      )
+      
+      if(is_electron){
+        showModal(modalDialog(
+          antaresVizMedTSO:::.getLabelLanguage("File automatically downloaded in default folder", current_language),
+          easyClose = TRUE,
+          footer = NULL
+        ))
+      }
+      
+      session$sendCustomMessage(type = 'hide_spinner',
+                                message = list(id = "#export_busy_5"))
+    }
+  }
+)
 output$export_btn <- renderUI({
   current_language <- current_language$language
   isolate({

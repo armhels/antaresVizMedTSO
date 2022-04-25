@@ -34,7 +34,7 @@ globalVariables(
 .checkAttrs <- antaresProcessing:::.checkAttrs
 
 DEFAULT_CAT_COLORS <- c("#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd",
-                      "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf")
+                        "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf")
 
 # Private variables accessible only by functions from the package
 pkgEnv <- antaresRead:::pkgEnv
@@ -94,34 +94,34 @@ needed <- strsplit(needed, ",")
 #
 pkgEnv$prodStackAliases <- list(
   
-  eco2mix = .getProdStackAlias(
-    description = "Production stack used on Eco2mix website: 
-    http://www.rte-france.com/fr/eco2mix/eco2mix-mix-energetique",
-    var = c("pumpedStorage", "import/export", "bioenergy", "wind", "solar", 
-            "nuclear", "hydraulic", "gas", "coal", "lignite", "oil", "other"),
-    lines = c("load", "totalProduction")
-  ),
-  
-  thermalFirst = .getProdStackAlias(
-    description = "thermal first",
-    var = c("pumpedStorage", "import/export", "nuclear", "lignite", "coal", "gas",
-            "oil", "mixFuel", "misc. DTG", "bioenergy", "wind", "solar", 
-            "hydraulicRor", "hydraulicStor"),
-    lines = c("load", "totalProduction")
-  ),
-  
-  netLoad = .getProdStackAlias(
-    description = "netLoad",
-    var = c("pumpedStorage", "import/export", "nuclear", "lignite", "coal", "gas",
-            "oil", "mixFuel", "misc. DTG", "hydraulicStor"),
-    lines = c("netLoad")
-  ),
-  
-  mustRun = .getProdStackAlias(
-    description = "must-run",
-    var = c("pumpedStorage", "import/export", "mustRunTotal", "thermalDispatchable",
-            "hydraulicDispatchable", "renewableNoDispatchable")
-  )
+  # eco2mix = .getProdStackAlias(
+  #   description = "Production stack used on Eco2mix website: 
+  #   http://www.rte-france.com/fr/eco2mix/eco2mix-mix-energetique",
+  #   var = c("pumpedStorage", "import/export", "bioenergy", "wind", "solar", 
+  #           "nuclear", "hydraulic", "gas", "coal", "lignite", "oil", "other"),
+  #   lines = c("load", "totalProduction")
+  # ),
+  # 
+  # thermalFirst = .getProdStackAlias(
+  #   description = "thermal first",
+  #   var = c("pumpedStorage", "import/export", "nuclear", "lignite", "coal", "gas",
+  #           "oil", "mixFuel", "misc. DTG", "bioenergy", "wind", "solar", 
+  #           "hydraulicRor", "hydraulicStor"),
+  #   lines = c("load", "totalProduction")
+  # ),
+  # 
+  # netLoad = .getProdStackAlias(
+  #   description = "netLoad",
+  #   var = c("pumpedStorage", "import/export", "nuclear", "lignite", "coal", "gas",
+  #           "oil", "mixFuel", "misc. DTG", "hydraulicStor"),
+  #   lines = c("netLoad")
+  # ),
+  # 
+  # mustRun = .getProdStackAlias(
+  #   description = "must-run",
+  #   var = c("pumpedStorage", "import/export", "mustRunTotal", "thermalDispatchable",
+  #           "hydraulicDispatchable", "renewableNoDispatchable")
+  # )
 )
 
 rm(graphicalCharter, formulas, colors)
@@ -167,14 +167,26 @@ expand_language_columns <- copy(language_columns)
 language_columns[, tmp_row := 1:nrow(language_columns)]
 
 tmp_expr <- paste0(colnames(language_columns), " = c(", colnames(language_columns), ", paste0(", 
-       colnames(language_columns), ", c('_std', '_min', '_max')))")
+                   colnames(language_columns), ", c('_std', '_min', '_max')))")
 eval_lg_colums <- paste0("list(", paste(tmp_expr, collapse = ", "), ")")
 
 language_columns <- language_columns[, eval(parse(text = eval_lg_colums)), by = tmp_row]
 
 language_columns[, tmp_row := NULL]
 
+.getEnglishColumnsLanguage <- function(columns){
+  av_lang <- setdiff(colnames(language_columns), "en")
+  up_columns <- columns
+  for(lang in av_lang){
+    ind_match <- match(columns, language_columns[[lang]])
+    if (any(!is.na(ind_match))){
+      up_columns[which(!is.na(ind_match))] <- language_columns[["en"]][ind_match[!is.na(ind_match)]]
+    }
+  }
+  up_columns
+}
 
+#' @export
 .getColumnsLanguage <- function(columns, language = "en"){
   if (language %in% colnames(language_columns)){
     ind_match <- match(columns, language_columns$en)
@@ -221,17 +233,32 @@ colorsVars <- fread(input = system.file("color.csv", package = "antaresVizMedTSO
 colorsVars <- unique(colorsVars, by = "Column")
 colorsVars$colors <- rgb(colorsVars$red, colorsVars$green, colorsVars$blue, maxColorValue = 255)
 
-# expand to fr name
-expand_language_columns <- expand_language_columns[get("en") %in% colorsVars$Column]
+#' @export
+setColorsVars <- function(colorsVars){
+  colorsVars$lan <- "en"
+  
+  # expand to fr name
+  expand_language_columns <- expand_language_columns[get("en") %in% colorsVars$Column]
+  
+  ind_match <- match(expand_language_columns$en, colorsVars$Column)
+  rev_ind_match <- match(colorsVars$Column, expand_language_columns$en)
+  
+  col_fr <- colorsVars[Column %in% expand_language_columns$en][, Column := expand_language_columns$fr[rev_ind_match[!is.na(rev_ind_match)]]]
+  col_fr$lan <- "fr"
+  
+  col_medtso <- colorsVars[Column %in% expand_language_columns$en][, Column := expand_language_columns$en_medtso[rev_ind_match[!is.na(rev_ind_match)]]]
+  col_medtso$lan <- "en_medtso"
+  
+  colorsVars <- unique(rbindlist(list(colorsVars, col_medtso, col_fr)), by = c("Column"))
+  pkgEnv$colorsVars <- colorsVars
+}
 
-ind_match <- match(expand_language_columns$en, colorsVars$Column)
-rev_ind_match <- match(colorsVars$Column, expand_language_columns$en)
+setColorsVars(colorsVars)
 
-col_fr <- colorsVars[Column %in% expand_language_columns$en][, Column := expand_language_columns$fr[rev_ind_match[!is.na(rev_ind_match)]]]
-colorsVars <- unique(rbindlist(list(colorsVars, col_fr)))
-
-col_medtso <- colorsVars[Column %in% expand_language_columns$en][, Column := expand_language_columns$en_medtso[rev_ind_match[!is.na(rev_ind_match)]]]
-colorsVars <- unique(rbindlist(list(colorsVars, col_medtso)))
+#' @export
+getColorsVars <- function(){
+  pkgEnv$colorsVars
+}
 
 .check_if_is_html_cont <- function(htmlWidget = NULL){
   if (!("htmlwidget" %in% class(htmlWidget) | "MWController" %in% class(htmlWidget))){
@@ -262,7 +289,7 @@ colorsVars <- unique(rbindlist(list(colorsVars, col_medtso)))
       }
     }
   }
-
+  
   if (is.null(widgetsNumber)){
     stop("no widgetsNumber")
   }

@@ -1,34 +1,95 @@
 # read data parameters ----
 
-# observe directory 
-observeEvent(
-  ignoreNULL = TRUE,
-  eventExpr = {
-    input$directory_medtso_maps
-  },
-  handlerExpr = {
-    if (input$directory_medtso_maps > 0) {
-      # condition prevents handler execution on initial app launch
-      path = choose.dir(default = readDirectoryInput(session, 'directory_medtso_maps'))
-      updateDirectoryInput(session, 'directory_medtso_maps', value = path)
+shinyDirChoose(input, "directory_medtso_maps", 
+               roots = volumes, 
+               session = session, 
+               defaultRoot = {
+                 if(!is.null(study_dir) && study_dir != ""){
+                   study_path <- strsplit(study_dir, "/")[[1]]
+                   study_path <- paste0(study_path[-length(study_path)], collapse = "/")
+                   if(study_path %in% volumes){
+                     "Antares"
+                   } else if (paste0(strsplit(study_dir, "/")[[1]][1], "/") %in% names(volumes)){
+                     paste0(strsplit(study_dir, "/")[[1]][1], "/")
+                   } else {
+                     NULL
+                   }
+                 } else {
+                   NULL
+                 }
+               })
+
+rv_directory_medtso_maps <- reactiveVal(study_dir)
+
+observe({
+  if (!is.null(input$directory_medtso_maps) && !is.integer(input$directory_medtso_maps)) {
+    rv_directory_medtso_maps(as.character(shinyFiles::parseDirPath(volumes, input$directory_medtso_maps)))
+  }
+})
+
+output$print_directory_medtso_maps <- renderPrint({
+  rv_directory_medtso_maps()
+})
+
+observe({
+  val <- rv_directory_medtso_maps()
+  if(!is.null(val) && val != ""){
+    if(!isTRUE(all.equal(isolate(rv_directory()), val))){
+      rv_directory(val)
+    }
+    if(!isTRUE(all.equal(isolate(rv_directory_format_output()), val))){
+      rv_directory_format_output(val)
     }
   }
-)
+})
+
+# # observe directory 
+# observeEvent(
+#   ignoreNULL = TRUE,
+#   eventExpr = {
+#     input$directory_medtso_maps
+#   },
+#   handlerExpr = {
+#     if (input$directory_medtso_maps > 0) {
+#       # condition prevents handler execution on initial app launch
+#       path = choose.dir(default = readDirectoryInput(session, 'directory_medtso_maps'))
+#       updateDirectoryInput(session, 'directory_medtso_maps', value = path)
+#     }
+#   }
+# )
+
+# output$directory_message_medtso_maps <- renderText({
+#   if(length(input$directory_medtso_maps) > 0){
+#     if(input$directory_medtso_maps == 0){
+#       antaresVizMedTSO:::.getLabelLanguage("Please first choose a folder with antares output", current_language$language)
+#     } else {
+#       antaresVizMedTSO:::.getLabelLanguage("No antares output found in directory", current_language$language)
+#     }
+#   }
+# })
 
 output$directory_message_medtso_maps <- renderText({
-  if(length(input$directory_medtso_maps) > 0){
-    if(input$directory_medtso_maps == 0){
-      antaresVizMedTSO:::.getLabelLanguage("Please first choose a folder with antares output", current_language$language)
-    } else {
-      antaresVizMedTSO:::.getLabelLanguage("No antares output found in directory", current_language$language)
-    }
+  if(!is.null(input$directory_medtso_maps) || is.integer(input$directory_medtso_maps)){
+    antaresVizMedTSO:::.getLabelLanguage("Please first choose a folder with antares output", current_language$language)
+  } else {
+    antaresVizMedTSO:::.getLabelLanguage("No antares output found in directory", current_language$language)
   }
 })
 
 # list files in directory
 dir_files_medtso_maps <- reactive({
-  path <- readDirectoryInput(session, 'directory_medtso_maps')
+  # path <- readDirectoryInput(session, 'directory_medtso_maps')
+  path <- rv_directory_medtso_maps()
   if(!is.null(path)){
+    # save path in default conf
+    conf <- tryCatch(yaml::read_yaml("default_conf.yml"), error = function(e) NULL)
+    if(!is.null(conf)){
+      conf$study_dir <- path
+      tryCatch({
+        yaml::write_yaml(conf, file = "default_conf.yml")
+      }, error = function(e) NULL)
+    }
+    
     files = list.files(path, full.names = T)
     data.frame(name = basename(files), file.info(files))
   } else {
@@ -56,10 +117,12 @@ observe({
   if(is_antares_results$is_h5 | is_antares_results$is_study){
     isolate({
       if(is_antares_results$is_study){
-        files = list.files(paste0(readDirectoryInput(session, 'directory_medtso_maps'), "/output"), full.names = T)
+        # files = list.files(paste0(readDirectoryInput(session, 'directory_medtso_maps'), "/output"), full.names = T)
+        files = list.files(file.path(rv_directory_medtso_maps(), "output"), full.names = T)
       } 
       if(is_antares_results$is_h5){
-        files = list.files(readDirectoryInput(session, 'directory_medtso_maps'), pattern = ".h5$", full.names = T)
+        # files = list.files(readDirectoryInput(session, 'directory_medtso_maps'), pattern = ".h5$", full.names = T)
+        files = list.files(file.path(rv_directory_medtso_maps()), full.names = T)
       } 
       if(length(files) > 0){
         files <- data.frame(name = basename(files), file.info(files))
@@ -70,6 +133,18 @@ observe({
       }
       updateSelectInput(session, "study_path_medtso_maps", "", choices = choices)
     })
+  }
+})
+
+observe({
+  val <- input$study_path_medtso_maps
+  if(!is.null(val) && val != ""){
+    if(!isTRUE(all.equal(isolate(input$study_path), val))){
+      updateSelectInput(session, "study_path", selected =  val)
+    }
+    if(!isTRUE(all.equal(isolate(input$study_path_format_output), val))){
+      updateSelectInput(session, "study_path_format_output", selected =  val)
+    }
   }
 })
 
@@ -84,7 +159,7 @@ opts_medtso_maps <- reactive({
           title = "Error setting file",
           easyClose = TRUE,
           footer = NULL,
-          paste("Directory/file is not an Antares study : ", e, sep = "\n")
+          paste("Directory/file is not an Antares study : ", e$message, sep = "\n")
         ))
         NULL
       })
@@ -154,13 +229,29 @@ observe({
                         choices = mcy, selected = mcy[1])
       
       # removeVirtualAreas
+      updateCheckboxInput(session, "rmva_ctrl_medtso_maps", antaresVizMedTSO:::.getLabelLanguage("enabled", current_language), FALSE)
+      updateCheckboxInput(session, "rmva_ctrl_medtso_maps_2", value = FALSE)
+      updateCheckboxInput(session, "rmva_ctrl_medtso_maps_3", value = FALSE)
       
-      updateCheckboxInput(session, "rmva_ctrl_medtso_maps", antaresVizMedTSO:::.getLabelLanguage("Remove virtual Areas", current_language), FALSE)
+      for(ii in rm_storage_input_import_map_final){
+        updateSelectInput(session, ii, choices = opts$areaList, selected = NULL)
+      }
       
-      updateSelectInput(session, "rmva_storageFlexibility_medtso_maps", paste0(antaresVizMedTSO:::.getLabelLanguage("storageFlexibility", current_language), " : "), 
-                        choices = opts$areaList, selected = NULL)
       updateSelectInput(session, "rmva_production_medtso_maps", paste0(antaresVizMedTSO:::.getLabelLanguage("production", current_language), " : "),
                         choices = opts$areaList, selected = NULL)
+      updateSelectInput(session, "rmva_production_medtso_maps_2", paste0(antaresVizMedTSO:::.getLabelLanguage("production", current_language), " : "),
+                        choices = opts$areaList, selected = NULL)
+      updateSelectInput(session, "rmva_production_medtso_maps_3", paste0(antaresVizMedTSO:::.getLabelLanguage("production", current_language), " : "),
+                        choices = opts$areaList, selected = NULL)
+      
+      updateCheckboxInput(session, "rmva_reassignCosts_medtso_maps", antaresVizMedTSO:::.getLabelLanguage("reassignCosts", current_language), FALSE)
+      updateCheckboxInput(session, "rmva_newCols_medtso_maps", antaresVizMedTSO:::.getLabelLanguage("newCols", current_language), FALSE)
+      
+      updateCheckboxInput(session, "rmva_reassignCosts_medtso_maps_2", antaresVizMedTSO:::.getLabelLanguage("reassignCosts", current_language), FALSE)
+      updateCheckboxInput(session, "rmva_newCols_medtso_maps_2", antaresVizMedTSO:::.getLabelLanguage("newCols", current_language), FALSE)
+      
+      updateCheckboxInput(session, "rmva_reassignCosts_medtso_maps_3", antaresVizMedTSO:::.getLabelLanguage("reassignCosts", current_language), FALSE)
+      updateCheckboxInput(session, "rmva_newCols_medtso_maps_3", antaresVizMedTSO:::.getLabelLanguage("newCols", current_language), FALSE)
       
     })
   }
@@ -171,8 +262,16 @@ output$ui_sel_file_import_medtso_maps <- renderUI({
   input$init_sim # clear if change simulation
   fluidRow(
     column(6, 
-           div(fileInput("file_sel_import_medtso_maps", antaresVizMedTSO:::.getLabelLanguage("Import a selection file (.xlsx)", current_language),
-                         accept = c("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")), align = "center")
+           # div(fileInput("file_sel_import_medtso_maps", antaresVizMedTSO:::.getLabelLanguage("Import a selection file (.xlsx)", current_language),
+           #               accept = c("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")), align = "center")
+           
+           div(
+             shinyFilesButton("file_sel_import_medtso_maps", 
+                              label = antaresVizMedTSO:::.getLabelLanguage("Import a selection file (.xlsx)", current_language), 
+                              title= NULL, 
+                              icon = icon("upload"),
+                              multiple = FALSE, viewtype = "detail"),
+             align = "center", style = "margin-top:20px")
     ), 
     column(6, 
            div(br(),
@@ -186,13 +285,46 @@ output$ui_sel_file_import_medtso_maps <- renderUI({
 })
 
 
+shinyFileChoose(input, "file_sel_import_medtso_maps", 
+                roots = volumes, 
+                session = session, 
+                filetypes = c("XLS", "xls", "xlsx", "XLSX"), 
+                defaultRoot = {
+                  if(!is.null(file_sel_import_medtso_maps) && file_sel_import_medtso_maps != "" && paste0(strsplit(file_sel_import_medtso_maps, "/")[[1]][1], "/") %in% names(volumes)){
+                    paste0(strsplit(file_sel_import_medtso_maps, "/")[[1]][1], "/")
+                  } else {
+                    NULL
+                  }
+                },
+                defaultPath = {
+                  if(!is.null(file_sel_import_medtso_maps) && file_sel_import_medtso_maps != "" && paste0(strsplit(file_sel_import_medtso_maps, "/")[[1]][1], "/") %in% names(volumes)){
+                    if(file.exists(file_sel_import_medtso_maps)){
+                      paste0(strsplit(file_sel_import_medtso_maps, "/")[[1]][-1], collapse = "/")
+                    } else {
+                      NULL
+                    }
+                  } else {
+                    NULL
+                  }
+                })
+
 # sélection à partir d'un fichier
 observe({
-  file_sel <- input$file_sel_import_medtso_maps
-  
+  # file_sel <- input$file_sel_import_medtso_maps
+  file_sel <- shinyFiles::parseFilePaths(volumes, input$file_sel_import_medtso_maps)
+  if("data.frame" %in% class(file_sel) && nrow(file_sel) == 0) file_sel <- NULL
   isolate({
     current_language <- current_language$language
     if (!is.null(file_sel)){
+      # save path in default conf
+      conf <- tryCatch(yaml::read_yaml("default_conf.yml"), error = function(e) NULL)
+      if(!is.null(conf)){
+        conf$file_sel_import_medtso_maps <- file_sel$datapath
+        tryCatch({
+          yaml::write_yaml(conf, file = "default_conf.yml")
+        }, error = function(e) NULL)
+      }
+      
       list_warning <- list() 
       withCallingHandlers({
         list_sel <- tryCatch({ 
@@ -202,7 +334,7 @@ observe({
               title = antaresVizMedTSO:::.getLabelLanguage("Error reading selection file", current_language),
               easyClose = TRUE,
               footer = NULL,
-              e
+              e$message
             ))
             NULL
           })}, 
@@ -215,7 +347,7 @@ observe({
           title = "Warning reading selection file",
           easyClose = TRUE,
           footer = NULL,
-          HTML(paste0(list_warning, collapse  = "<br><br>"))
+          HTML(paste0(unique(list_warning), collapse  = "<br><br>"))
         ))
       }
       
@@ -233,12 +365,46 @@ observe({
           updateSelectInput(session, "read_mcYears_medtso_maps", selected = "1")
         }
         
+        # removeVirtualsAreas
         updateCheckboxInput(session, "rmva_ctrl_medtso_maps", value = list_sel$removeVirtualAreas)
-        updateCheckboxInput(session, "rmva_reassignCosts_medtso_maps", value = list_sel$reassignCost)
-        updateCheckboxInput(session, "rmva_newCols_medtso_maps", value = list_sel$newCols)
+        updateCheckboxInput(session, "rmva_ctrl_medtso_maps_2", value = list_sel$removeVirtualAreas_2)
+        updateCheckboxInput(session, "rmva_ctrl_medtso_maps_3", value = list_sel$removeVirtualAreas_3)
         
-        updateSelectInput(session, "rmva_storageFlexibility_medtso_maps", selected = list_sel$storageFlexibility)
+        updateCheckboxInput(session, "rmva_reassignCosts_medtso_maps", value = list_sel$reassignCost)
+        updateCheckboxInput(session, "rmva_reassignCosts_medtso_maps_2", value = list_sel$reassignCost_2)
+        updateCheckboxInput(session, "rmva_reassignCosts_medtso_maps_3", value = list_sel$reassignCost_3)
+        
+        updateCheckboxInput(session, "rmva_newCols_medtso_maps", value = list_sel$newCols)
+        updateCheckboxInput(session, "rmva_newCols_medtso_maps_2", value = list_sel$newCols_2)
+        updateCheckboxInput(session, "rmva_newCols_medtso_maps_3", value = list_sel$newCols_3)
+        
         updateSelectInput(session, "rmva_production_medtso_maps", selected = list_sel$production)
+        updateSelectInput(session, "rmva_production_medtso_maps_2", selected = list_sel$production_2)
+        updateSelectInput(session, "rmva_production_medtso_maps_3", selected = list_sel$production_3)
+        
+        updateSelectInput(session, "rmva_storageFlexibility_medtso_maps", selected = list_sel$`storageFlexibility (PSP)`)
+        updateSelectInput(session, "rmva_PSP_Closed_medtso_maps", selected = list_sel$`Hydro Storage (PSP_Closed)`)
+        updateSelectInput(session, "rmva_BATT_medtso_maps", selected = list_sel$`Battery Storage (BATT)`)
+        updateSelectInput(session, "rmva_DSR_medtso_maps", selected = list_sel$`Demand Side (DSR)`)
+        updateSelectInput(session, "rmva_EV_medtso_maps", selected = list_sel$`Electric Vehicle (EV)`)
+        updateSelectInput(session, "rmva_P2G_medtso_maps", selected = list_sel$`Power-to-gas (P2G)`)
+        updateSelectInput(session, "rmva_H2_medtso_maps", selected = list_sel$`Hydrogen (H2)`)
+        
+        updateSelectInput(session, "rmva_storageFlexibility_medtso_maps_2", selected = list_sel$`storageFlexibility (PSP)_2`)
+        updateSelectInput(session, "rmva_PSP_Closed_medtso_maps_2", selected = list_sel$`Hydro Storage (PSP_Closed)_2`)
+        updateSelectInput(session, "rmva_BATT_medtso_maps_2", selected = list_sel$`Battery Storage (BATT)_2`)
+        updateSelectInput(session, "rmva_DSR_medtso_maps_2", selected = list_sel$`Demand Side (DSR)_2`)
+        updateSelectInput(session, "rmva_EV_medtso_maps_2", selected = list_sel$`Electric Vehicle (EV)_2`)
+        updateSelectInput(session, "rmva_P2G_medtso_maps_2", selected = list_sel$`Power-to-gas (P2G)_2`)
+        updateSelectInput(session, "rmva_H2_medtso_maps_2", selected = list_sel$`Hydrogen (H2)_2`)
+        
+        updateSelectInput(session, "rmva_storageFlexibility_medtso_maps_3", selected = list_sel$`storageFlexibility (PSP)_3`)
+        updateSelectInput(session, "rmva_PSP_Closed_medtso_maps_3", selected = list_sel$`Hydro Storage (PSP_Closed)_3`)
+        updateSelectInput(session, "rmva_BATT_medtso_maps_3", selected = list_sel$`Battery Storage (BATT)_3`)
+        updateSelectInput(session, "rmva_DSR_medtso_maps_3", selected = list_sel$`Demand Side (DSR)_3`)
+        updateSelectInput(session, "rmva_EV_medtso_maps_3", selected = list_sel$`Electric Vehicle (EV)_3`)
+        updateSelectInput(session, "rmva_P2G_medtso_maps_3", selected = list_sel$`Power-to-gas (P2G)_3`)
+        updateSelectInput(session, "rmva_H2_medtso_maps_3", selected = list_sel$`Hydrogen (H2)_3`)
         
       }
     }
@@ -269,18 +435,64 @@ data_map <- reactive({
               get_data_map(opts = opts_medtso_maps(), areas = input$read_areas_medtso_maps, 
                            links = input$read_links_medtso_maps, 
                            mcYears = mcYears, 
-                           removeVirtualAreas = input$rmva_ctrl_medtso_maps,
-                           storageFlexibility = input$rmva_storageFlexibility_medtso_maps, 
-                           production = input$rmva_production_medtso_maps,
-                           reassignCosts = input$rmva_reassignCosts_medtso_maps, 
-                           newCols = input$rmva_newCols_medtso_maps)
+                           removeVirtualAreas = list(
+                             input$rmva_ctrl_medtso_maps, 
+                             input$rmva_ctrl_medtso_maps_2, 
+                             input$rmva_ctrl_medtso_maps_3
+                           ),
+                           storageFlexibility = list(
+                             build_storage_list(
+                               PSP = input$rmva_storageFlexibility_medtso_maps,
+                               PSP_Closed = input$rmva_PSP_Closed_medtso_maps,
+                               BATT = input$rmva_BATT_medtso_maps,
+                               DSR = input$rmva_DSR_medtso_maps, 
+                               EV = input$rmva_EV_medtso_maps, 
+                               P2G = input$rmva_P2G_medtso_maps, 
+                               H2 = input$rmva_H2_medtso_maps
+                             ),
+                             build_storage_list(
+                               PSP = input$rmva_storageFlexibility_medtso_maps_2,
+                               PSP_Closed = input$rmva_PSP_Closed_medtso_maps_2,
+                               BATT = input$rmva_BATT_medtso_maps_2,
+                               DSR = input$rmva_DSR_medtso_maps_2, 
+                               EV = input$rmva_EV_medtso_maps_2, 
+                               P2G = input$rmva_P2G_medtso_maps_2, 
+                               H2 = input$rmva_H2_medtso_maps_2
+                             ),
+                             build_storage_list(
+                               PSP = input$rmva_storageFlexibility_medtso_maps_3,
+                               PSP_Closed = input$rmva_PSP_Closed_medtso_maps_3,
+                               BATT = input$rmva_BATT_medtso_maps_3,
+                               DSR = input$rmva_DSR_medtso_maps_3, 
+                               EV = input$rmva_EV_medtso_maps_3, 
+                               P2G = input$rmva_P2G_medtso_maps_3, 
+                               H2 = input$rmva_H2_medtso_maps_3
+                             )
+                           ),
+                           production = build_production_list(
+                             input$rmva_production_medtso_maps,
+                             input$rmva_production_medtso_maps_2,
+                             input$rmva_production_medtso_maps_3
+                           ),
+                           reassignCosts = list(
+                             input$rmva_reassignCosts_medtso_maps,
+                             input$rmva_reassignCosts_medtso_maps_2, 
+                             input$rmva_reassignCosts_medtso_maps_3
+                           ),
+                           newCols = list(
+                             input$rmva_newCols_medtso_maps,
+                             input$rmva_newCols_medtso_maps_2,
+                             input$rmva_newCols_medtso_maps_3
+                           ),
+                           rmVA_prodVars = rmVA_prodVars
+              )
             },
             error = function(e){
               showModal(modalDialog(
                 title = "Error reading data",
                 easyClose = TRUE,
                 footer = NULL,
-                paste("Please update input. Error : ", e, sep = "\n")
+                paste("Please update input. Error : ", e$message, sep = "\n")
               ))
               list()
             })}, 
@@ -289,12 +501,13 @@ data_map <- reactive({
             }
           )
           
+          # browser()
           if(length(list_warning) > 0  & !is.null(data) && length(data) > 0){
             showModal(modalDialog(
               title = "Warning reading data",
               easyClose = TRUE,
               footer = NULL,
-              HTML(paste0(list_warning, collapse  = "<br><br>"))
+              HTML(paste0(unique(list_warning), collapse  = "<br><br>"))
             ))
           }
           
@@ -624,8 +837,16 @@ output$ui_file_sel_medtso_map <- renderUI({
   current_language <- current_language$language
   fluidRow(
     column(width = 6, 
-           div(fileInput("file_sel_medtso_map", antaresVizMedTSO:::.getLabelLanguage("Import a selection file (.xlsx)", current_language),
-                         accept = c("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")), align = "center")
+           # div(fileInput("file_sel_medtso_map", antaresVizMedTSO:::.getLabelLanguage("Import a selection file (.xlsx)", current_language),
+           #               accept = c("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")), align = "center")
+           
+           div(
+             shinyFilesButton("file_sel_medtso_map", 
+                              label = antaresVizMedTSO:::.getLabelLanguage("Import a selection file (.xlsx)", current_language), 
+                              title= NULL, 
+                              icon = icon("upload"),
+                              multiple = FALSE, viewtype = "detail"),
+             align = "center", style = "margin-top:20px")
     ),
     column(6, 
            div( br(),
@@ -638,12 +859,43 @@ output$ui_file_sel_medtso_map <- renderUI({
   )
 })
 
+shinyFileChoose(input, "file_sel_medtso_map", 
+                roots = volumes, 
+                session = session, 
+                filetypes = c("XLS", "xls", "xlsx", "XLSX"), 
+                defaultRoot = {
+                  if(!is.null(file_sel_medtso_map) && file_sel_medtso_map != "" && paste0(strsplit(file_sel_medtso_map, "/")[[1]][1], "/") %in% names(volumes)){
+                    paste0(strsplit(file_sel_medtso_map, "/")[[1]][1], "/")
+                  } else {
+                    NULL
+                  }
+                },
+                defaultPath = {
+                  if(!is.null(file_sel_medtso_map) && file_sel_medtso_map != "" && paste0(strsplit(file_sel_medtso_map, "/")[[1]][1], "/") %in% names(volumes)){
+                    if(file.exists(file_sel_medtso_map)){
+                      paste0(strsplit(file_sel_medtso_map, "/")[[1]][-1], collapse = "/")
+                    } else {
+                      NULL
+                    }
+                  } else {
+                    NULL
+                  }
+                })
 observe({
-  file_sel <- input$file_sel_medtso_map
-  
+  # file_sel <- input$file_sel_medtso_map
+  file_sel <- shinyFiles::parseFilePaths(volumes, input$file_sel_medtso_map)
+  if("data.frame" %in% class(file_sel) && nrow(file_sel) == 0) file_sel <- NULL
   isolate({
     current_language <- current_language$language
     if (!is.null(file_sel)){
+      # save path in default conf
+      conf <- tryCatch(yaml::read_yaml("default_conf.yml"), error = function(e) NULL)
+      if(!is.null(conf)){
+        conf$file_sel_medtso_map <- file_sel$datapath
+        tryCatch({
+          yaml::write_yaml(conf, file = "default_conf.yml")
+        }, error = function(e) NULL)
+      }
       list_warning <- list() 
       withCallingHandlers({
         list_sel <- tryCatch({ 
@@ -653,7 +905,7 @@ observe({
               title = antaresVizMedTSO:::.getLabelLanguage("Error reading selection file", current_language),
               easyClose = TRUE,
               footer = NULL,
-              e
+              e$message
             ))
             NULL
           })}, 
@@ -666,7 +918,7 @@ observe({
           title = "Warning reading selection file",
           easyClose = TRUE,
           footer = NULL,
-          HTML(paste0(list_warning, collapse  = "<br><br>"))
+          HTML(paste0(unique(list_warning), collapse  = "<br><br>"))
         ))
       }
       
