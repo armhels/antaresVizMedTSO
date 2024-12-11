@@ -90,9 +90,9 @@ RENW. 4;RENW. 4;RENW. 4
 PSP;STEP avec apport (bilan net);Pump Storage - Open Loop (net)
 PSP_POS;STEP avec apport (turbine);Pump Storage - Open Loop (turbine)
 PSP_NEG;STEP avec apport (pompe);Pump Storage - Open Loop (pump)
-PSP_closed;STEP sans apport (bilan net);Pump Storage - Closed Loop (net)
-PSP_closed_POS;STEP sans apport (turbine);Pump Storage - Closed Loop (turbine)
-PSP_closed_NEG;STEP sans apport (pompe);Pump Storage - Closed Loop (pump)
+PSP_Closed;STEP sans apport (bilan net);Pump Storage - Closed Loop (net)
+PSP_Closed_POS;STEP sans apport (turbine);Pump Storage - Closed Loop (turbine)
+PSP_Closed_NEG;STEP sans apport (pompe);Pump Storage - Closed Loop (pump)
 BATT;Stockage par batterie (bilan net);Battery Storage (net)
 BATT_POS;Stockage par batterie (decharge);Battery Storage discharge
 BATT_NEG;Stockage par batterie (charge);Battery Storage charge
