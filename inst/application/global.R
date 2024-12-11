@@ -237,14 +237,15 @@ setProdStackAlias(
   variables = alist(
     "Surplus" = - `SPIL. ENRG`,  
     "pumpedStorage" = (PSP + {if(exists("PSP_Closed", inherits = FALSE)){PSP_Closed} else {0}}),
-    "Battery" = {if(exists("BATT", inherits = FALSE)){BATT} else {0}},
+    "Battery" = `MISC. DTG 3` + {if(exists("BATT", inherits = FALSE)){BATT} else {0}},
     "import/export" = -(BALANCE + `ROW BAL.`),
     "Others thermal" = `MISC. DTG` + `MIX. FUEL`,
     "Other renewable" = `MISC. NDG`,
-    "wind" = WIND,
-    "solar" = SOLAR,
+    "wind" = `WIND ONSHORE` + `WIND OFFSHORE`,
+    "solar" = `SOLAR CONCRT.` + `SOLAR PV` + `SOLAR ROOFT`,
     "nuclear" = NUCLEAR,
     "hydraulic" = `H. ROR` + `H. STOR`,
+    "hydrogen" = `MISC. DTG 2`,
     "gas" = GAS,
     "LIGNITE" = LIGNITE,
     "coal" = COAL,
@@ -261,25 +262,26 @@ setProdStackAlias(
     "#f27406",#solaire
     "#f5b300",#nucleaire
     "#2772b2",#hydraulique
+    "#dcec5e",#hydrogen
     "#aad6e0",#gaz 
     "#694d30",#lignite
     "#292525",#charbon 
     "#3d607d" #fioul
   ),
   lines = alist(
-    "Total load" = LOAD - {if(exists("P2G", inherits = FALSE)){P2G} else {0}} - {if(exists("EV", inherits = FALSE)){EV} else {0}},
-    "Power to Gas" = - {if(exists("P2G", inherits = FALSE)){P2G} else {0}},
-    "Electric Vehicle" = - {if(exists("EV", inherits = FALSE)){EV} else {0}},
+    "Total demand" = LOAD - {if(exists("P2G", inherits = FALSE)){P2G} else {0}} - {if(exists("EV", inherits = FALSE)){EV} else {0}},
+    "Electrolyser" = - {if(exists("P2G", inherits = FALSE)){P2G} else {0}},
+    "EV charging" = - {if(exists("EV", inherits = FALSE)){EV} else {0}},
     "generation" = NUCLEAR + LIGNITE + COAL + GAS + OIL + `MIX. FUEL` +
-      `MISC. DTG` + WIND + SOLAR + `H. ROR` + `H. STOR` +
-      `MISC. NDG` + 
+      `MISC. DTG` + `WIND ONSHORE` + `WIND OFFSHORE` + `SOLAR PV` + `SOLAR CONCRT.` + `SOLAR ROOFT` + `H. ROR` + `H. STOR` +
+      `MISC. DTG 2` + `MISC. DTG 3` + `MISC. DTG 4` + `MISC. NDG` + 
       {if(exists("PSP_POS", inherits = FALSE)){PSP_POS} else {0}} + 
       {if(exists("PSP_Closed_POS", inherits = FALSE)){PSP_Closed_POS} else {0}} + 
       {if(exists("BATT_POS", inherits = FALSE)){BATT_POS} else {0}} - `SPIL. ENRG`),
   lineColors = c(
-    "#005542",#Consommation totale
-    "#b2e34f",#Power to gaz
-    "#e0d61d",#Vehicule électrique
+    "#005542",#Total demand
+    "#b2e34f",#Electrolyser
+    "#e0d61d",#EV charging
     "#e5007d"),#Production	
   lineWidth = 2
 )
@@ -288,51 +290,53 @@ setProdStackAlias(
 setProdStackAlias(
   name = "Med-TSO_2",
   variables = alist(
-    "Surplus" = - `SPIL. ENRG`,  
-    "pumpedStorage" = (PSP + {if(exists("PSP_Closed", inherits = FALSE)){PSP_Closed} else {0}}),
-    "Battery" = {if(exists("BATT", inherits = FALSE)){BATT} else {0}},
-    "import/export" = -(BALANCE + `ROW BAL.`),
     "nuclear" = NUCLEAR,
-    "gas" = GAS,
-    "LIGNITE" = LIGNITE,
-    "coal" = COAL,
-    "oil" = OIL,
     "Others thermal" = `MISC. DTG` + `MIX. FUEL`,
     "Other renewable" = `MISC. NDG`,
-    "wind" = WIND,
-    "solar" = SOLAR,
-    "hydraulic" = `H. ROR` + `H. STOR`
+    "wind" = `WIND ONSHORE` + `WIND OFFSHORE`,
+    "solar" = `SOLAR CONCRT.` + `SOLAR PV` + `SOLAR ROOFT`,
+    "hydrogen" = `MISC. DTG 2`,
+    "gas" = GAS,
+    "coal" = COAL,
+    "LIGNITE" = LIGNITE,
+    "oil" = OIL,
+    "hydraulic" = `H. ROR` + `H. STOR`,
+    "pumpedStorage" = (PSP + {if(exists("PSP_Closed", inherits = FALSE)){PSP_Closed} else {0}}),
+    "Battery" = `MISC. DTG 3` + {if(exists("BATT", inherits = FALSE)){BATT} else {0}},
+    "import/export" = -(BALANCE + `ROW BAL.`),
+    "Surplus" = - `SPIL. ENRG`
   ),
-  colors = c(
-    "#dcec5e",#surplus
-    "#951b81",#pompage
-    "#e5007d",#batterie
-    "#a5b4b8",#import
+	colors = c(
     "#f5b300",#nucleaire
-    "#aad6e0",#gaz 
-    "#694d30",#lignite
-    "#292525",#charbon 
-    "#3d607d",#fioul
     "#b4822b",#autre thermiques 
     "#166a57",#autres renouvelables
     "#74cfa0",#eolien 
     "#f27406",#solaire
-    "#2772b2"#hydraulique  
+    "#dcec5e",#hydrogen
+    "#aad6e0",#gaz 
+    "#292525",#charbon 
+    "#694d30",#lignite
+    "#3d607d",#fioul
+    "#2772b2",#hydraulique
+    "#951b81",#pompage
+    "#e5007d",#batterie
+    "#a5b4b8",#import
+    "#dcec5e" #surplus
   ),
   lines = alist(
-    "Total load" = LOAD - {if(exists("P2G", inherits = FALSE)){P2G} else {0}} - {if(exists("EV", inherits = FALSE)){EV} else {0}},
-    "Power to Gas" = - {if(exists("P2G", inherits = FALSE)){P2G} else {0}},
-    "Electric Vehicle" = - {if(exists("EV", inherits = FALSE)){EV} else {0}},
+    "Total demand" = LOAD - {if(exists("P2G", inherits = FALSE)){P2G} else {0}} - {if(exists("EV", inherits = FALSE)){EV} else {0}},
+    "Electrolyser" = - {if(exists("P2G", inherits = FALSE)){P2G} else {0}},
+    "EV charging" = - {if(exists("EV", inherits = FALSE)){EV} else {0}},
     "generation" = NUCLEAR + LIGNITE + COAL + GAS + OIL + `MIX. FUEL` +
-      `MISC. DTG` + WIND + SOLAR + `H. ROR` + `H. STOR` +
-      `MISC. NDG` + 
+      `MISC. DTG` + `WIND ONSHORE` + `WIND OFFSHORE` + `SOLAR PV` + `SOLAR CONCRT.` + `SOLAR ROOFT` + `H. ROR` + `H. STOR` +
+      `MISC. DTG 2` +`MISC. DTG 3` +`MISC. DTG 4` +`MISC. NDG` + 
       {if(exists("PSP_POS", inherits = FALSE)){PSP_POS} else {0}} + 
       {if(exists("PSP_Closed_POS", inherits = FALSE)){PSP_Closed_POS} else {0}} + 
       {if(exists("BATT_POS", inherits = FALSE)){BATT_POS} else {0}} - `SPIL. ENRG`),
   lineColors = c(
-    "#005542",#Consommation totale
-    "#b2e34f",#Power to gaz
-    "#e0d61d",#Vehicule électrique
+    "#005542",#total demand
+    "#2772b2",#Electrolyser
+    "#951b81",#EV charging
     "#e5007d"),#Production	
   lineWidth = 2
 )
