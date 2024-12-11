@@ -37,7 +37,7 @@ if(!require(devtools)){
 }
 
 Sys.setenv(R_REMOTES_NO_ERRORS_FROM_WARNINGS="true")
-devtools::install_github("rte-antares-rpackage/antaresVizMedTSO", ref ="master")
+devtools::install_github("armhels/antaresVizMedTSO", ref ="master")
 ```
 
 To display the help of the package and see all the functions it provides, type:
