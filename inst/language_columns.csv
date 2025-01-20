@@ -22,7 +22,7 @@ GAS;Gaz;Gas
 OIL;Fioul;Oil
 MIX. FUEL;Thermique_mixte;Mix_Fuel
 MISC. DTG;Thermique_autre;Other_Fuel
-MISC. DTG 2;thermique_autre 2;Other_Fuel_2
+MISC. DTG 2;H2 Fuel;H2 Fuel
 MISC. DTG 3;thermique_autre 3;Other_Fuel_3
 MISC. DTG 4;thermique_autre 4;Other_Fuel_4
 H. STOR;Hydraulique_lac;Hydro_reservoir
